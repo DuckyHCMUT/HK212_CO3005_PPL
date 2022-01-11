@@ -1,4 +1,4 @@
-# Generated from /Users/duytran/Desktop/212/ppl/assignment/initial/src/main/d96/parser/D96.g4 by ANTLR 4.8
+# Generated from d:\HCMUT\Semester 212\Principles of Programming Languages\HK212_CO3005_PPL\assignment1\src\main\d96\parser\D96.g4 by ANTLR 4.8
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
