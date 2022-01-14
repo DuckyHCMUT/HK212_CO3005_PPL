@@ -1,4 +1,4 @@
-# Generated from d:\HCMUT\Semester 212\Principles of Programming Languages\HK212_CO3005_PPL\Quiz\2_Lexer\string\bkit_string.g4 by ANTLR 4.8
+# Generated from d:\HCMUT\Semester 212\Principles of Programming Languages\HK212_CO3005_PPL\Quiz\2_Lexer\string\BKIT.g4 by ANTLR 4.8
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
@@ -53,7 +53,7 @@ class BKITLexer(Lexer):
 
     ruleNames = [ "STRING", "WS", "ERROR_CHAR", "UNCLOSE_STRING", "ILLEGAL_ESCAPE" ]
 
-    grammarFileName = "bkit_string.g4"
+    grammarFileName = "BKIT.g4"
 
     def __init__(self, input=None, output:TextIO = sys.stdout):
         super().__init__(input, output)

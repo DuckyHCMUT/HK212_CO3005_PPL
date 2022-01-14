@@ -1,4 +1,4 @@
-# Generated from d:\HCMUT\Semester 212\Principles of Programming Languages\1_Lexer_Exercise\bkit\src\main\bkit\parser\BKIT.g4 by ANTLR 4.8
+# Generated from d:\HCMUT\Semester 212\Principles of Programming Languages\HK212_CO3005_PPL\Quiz\2_Lexer\bkit\src\main\bkit\parser\BKIT.g4 by ANTLR 4.8
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -29,7 +29,7 @@ class BKITParser ( Parser ):
 
     literalNames = [  ]
 
-    symbolicNames = [ "<INVALID>", "PHP_DIGIT", "WS", "ERROR_CHAR", "UNCLOSE_STRING", 
+    symbolicNames = [ "<INVALID>", "PHP_ID", "WS", "ERROR_CHAR", "UNCLOSE_STRING", 
                       "ILLEGAL_ESCAPE" ]
 
     RULE_program = 0
@@ -37,7 +37,7 @@ class BKITParser ( Parser ):
     ruleNames =  [ "program" ]
 
     EOF = Token.EOF
-    PHP_DIGIT=1
+    PHP_ID=1
     WS=2
     ERROR_CHAR=3
     UNCLOSE_STRING=4

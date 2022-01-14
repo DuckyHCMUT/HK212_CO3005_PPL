@@ -17,7 +17,7 @@ body: funcall SEMI;
 exp: funcall | INTLIT;
 
 funcall: ID LB exp? RB;
- 
+
 INTTYPE: 'int';
 
 VOIDTYPE: 'void';
