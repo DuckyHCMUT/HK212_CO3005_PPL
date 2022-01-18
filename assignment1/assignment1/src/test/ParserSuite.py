@@ -21,3 +21,30 @@ class ParserSuite(unittest.TestCase):
         input = """int main( {}"""
         expect = "Error on line 1 col 10: {"
         self.assertTrue(TestParser.test(input,expect,203))
+
+    def test_class(self):
+        input = """class main{}"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect,204))
+
+    def test_more_class(self):
+        input = """ 
+            class Rectangle: Shape {
+                getArea() {
+                    Return self.length * self.width;
+                }
+            }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect,205))
+
+    def test_more_more_class(self):
+        input = """ 	
+            class Shape {
+                $getNumOfShape( {
+                    Return self.length * self.width;
+                }
+            }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect,206))
