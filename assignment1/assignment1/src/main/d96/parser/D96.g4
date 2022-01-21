@@ -10,169 +10,92 @@ options {
 }
 
 // Program's main structure
-program: mptype 'main' LB RB LP body? RP EOF;
-
-// Main program type (int or void)
-mptype: INTTYPE | VOIDTYPE;
-
-INTTYPE: 'int';
-VOIDTYPE: 'void';
+program: (class_decl)+ EOF;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Section 2: Program structure */
 
 // Section 2.1: Class declaration
-class_declaration: 
-	('Class' ID LP class_body RP ); //ID: Serves as identifer
+class_decl: 
+	('Class' ID (COLON ID)? LP class_body RP ); //ID: Serves as identifer
 
-class_body: ID;
+class_body: (class_attr | class_method)*;
 
-// Section 2.2: Attribute declaration
-attribute: (immuttable | muttable) static? ':' data_type '=' data SEMI; //Integer
+class_attr: (VAR | VAL) ID COLON data_type SEMI;
+class_method: normal_method | constructor | destructor;
 
-immuttable: 'Val';
-muttable: 'Var';
-static: '$';
+normal_method: STATIC? ID LB params_list? RB LP block_stmt? RP; 
+constructor: 'Constructor' LB params_list? RB LP block_stmt? RP {print("text")}; 
+destructor: 'Destructor' LB RB LP block_stmt? RP;
 
-data_type : 'Int'; // Not yet
-data : ; // Not yet
+params_list: params (SEMI params)*;
 
-// Section 2.3: Method declaration
-method: static? ID LB params RB stmt; //stmt: Block of statement
-constructor: 'Constructor' LB params RB stmt; //stmt: Block of statement
-destructor: 'Destructor' LB RB stmt;
+params : ID (COMMA ID)* COLON data_type;
 
-params : ('wtf')*; // Not yet
-stmt: ; // Block of statement
+data_type : INT | FLOAT | BOOLEAN | STRING;
+
+// Section 4.3: Class types
+class_types: ID; // ABC
+
+// Section 6: Statements
+// Section 6.1: Variable and constant declaration statement
+stmt: 
+	(var_decl
+	| assign_stmt
+	| if_stmt
+	| for_in_stmt
+	| break_stmt
+	| continue_stmt
+	| return_stmt
+	| method_invoc
+	| (LP block_stmt RP))
+	;
+
+var_decl: (VAR | VAL) (decl_tail | array_decl_tail);
+decl_tail: 
+	(ID COMMA)* ID COLON (data_type) ASSIGN (expr_tail)? SEMI;
+array_decl_tail: 
+	(ID COMMA)* ID COLON (array_type) SEMI;
+object_decl: NEW ID LB RB;
+
+expr_tail: (expr COMMA)* expr; 
+
+array_type: (array_type_tail COMMA)* array_type_tail;
+
+array_type_tail:
+	(ARRAY LS data_type COMMA LITERAL_INT_DEC RS); //Array[Int, 5];
+
+assign_stmt: assign_lhs ASSIGN expr SEMI;
+assign_lhs: element_expr | ID;
+
+if_stmt: if_body SEMI;
+if_body: IF expr else_if_body ELSE LP block_stmt? RP;
+else_if_body: (ELSEIF expr LP block_stmt? RP)*;
+
+for_in_stmt: FOREACH for_in_body SEMI;
+for_in_body: LB ID IN for_in_expr DOTDOT for_in_expr (BY for_in_expr)? RB;
+for_in_expr: LITERAL_INT_DEC; // from -999999.... to 999999.... anything~
+
+break_stmt: BREAK SEMI;
+
+continue_stmt: CONTINUE SEMI;
+
+return_stmt: RETURN (expr)? SEMI;
+
+// A method invocation statement is an instance/static method invocation, that was described in subsection 5.6, with a semicolon at the end.
+method_invoc: ID (DOT | DOUBLE_SEMI) STATIC? ID LB expr_list? RB SEMI;  
+expr_list: (expr COMMA)* expr;
+
+block_stmt: (stmt)+;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Section 3: Lexical Structure */
-
-// Section 3.1: Characters set
-WS: [ \t\r\n\b\f]+ -> skip; // skip spaces, tabs, newlines
-
-// Section 3.2: Program comment
-BLOCK_COMMENT : ('##' .*? '##') -> skip;
-
-// Section 3.3: Identiiers: 
-ALPHABET: [a-zA-Z_]+;
-
-INTLIT: [0-9]+;
-
-ID: ALPHABET ( ALPHABET [0-9] )*;
-
-// Section 3.4: Keywords
-BREAK: 'Break';
-FOREACH: 'Foreach';
-INT: 'Int';
-NULL: 'Null';
-CONSTRUCTOR: 'Constructor';
-CONTINUE: 'Continue';
-TRUE : 'True';
-FLOAT: 'Float';
-CLASS: 'class';
-DESTRUCTOR: 'Destructor';
-IF: 'If';
-FALSE: 'False';
-BOOLEAN: 'Boolean';
-VAL: 'Val';
-NEW: 'New';
-ELSEIF : 'Elseif';
-ARRAY: 'Array';
-STRING: 'String';
-VAR: 'Var';
-BY: 'By';
-ELSE: 'Else';
-IN: 'In';
-RETURN : 'Return';
-
-// Section 3.5: Operators
-ADD: '+';
-SUBTRACT : '-';
-MULTIPLY : '*';
-DIVIDE: '/';
-MODULO : '%';
-NOT : '!';
-AND : '&&';
-OR : '||';
-EQUAL : '==';
-ASSIGN : '=';
-NOT_EQUAL : '!=';
-LESS_THAN : '<';
-LEQ : '<=';
-GREATER_THAN : '>';
-GEQ : '>=';
-EQUAL_STRING : '==.';
-STRING_CONCAT : '+.';
-DOT : '.';
-SUPER_CLASS : '::';
-// NEW : 'New'; --> Duplicate from the keyword
-
-// Section 3.6: Seperators
-LB: '(';
-RB: ')';
-LS: '[';
-RS: ']';
-LP: '{';
-RP: '}';
-SEMI: ';';
-// DOT: '.'; --> Duplicate from the operator
-COMMA : ',';
-
-// Section 3.7: Literals
-LITERAL: 
-	LITERAL_INT_DEC | LITERAL_INT_HEX | LITERAL_INT_OCT | LITERAL_INT_BIN | LITERAL_INT_BIN | LITERAL_FLOAT | LITERAL_STRING;
-
-LITERAL_INT_DEC: SIGN? [1-9][0-9_]+ {self.text = self.text.replace('_','')}; // Need to work for non-duplicate underscores
-LITERAL_INT_HEX: ('0x' | '0X')[1-9A-F_]+ {self.text = self.text.replace('_','')}; // Need to work for non-duplicate underscores
-LITERAL_INT_OCT: ('0')(LITERAL_INT_DEC); // Just need to add a preceeding number zero by the normal decimal notation
-LITERAL_INT_BIN: ('0b' | '0B')[01]+;
-
-LITERAL_FLOAT: 
-		SIGN? 
-		(
-			FLOAT_INT FLOAT_DECIMAL FLOAT_EXP? // Case 1: Has the first 2 components --> 1.2E10 or 1.2 only
-		|	(FLOAT_INT | FLOAT_DECIMAL) FLOAT_EXP // Case 2: One of the first 2 components omitted, but not exp --> .2E10, 2E10, .E10
-		)		
-	; 
-
-FLOAT_INT: '0' | [1-9][0-9_]+;
-FLOAT_DECIMAL: DOT [0-9]*;
-FLOAT_EXP: ('e' | 'E') SIGN? [1-9][0-9];
-
-SIGN: [+-];
-
-// Strings literal, delimited by double quotation marks, containing STRING_CHAR (string characters)
-LITERAL_STRING: 
-	'"' STRING_CHAR* '"'
-	{ 
-		y = str(self.text)
-		self.text = y[1:-1]
-	};
-
-DOUBLE_QUOTE : ('\'"'); //Double quote inside a string literal
-
 // Arrays
-LITERAL_IDX_ARRAY: 'Array' LB (ARRAY_ELEMENT COMMA?)* RB;
-LITERAL_MTD_ARRAY: 'Array' LB (LITERAL_IDX_ARRAY COMMA?)* RB;
+literal_idx_array: 'Array' LB (array_element COMMA?)* RB;
+literal_mtd_array: 'Array' LB (literal_idx_array COMMA?)* RB;
 
-ARRAY_ELEMENT: (LITERAL COMMA?)+;
+array_element: (LITERAL COMMA?)+;
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Section 4: Types and Values */
-
-// Section 4.1: Primitive types
-data_types: primitive_types | array_types | class_types;	
-primitive_types: BOOLEAN | INT | FLOAT | STRING;
-
-// Section 4.2: Array types
-array_types: ARRAY LS primitive_types COMMA ARRAY_BOUND RS SEMI; // calling array: Array [Int, 1-9]
-ARRAY_BOUND: [1-9][0-9]+;
-
-// Section 4.3: Class types
-class_types: NEW ID LB RB; // New ABC()
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Section 5: Expression */
 expr: expr1 (STRING_CONCAT | EQUAL_STRING) expr1 | expr1; // +., ==., - Binary - Infix - None
 
@@ -190,11 +113,11 @@ expr6: (SUBTRACT expr6) | expr7; // (-) - Unary - Prefix - Right-assoc
 
 expr7: (expr8 index_ops) | expr8 ; // [] - Unary - Postfix - Left-assoc
 
-expr8: expr8 (DOT | SUPER_CLASS) expr9 | expr9; // . :: - Binary - Infix - Left-assoc
+expr8: expr8 (DOT | DOUBLE_SEMI) expr9 | expr9; // . :: - Binary - Infix - Left-assoc
 
 expr9: (NEW expr9) | operands; // New - Unary - Prefix - Right-assoc
 
-operands: LITERAL | ID | LB expr RB;
+operands: LITERAL | ID | LB expr RB ;
 
 // Section 5.1: Arithmetic operators
 arithmetic_ops: SUBTRACT | ADD | MULTIPLY | DIVIDE | MODULO; // - + * / %
@@ -217,38 +140,160 @@ index_ops: LS expr RS index_ops?; // [3] or [a+2] or [a[b[c[3]]]
 instance_attr: expr DOT ID;
 
 // 2. Static attribute
-static_attr: ID SUPER_CLASS ID;
+static_attr: ID DOUBLE_SEMI ID;
 
 // 3. Instance method invocation
 instance_method: expr DOT ID LB list_of_expr RB;
 
 // 4. Static method invocation
-static_method: ID SUPER_CLASS ID LB list_of_expr RB;
+static_method: ID DOUBLE_SEMI ID LB list_of_expr RB;
 
 // Section 5.7: Object creation
 object_create: NEW ID LB list_of_expr RB;
 
 list_of_expr: (expr COMMA?)+;
 
-// Section 5.8: Self
-self: 'Self';
+// Section 3.7: Literals
+LITERAL: 
+	((LITERAL_INT_DEC | LITERAL_INT_HEX | LITERAL_INT_OCT | LITERAL_INT_BIN | LITERAL_INT_BIN | LITERAL_FLOAT)
+	{self.text = self.text.replace('_','')})
+	| 
+	(LITERAL_STRING)
+	;
 
-// Section 5.9: Operator precedence and associativity
+LITERAL_INT_DEC: 
+	(
+		'0' 
+		|
+		([1-9] ('_'? [0-9])*)
+	){self.text = self.text.replace('_','')}; 
 
+LITERAL_INT_HEX: 
+	('0x' | '0X')
+	(
+		'0' 
+		| 
+		[1-9A-F] ('_'? [0-9A-F])*
+	) 
+	{self.text = self.text.replace('_','')}; // Need to work for non-duplicate underscores
+LITERAL_INT_OCT: 
+	(
+		'0'
+	)
+		('0' // Number zero in octal (00) 
+		| 
+			([1-7] ('_'? [0-7])*
+		)
+	)
+	{self.text = self.text.replace('_','')}; // Just need to add a preceeding number zero by the normal decimal notation
+LITERAL_INT_BIN: ('0b' | '0B')('0' | ('1' [01]*));
 
-// Section 5.10: Type coercions
+LITERAL_FLOAT: 
+		(
+			(FLOAT_INT FLOAT_DECIMAL FLOAT_EXP?) // Case 1: Has the first 2 components --> 1.2E10 or 1.2 only
+		|
+		// Case 2: Decimal part omitted --> 2E-10, 2E10
+		// Case 3: Integer part omitted --> .E3, .E-5 
+			(FLOAT_INT FLOAT_EXP)
+		|
+			(FLOAT_DECIMAL FLOAT_EXP) 
+		)
+		{self.text = self.text.replace('_','')};
+		// {print("here")}; 
 
+fragment FLOAT_INT: 
+	'0' 
+	|
+	(
+		[1-9] ('_'? [0-9])*
+	);
+fragment FLOAT_DECIMAL: DOT [0-9]*;
+fragment FLOAT_EXP: [eE] [+-]? [1-9] [0-9]*;
 
-// Section 5.11: Evaluation orders
+// Strings literal, delimited by double quotation marks, containing STRING_CHAR (string characters)
+LITERAL_STRING: 
+	'"' STRING_CHAR* '"'
+	{ 
+		y = str(self.text)
+		self.text = y[1:-1]
+	};
 
+DOUBLE_QUOTE : ('\'"'); //Double quote inside a string literal
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Section 3.4: Keywords
+VAL: 'Val';
+VAR: 'Var';
+STATIC: '$';
+BREAK: 'Break';
+FOREACH: 'Foreach';
+INT: 'Int';
+NULL: 'Null';
+CONSTRUCTOR: 'Constructor';
+CONTINUE: 'Continue';
+TRUE : 'True';
+FLOAT: 'Float';
+CLASS: 'Class';
+DESTRUCTOR: 'Destructor';
+IF: 'If';
+FALSE: 'False';
+BOOLEAN: 'Boolean';
+// VAL: 'Val';
+NEW: 'New';
+ELSEIF : 'Elseif';
+ARRAY: 'Array';
+STRING: 'String';
+// VAR: 'Var';
+BY: 'By';
+ELSE: 'Else';
+IN: 'In';
+RETURN : 'Return';
+// SELF: 'Self';
 
-body: funcall SEMI;
+// Section 3.6: Seperators
+LB: '(';
+RB: ')';
+LS: '[';
+RS: ']';
+LP: '{';
+RP: '}';
+SEMI: ';';
+// DOT: '.'; --> Duplicate from the operator
+COMMA : ',';
+DOTDOT: '..';
 
-exp: funcall | INTLIT;
+// Section 3.5: Operators
+ADD: '+';
+SUBTRACT : '-';
+MULTIPLY : '*';
+DIVIDE: '/';
+MODULO : '%';
+NOT : '!';
+AND : '&&';
+OR : '||';
+EQUAL : '==';
+ASSIGN : '=';
+NOT_EQUAL : '!=';
+LESS_THAN : '<';
+LEQ : '<=';
+GREATER_THAN : '>';
+GEQ : '>=';
+EQUAL_STRING : '==.';
+STRING_CONCAT : '+.';
+DOT : '.';
+DOUBLE_SEMI : '::';
+COLON: ':';
+// NEW : 'New'; --> Duplicate from the keyword
 
-funcall: ALPHABET LB exp? RB;
+// Section 3.3: Identiiers: 
+ID: STATIC? [_a-zA-Z][_a-zA-Z0-9]*;
+
+fragment INTLIT: [0-9][1-9]*;
+
+WS: [ \t\r\n\b\f]+ -> skip; // skip spaces, tabs, newlines
+
+// Section 3.2: Program comment
+BLOCK_COMMENT : ('##' .*? '##') -> skip;
 
 // Errors and exceptions
 ERROR_CHAR: .{raise ErrorToken(self.text)};
@@ -270,7 +315,9 @@ ILLEGAL_ESCAPE: '"' STRING_CHAR* ESC_ILLEGAL
 	};
 
 fragment STRING_CHAR: ~[\b\f\r\n\t"'\\] | ESC_SEQUENCE ;
+
 fragment ESC_SEQUENCE: '\\' [bfrnt"'\\] ;
+
 fragment ESC_ILLEGAL: '\\' ~[bfrnt"'\\] | ~'\\' ;
 
 

@@ -1,1 +1,1 @@
-"Xin chao Viet Nam",<EOF>
+abc,[,3,*,(,2,+,3,),/,5,],=,100,<EOF>
