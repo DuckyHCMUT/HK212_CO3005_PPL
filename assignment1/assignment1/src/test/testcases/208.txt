@@ -1,0 +1,12 @@
+
+    Class Rectangle: Shape{
+        ##
+        Get area of a Rectangle
+        ##
+        Val length, width, k: Float = 20.3, 10.1, 1.2;
+        getArea(){
+            Val area: Float = length*width*k;
+            Return area;
+        }
+    }
+        

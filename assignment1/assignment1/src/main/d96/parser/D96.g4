@@ -17,60 +17,67 @@ program: (class_decl)+ EOF;
 
 // Section 2.1: Class declaration
 class_decl: 
-	('Class' ID (COLON ID)? LP class_body RP ); //ID: Serves as identifer
+	('Class' class_name (COLON class_name)? LP class_body RP ); //ID: Serves as identifer
 
 class_body: (class_attr | class_method)*;
 
-class_attr: (VAR | VAL) ID COLON data_type SEMI;
+class_attr: (VAR | VAL) data_list SEMI;
 class_method: normal_method | constructor | destructor;
 
-normal_method: STATIC? ID LB params_list? RB LP block_stmt? RP; 
-constructor: 'Constructor' LB params_list? RB LP block_stmt? RP {print("text")}; 
-destructor: 'Destructor' LB RB LP block_stmt? RP;
+data_list: ID (COMMA ID)* COLON data_type (ASSIGN data_tail)?;
+data_tail: all_expr (COMMA all_expr)*;
+
+normal_method: ID LB params_list? RB LP block_stmt? RP; 
+constructor: CONSTRUCTOR LB params_list? RB LP block_stmt? RP; 
+destructor: DESTRUCTOR LB RB LP block_stmt? RP;
 
 params_list: params (SEMI params)*;
 
 params : ID (COMMA ID)* COLON data_type;
 
-data_type : INT | FLOAT | BOOLEAN | STRING;
-
-// Section 4.3: Class types
-class_types: ID; // ABC
+data_type : INT | FLOAT | BOOLEAN | STRING | class_name;
 
 // Section 6: Statements
 // Section 6.1: Variable and constant declaration statement
 stmt: 
 	(var_decl
-	| assign_stmt
+	| assign_stmt 
 	| if_stmt
 	| for_in_stmt
 	| break_stmt
 	| continue_stmt
 	| return_stmt
-	| method_invoc
-	| (LP block_stmt RP))
+	| method_invoc) 
 	;
 
-var_decl: (VAR | VAL) (decl_tail | array_decl_tail);
-decl_tail: 
-	(ID COMMA)* ID COLON (data_type) ASSIGN (expr_tail)? SEMI;
-array_decl_tail: 
-	(ID COMMA)* ID COLON (array_type) SEMI;
+var_decl: (VAR | VAL) (pair_list | pair_list_arr) SEMI; //(decl_tail | array_decl_tail);
+
+pair_list: ID pair all_expr; // myVar (, myVar1	(, myVar2 (, myVar3(: Int =) 100,) 200,) 300,) 400 
+
+pair: COMMA ID pair all_expr COMMA | COLON data_type ASSIGN; 
+
+pair_list_arr: ID pair_arr array_decl_tail; // myArr (, myArr1 (, myArr2 (, myArr3(:) Array[Int, 5],) Array[Int, 100],) Array[String, 4],) Array[Float, 2]
+
+pair_arr: COMMA ID pair_arr array_decl_tail COMMA | COLON;
+ 
+array_decl_tail: ARRAY LS data_type COMMA intlit RS;
+
+intlit: (LITERAL_INT_BIN | LITERAL_INT_DEC | LITERAL_INT_HEX | LITERAL_INT_OCT);
+
 object_decl: NEW ID LB RB;
 
-expr_tail: (expr COMMA)* expr; 
+expr_tail: (all_expr COMMA)* all_expr; 
 
 array_type: (array_type_tail COMMA)* array_type_tail;
 
 array_type_tail:
 	(ARRAY LS data_type COMMA LITERAL_INT_DEC RS); //Array[Int, 5];
 
-assign_stmt: assign_lhs ASSIGN expr SEMI;
-assign_lhs: element_expr | ID;
+assign_stmt: ((class_name DOT)? ID | element_expr) ASSIGN all_expr SEMI;
 
 if_stmt: if_body SEMI;
-if_body: IF expr else_if_body ELSE LP block_stmt? RP;
-else_if_body: (ELSEIF expr LP block_stmt? RP)*;
+if_body: IF all_expr else_if_body ELSE LP block_stmt? RP;
+else_if_body: (ELSEIF all_expr LP block_stmt? RP)*;
 
 for_in_stmt: FOREACH for_in_body SEMI;
 for_in_body: LB ID IN for_in_expr DOTDOT for_in_expr (BY for_in_expr)? RB;
@@ -80,11 +87,13 @@ break_stmt: BREAK SEMI;
 
 continue_stmt: CONTINUE SEMI;
 
-return_stmt: RETURN (expr)? SEMI;
+return_stmt: RETURN all_expr* SEMI;
+
+class_name: (ID | SELF); // An arbitrary name or Self keyword
 
 // A method invocation statement is an instance/static method invocation, that was described in subsection 5.6, with a semicolon at the end.
 method_invoc: ID (DOT | DOUBLE_SEMI) STATIC? ID LB expr_list? RB SEMI;  
-expr_list: (expr COMMA)* expr;
+expr_list: (all_expr COMMA)* all_expr;
 
 block_stmt: (stmt)+;
 
@@ -97,27 +106,30 @@ literal_mtd_array: 'Array' LB (literal_idx_array COMMA?)* RB;
 array_element: (LITERAL COMMA?)+;
 
 /* Section 5: Expression */
-expr: expr1 (STRING_CONCAT | EQUAL_STRING) expr1 | expr1; // +., ==., - Binary - Infix - None
 
-expr1: expr2 (EQUAL | NOT_EQUAL | LESS_THAN | GREATER_THAN | LEQ | GEQ) expr2 | expr2; // ==, !=, <, >, <, =< >= - Binary - Infix - None
+all_expr: (op | member_access | object_create); 
 
-expr2: expr2 (AND | OR) expr3 | expr3; // &&, || - Binary - Infix - Left-assoc
+op: op1 (STRING_CONCAT | EQUAL_STRING) op1 | op1; // +., ==., - Binary - Infix - None
 
-expr3: expr3 (ADD | SUBTRACT) expr4 | expr4; // +, - - Binary - Infix - Left-assoc
+op1: op2 (EQUAL | NOT_EQUAL | LESS_THAN | GREATER_THAN | LEQ | GEQ) op2 | op2; // ==, !=, <, >, <, =< >= - Binary - Infix - None
 
-expr4: expr4 (MULTIPLY | DIVIDE | MODULO) expr5 | expr5 ; // *, /, % - Binary - Infix - Left-assoc
+op2: op2 (AND | OR) op3 | op3; // &&, || - Binary - Infix - Left-assoc
 
-expr5: (NOT expr5) | expr6; // ! -  Unary - Prefix - Right-assoc
+op3: op3 (ADD | SUBTRACT) op4 | op4; // +, - - Binary - Infix - Left-assoc
 
-expr6: (SUBTRACT expr6) | expr7; // (-) - Unary - Prefix - Right-assoc
+op4: op4 (MULTIPLY | DIVIDE | MODULO) op5 | op5 ; // *, /, % - Binary - Infix - Left-assoc
 
-expr7: (expr8 index_ops) | expr8 ; // [] - Unary - Postfix - Left-assoc
+op5: (NOT op5) | op6; // ! -  Unary - Prefix - Right-assoc
 
-expr8: expr8 (DOT | DOUBLE_SEMI) expr9 | expr9; // . :: - Binary - Infix - Left-assoc
+op6: (SUBTRACT op6) | op7; // (-) - Unary - Prefix - Right-assoc
 
-expr9: (NEW expr9) | operands; // New - Unary - Prefix - Right-assoc
+op7: (op8 index_ops) | op8 ; // [] - Unary - Postfix - Left-assoc
 
-operands: LITERAL | ID | LB expr RB ;
+op8: op8 (DOT | DOUBLE_SEMI) op9 | op9; // . :: - Binary - Infix - Left-assoc
+
+op9: (NEW op9) | operands; // New - Unary - Prefix - Right-assoc
+
+operands: LITERAL | ID | LB op RB | NULL | member_access; // Because member access can also return a value
 
 // Section 5.1: Arithmetic operators
 arithmetic_ops: SUBTRACT | ADD | MULTIPLY | DIVIDE | MODULO; // - + * / %
@@ -132,26 +144,28 @@ string_ops: STRING_CONCAT; // +.
 relational_ops: EQUAL | NOT_EQUAL | LESS_THAN | GREATER_THAN | LEQ | GEQ;
 
 // Section 5.5: Index operators
-element_expr: expr index_ops; // a + b(index_ops)
-index_ops: LS expr RS index_ops?; // [3] or [a+2] or [a[b[c[3]]]
+element_expr: all_expr index_ops; // a + b(index_ops)
+index_ops: LS all_expr RS index_ops?; // [3] or [a+2] or [a[b[c[3]]]
 
 // Section 5.6: Member access
+member_access: instance_attr | static_attr | instance_method | static_method;
 // 1. Instance attribute
-instance_attr: expr DOT ID;
+instance_attr: class_name DOT ID;
 
 // 2. Static attribute
 static_attr: ID DOUBLE_SEMI ID;
 
 // 3. Instance method invocation
-instance_method: expr DOT ID LB list_of_expr RB;
+instance_method: class_name instance_method_tail;
+instance_method_tail: DOT ID LB list_of_expr? RB;
 
 // 4. Static method invocation
-static_method: ID DOUBLE_SEMI ID LB list_of_expr RB;
+static_method: ID DOUBLE_SEMI ID LB list_of_expr? RB;
 
 // Section 5.7: Object creation
-object_create: NEW ID LB list_of_expr RB;
+object_create: NEW ID LB list_of_expr? RB;
 
-list_of_expr: (expr COMMA?)+;
+list_of_expr: (op COMMA?)+;
 
 // Section 3.7: Literals
 LITERAL: 
@@ -248,7 +262,7 @@ BY: 'By';
 ELSE: 'Else';
 IN: 'In';
 RETURN : 'Return';
-// SELF: 'Self';
+SELF: 'Self';
 
 // Section 3.6: Seperators
 LB: '(';

@@ -16,7 +16,7 @@ class ParserSuite(unittest.TestCase):
         input = """
     Class Rectangle: Shape {
         getArea() {
-            Return length * (width + 5);
+            Return Self.length * Self.width;
         }
     }
         """
@@ -42,21 +42,58 @@ class ParserSuite(unittest.TestCase):
         ##
         $getSomething(yes: Int){
             Var x : Int=0;
+            Self.x = 1;
             Return x;
         }
     }
         """
         expect = "successful"
         self.assertTrue(TestParser.test(input, expect,204))
+
+    def test_var_decl(self):
+        input = """
+    Class Rectangle: Shape{
+        ##
+        Get area of a Rectangle
+        ##
+        Val length, width, k: Float = 20.3, 10.1, 1.2;
+        getArea(){
+            Val area: Float = length*width*k;
+            Return area;
+        }
+    }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 208))
+
+    def test_failed_decl(self):
+        input = """
+    Class Rectangle: Shape{
+        ##
+        Get area of a Rectangle
+        ##
+        Val length, width: Float = 20.3, 10.1, 1.2, 100.2, -20.1;
+        getArea(){
+            Val area: Float = length*width;
+            Return area;
+        }
+    }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 209))
     
     def test_Thinh_case(self):
         input = """
     Class Trt{
-        Var a: String;
+        Var $a: String;
         Constructor(x, y: String; z: Int){
+            Var s: Int = 1;
             Self.a = x;
         }
         Despacito(){
+            Var b: String = flag.foo.foo.foo;
+            Var c: Int = flag.foo;
+            Var d: Float = flag.otherflag.foo();
             Return Self.a +. "2";
         }
     }

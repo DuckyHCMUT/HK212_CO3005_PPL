@@ -1,7 +1,7 @@
 
     Class Rectangle: Shape {
         getArea() {
-            Return length * (width + 5);
+            Return Self.length * Self.width;
         }
     }
         

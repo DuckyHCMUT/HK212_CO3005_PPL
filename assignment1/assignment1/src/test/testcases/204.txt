@@ -5,6 +5,7 @@
         ##
         $getSomething(yes: Int){
             Var x : Int=0;
+            Self.x = 1;
             Return x;
         }
     }

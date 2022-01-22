@@ -1,10 +1,14 @@
 
     Class Trt{
-        Var a: String;
+        Var $a: String;
         Constructor(x, y: String; z: Int){
+            Var s: Int = 1;
             Self.a = x;
         }
         Despacito(){
+            Var b: String = flag.foo.foo.foo;
+            Var c: Int = flag.foo;
+            Var d: Float = flag.otherflag.foo();
             Return Self.a +. "2";
         }
     }
