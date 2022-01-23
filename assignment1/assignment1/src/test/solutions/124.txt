@@ -1,1 +1,1 @@
-Main,::,Var,||,<EOF>
+If,(,length,<=,(,15.123e3,+,0x123000000,),),{,print,(,some_string,),;,},<EOF>

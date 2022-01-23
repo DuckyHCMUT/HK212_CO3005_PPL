@@ -1,1 +1,1 @@
->=,<=,Error Token &
+Var,a,:,String,=,b,+.,Welcome to PPL course,;,<EOF>

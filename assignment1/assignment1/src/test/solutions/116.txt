@@ -1,1 +1,1 @@
-Var,myVariable,Error Token @
+Vietnam,<EOF>

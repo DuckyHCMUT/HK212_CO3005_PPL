@@ -1,1 +1,1 @@
-Var a: String = b +. "Welcome to PPL course";
+__hp[idxArr[(3+2)*5/-(3*1)] = otherArr[idxArr[-3]]

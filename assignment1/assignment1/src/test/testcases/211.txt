@@ -1,0 +1,15 @@
+
+        Class Shape: Rectangle {
+            ##
+            This part should be ignored, just to check, nothing to comment
+            ##
+            $getSomething(yes: Int){
+                Var x : Float = 12.001;
+                Var t : Int = 0;
+                Var varvar: Int = 01_0;
+                Var y : Float = 0.e1; 
+                Var z : Float = 1.E23; 
+                Return x;
+            }
+        }
+        

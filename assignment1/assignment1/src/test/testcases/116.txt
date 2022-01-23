@@ -1,1 +1,1 @@
-Var myVariable@ Int;
+ "Vietnam" 

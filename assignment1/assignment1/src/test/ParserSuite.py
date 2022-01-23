@@ -2,17 +2,12 @@ import unittest
 from TestUtils import TestParser
 
 class ParserSuite(unittest.TestCase):
-    def test_bkel_1(self):
+    def test_bkel_1_201(self):
         input = """Class main{}"""
         expect = "successful"
         self.assertTrue(TestParser.test(input, expect,201))
 
-    def test_no_class_program(self):
-        input = """abc = 1"""
-        expect = "Error on line 1 col 0: abc"
-        self.assertTrue(TestParser.test(input, expect,205))
-
-    def test_bkel_2(self):
+    def test_bkel_2_202(self):
         input = """
     Class Rectangle: Shape {
         getArea() {
@@ -23,7 +18,7 @@ class ParserSuite(unittest.TestCase):
         expect = "successful"
         self.assertTrue(TestParser.test(input, expect,202))
 
-    def test_bkel_3(self):
+    def test_bkel_3_203(self):
         input = """
     Class Shape {
         $getNumOfShape( {
@@ -33,8 +28,14 @@ class ParserSuite(unittest.TestCase):
         """
         expect = "Error on line 3 col 24: {"
         self.assertTrue(TestParser.test(input, expect,203))
+
+    def test_204(self):
+        input = """abc = 1;"""
+        expect = "Error on line 1 col 0: abc"
+        self.assertTrue(TestParser.test(input, expect,204))
     
-    def test_with_comment(self):
+    # Test with normal class declaration and comment
+    def test_205(self):
         input = """
     Class Shape: Rectangle {
         ##
@@ -48,9 +49,10 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect,204))
+        self.assertTrue(TestParser.test(input, expect,205))
 
-    def test_var_decl(self):
+    # Test with equal number of variable and value
+    def test_206(self):
         input = """
     Class Rectangle: Shape{
         ##
@@ -64,34 +66,98 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 208))
+        self.assertTrue(TestParser.test(input, expect, 206))
 
-    def test_failed_decl(self):
+    # Test with unequal number of variable and value
+    def test_207(self):
         input = """
     Class Rectangle: Shape{
         ##
         Get area of a Rectangle
         ##
-        Val length, width: Float = 20.3, 10.1, 1.2, 100.2, -20.1;
+        Val length, width: Float = 20.31, 1.2, 3.E-8;
         getArea(){
             Val area: Float = length*width;
             Return area;
         }
     }
         """
+        expect = "Error on line 6 col 45: ,"
+        self.assertTrue(TestParser.test(input, expect, 207))
+
+    # Test case with 1 class, comment and array declaration
+    def test_208(self):
+        input = """
+        Class Rectangle: Shape{
+            ## Var somewhat: Int = 2;##
+            Val myArray: Array[Float, 3];
+                getArray(){
+                    Return myArray;
+            }
+        }
+            """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 209))
+        self.assertTrue(TestParser.test(input, expect, 208))
     
-    def test_Thinh_case(self):
+    # Testcase from Justince, original version
+    def test_209(self):
+        input = """
+        Class Trt{
+            Var a: String;
+            Constructor(x: String){
+                Self.a = x;
+            }
+            Despacito(){
+                Return Self.a +. "2";
+            }
+        }
+        Class Shape {
+            Var flag: Trt = Null;
+            Var x, y : Int;
+            Constructor(a,b: Int; d: String){
+                flag = New Trt(d);
+                Var s: String = flag.Despacito();
+                Self.x = b;
+                Self.y = a;
+                If(d ==. "Hel"){
+                    Self.x = a;
+                    Self.y = b;
+                }
+            }
+            Destructor(){
+                print("No service");
+            }
+        }
+        Class Program {
+            ## Muda
+            Muda ##
+            Var hello: Array[Int, 5];
+            Var length, width: Int;
+            Var flag2: Shape = New Shape(1,2,"Help");
+            main(){
+                print(flag2.flag.Despacito());
+                flag2.flag.a = "s";
+                a = 1.0;
+            }
+        }"""
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input, expect,209))
+
+    # Testcase from Justince, complicated with declaration
+    def test_210(self):
         input = """
     Class Trt{
         Var $a: String;
+        Val $a, b: Int;
+        Var a: Int = 10;
+        Val b, c: Float = 1.5, 3.E8;
+        Var x, y, z: Shape = Null, what, ok;
         Constructor(x, y: String; z: Int){
             Var s: Int = 1;
             Self.a = x;
         }
         Despacito(){
-            Var b: String = flag.foo.foo.foo;
+            Var b: String = a.foo().a.foo();
             Var c: Int = flag.foo;
             Var d: Float = flag.otherflag.foo();
             Return Self.a +. "2";
@@ -117,20 +183,21 @@ class ParserSuite(unittest.TestCase):
     Class Program {
         ## Muda
         Muda ##
-        Var hello: Array[Int, 5];
+        Var hello,hello2: Array[Int, 5], Array[Float, 2];
         Var length, width: Int;
         Var flag2: Shape = New Shape(1,2,"Help");
         main(){
             print(flag2.flag.Despacito());
             flag2.flag.a = "s";
+            doSomething = m1.a.b().c.d.e.f.g().c[5];
             a = 1.0;
         }
     }
         """
-        expect = """ """
-        self.assertTrue(TestParser.test(input, expect,206))
-
-    def test_207(self):
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input, expect,210))
+    # Test a program with literal declaration
+    def test_211(self):
         input = """
         Class Shape: Rectangle {
             ##
@@ -147,4 +214,91 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input,expect,207))
+        self.assertTrue(TestParser.test(input,expect,211))
+    # Test a program with 3 classes and some invocation
+    def test_212(self):
+        input = """
+        Class Shape{
+            Var height, length: Float;
+        }
+        
+        Class Rectangle: Shape {
+            $getArea() {
+                Return Self.height * Self.height;
+            }
+        }
+        
+        Class Program {
+            main(){
+                Out.printInt(Rectangle::getArea());
+            }
+        }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input,expect,212))
+    # Test a program with only an unclosed string --> Raise error and print only the string content
+    def test_213(self):
+        input = """ 
+            "Hello
+        """
+        expect = """Hello"""
+        self.assertTrue(TestParser.test(input,expect,213))
+    def test_214(self):
+        input = """
+    Class StringWorker{
+        getString(someString, anotherString: String){
+            Val someString: String = "hello PPL";
+            Return someString;
+        }
+    }
+        """
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input,expect,214))
+
+    # Test from d96 spec pdf
+    def test_215(self):
+        input = """
+        Class Shape {
+            Val $numOfShape: Int = 0;
+            Val immutableAttribute: Int = 0;
+            Var length, width: Int;
+
+            $getNumOfShape() {
+                Return $numOfShape;
+            }
+        }
+
+        Class Rectangle: Shape {
+            getArea() {
+                Return Self.length * Self.width;
+            }
+        }
+
+        Class Program {
+            main() {
+                Out.printInt(Shape::$numOfShape);
+            }
+        }
+        """
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input,expect,215))
+    
+    # Test case for Foreach - In loop
+    def test_216(self):
+        input = """
+        Class Program {
+            main() {
+                Foreach(x In 100 .. 300 By 5){
+                    Out.printInt(x % 10);
+                }
+            }
+        }
+        """
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input, expect, 216))
+
+    # def test_2(self):
+    #     input = """ """
+    #     expect = """ """
+    #     self.assertTrue(TestParser.test(input,expect,2))
+

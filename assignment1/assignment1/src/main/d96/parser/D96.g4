@@ -21,11 +21,8 @@ class_decl:
 
 class_body: (class_attr | class_method)*;
 
-class_attr: (VAR | VAL) data_list SEMI;
+class_attr: var_decl;
 class_method: normal_method | constructor | destructor;
-
-data_list: ID (COMMA ID)* COLON data_type (ASSIGN data_tail)?;
-data_tail: all_expr (COMMA all_expr)*;
 
 normal_method: ID LB params_list? RB LP block_stmt? RP; 
 constructor: CONSTRUCTOR LB params_list? RB LP block_stmt? RP; 
@@ -52,36 +49,41 @@ stmt:
 
 var_decl: (VAR | VAL) (pair_list | pair_list_arr) SEMI; //(decl_tail | array_decl_tail);
 
-pair_list: ID pair all_expr; // myVar (, myVar1	(, myVar2 (, myVar3(: Int =) 100,) 200,) 300,) 400 
+pair_list: ID pair all_expr?; // myVar (, myVar1(, myVar2 (, myVar3(: Int =) 100,) 200,) 300,) 400 
 
-pair: COMMA ID pair all_expr COMMA | COLON data_type ASSIGN; 
+pair: COMMA ID pair (all_expr COMMA)? | COLON data_type ASSIGN?; 
 
 pair_list_arr: ID pair_arr array_decl_tail; // myArr (, myArr1 (, myArr2 (, myArr3(:) Array[Int, 5],) Array[Int, 100],) Array[String, 4],) Array[Float, 2]
 
 pair_arr: COMMA ID pair_arr array_decl_tail COMMA | COLON;
- 
-array_decl_tail: ARRAY LS data_type COMMA intlit RS;
 
-intlit: (LITERAL_INT_BIN | LITERAL_INT_DEC | LITERAL_INT_HEX | LITERAL_INT_OCT);
+// array_decl_tail: ARRAY LS (data_type | ARRAY) COMMA LITERAL_INT_DEC RS; // Can be primitive or array type
+
+array_decl_tail: ARRAY LS (data_type | ARRAY) COMMA 
+	(LITERAL_INT) RS; // Can be primitive or array type
 
 object_decl: NEW ID LB RB;
 
 expr_tail: (all_expr COMMA)* all_expr; 
 
-array_type: (array_type_tail COMMA)* array_type_tail;
+// Assign statement
+// Some situations may appear as follow:
+// a = expr;
+// Self.a = expr;
+// a.b.c = expr;
 
-array_type_tail:
-	(ARRAY LS data_type COMMA LITERAL_INT_DEC RS); //Array[Int, 5];
+assign_stmt: (((class_name DOT)? (ID DOT)*) ID | element_expr) ASSIGN all_expr SEMI;
 
-assign_stmt: ((class_name DOT)? ID | element_expr) ASSIGN all_expr SEMI;
 
-if_stmt: if_body SEMI;
-if_body: IF all_expr else_if_body ELSE LP block_stmt? RP;
-else_if_body: (ELSEIF all_expr LP block_stmt? RP)*;
+// If statement
+if_stmt: IF LB all_expr RB LP block_stmt? RP (else_if_body)?;
 
-for_in_stmt: FOREACH for_in_body SEMI;
-for_in_body: LB ID IN for_in_expr DOTDOT for_in_expr (BY for_in_expr)? RB;
-for_in_expr: LITERAL_INT_DEC; // from -999999.... to 999999.... anything~
+else_if_body: ELSEIF LB all_expr RB LP block_stmt? RP else_if_body?;
+
+// For-in statement
+for_in_stmt: FOREACH LB for_in_body RB LP block_stmt RP;
+for_in_body: ID IN for_in_expr DOTDOT for_in_expr (BY for_in_expr)? ;
+for_in_expr: SUBTRACT? LITERAL_INT; // from -999999.... to 999999.... anything~
 
 break_stmt: BREAK SEMI;
 
@@ -92,7 +94,8 @@ return_stmt: RETURN all_expr* SEMI;
 class_name: (ID | SELF); // An arbitrary name or Self keyword
 
 // A method invocation statement is an instance/static method invocation, that was described in subsection 5.6, with a semicolon at the end.
-method_invoc: ID (DOT | DOUBLE_SEMI) STATIC? ID LB expr_list? RB SEMI;  
+// method_invoc: ID (DOT | DOUBLE_SEMI) STATIC? ID LB expr_list? RB SEMI;  
+method_invoc: (instance_method | static_method ) SEMI;
 expr_list: (all_expr COMMA)* all_expr;
 
 block_stmt: (stmt)+;
@@ -103,7 +106,7 @@ block_stmt: (stmt)+;
 literal_idx_array: 'Array' LB (array_element COMMA?)* RB;
 literal_mtd_array: 'Array' LB (literal_idx_array COMMA?)* RB;
 
-array_element: (LITERAL COMMA?)+;
+array_element: (literal COMMA?)+;
 
 /* Section 5: Expression */
 
@@ -125,11 +128,11 @@ op6: (SUBTRACT op6) | op7; // (-) - Unary - Prefix - Right-assoc
 
 op7: (op8 index_ops) | op8 ; // [] - Unary - Postfix - Left-assoc
 
-op8: op8 (DOT | DOUBLE_SEMI) op9 | op9; // . :: - Binary - Infix - Left-assoc
+op8: op8 (DOT | DOUBLE_COLON) op9 | op9; // . :: - Binary - Infix - Left-assoc
 
 op9: (NEW op9) | operands; // New - Unary - Prefix - Right-assoc
 
-operands: LITERAL | ID | LB op RB | NULL | member_access; // Because member access can also return a value
+operands: literal | ID | LB op RB | NULL | member_access; // Because member access can also return a value
 
 // Section 5.1: Arithmetic operators
 arithmetic_ops: SUBTRACT | ADD | MULTIPLY | DIVIDE | MODULO; // - + * / %
@@ -153,14 +156,14 @@ member_access: instance_attr | static_attr | instance_method | static_method;
 instance_attr: class_name DOT ID;
 
 // 2. Static attribute
-static_attr: ID DOUBLE_SEMI ID;
+static_attr: ID DOUBLE_COLON ID;
 
 // 3. Instance method invocation
-instance_method: class_name instance_method_tail;
-instance_method_tail: DOT ID LB list_of_expr? RB;
+instance_method: (class_name DOT)? instance_method_tail;
+instance_method_tail: ID LB list_of_expr? RB;
 
 // 4. Static method invocation
-static_method: ID DOUBLE_SEMI ID LB list_of_expr? RB;
+static_method: (ID DOUBLE_COLON)? ID LB list_of_expr? RB;
 
 // Section 5.7: Object creation
 object_create: NEW ID LB list_of_expr? RB;
@@ -168,12 +171,11 @@ object_create: NEW ID LB list_of_expr? RB;
 list_of_expr: (op COMMA?)+;
 
 // Section 3.7: Literals
-LITERAL: 
-	((LITERAL_INT_DEC | LITERAL_INT_HEX | LITERAL_INT_OCT | LITERAL_INT_BIN | LITERAL_INT_BIN | LITERAL_FLOAT)
-	{self.text = self.text.replace('_','')})
-	| 
-	(LITERAL_STRING)
-	;
+literal: LITERAL_INT | LITERAL_FLOAT | LITERAL_STRING;
+
+LITERAL_INT: 
+	(LITERAL_INT_DEC | LITERAL_INT_HEX | LITERAL_INT_OCT | LITERAL_INT_BIN | LITERAL_INT_BIN)
+	{self.text = self.text.replace('_','')};
 
 LITERAL_INT_DEC: 
 	(
@@ -272,7 +274,6 @@ RS: ']';
 LP: '{';
 RP: '}';
 SEMI: ';';
-// DOT: '.'; --> Duplicate from the operator
 COMMA : ',';
 DOTDOT: '..';
 
@@ -295,22 +296,17 @@ GEQ : '>=';
 EQUAL_STRING : '==.';
 STRING_CONCAT : '+.';
 DOT : '.';
-DOUBLE_SEMI : '::';
+DOUBLE_COLON : '::';
 COLON: ':';
 // NEW : 'New'; --> Duplicate from the keyword
 
 // Section 3.3: Identiiers: 
 ID: STATIC? [_a-zA-Z][_a-zA-Z0-9]*;
 
-fragment INTLIT: [0-9][1-9]*;
-
-WS: [ \t\r\n\b\f]+ -> skip; // skip spaces, tabs, newlines
-
 // Section 3.2: Program comment
 BLOCK_COMMENT : ('##' .*? '##') -> skip;
 
-// Errors and exceptions
-ERROR_CHAR: .{raise ErrorToken(self.text)};
+WS: [ \t\r\n\b\f]+ -> skip; // skip spaces, tabs, newlines
 
 UNCLOSE_STRING: '"' STRING_CHAR* ( [\b\t\n\f\r"'\\] | EOF )
 	{
@@ -333,6 +329,12 @@ fragment STRING_CHAR: ~[\b\f\r\n\t"'\\] | ESC_SEQUENCE ;
 fragment ESC_SEQUENCE: '\\' [bfrnt"'\\] ;
 
 fragment ESC_ILLEGAL: '\\' ~[bfrnt"'\\] | ~'\\' ;
+
+// Errors and exceptions
+ERROR_CHAR: .
+	{
+		raise ErrorToken(self.text)
+	};
 
 
 

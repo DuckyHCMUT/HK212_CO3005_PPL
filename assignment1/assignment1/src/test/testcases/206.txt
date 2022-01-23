@@ -1,44 +1,12 @@
 
-    Class Trt{
-        Var $a: String;
-        Constructor(x, y: String; z: Int){
-            Var s: Int = 1;
-            Self.a = x;
-        }
-        Despacito(){
-            Var b: String = flag.foo.foo.foo;
-            Var c: Int = flag.foo;
-            Var d: Float = flag.otherflag.foo();
-            Return Self.a +. "2";
-        }
-    }
-    Class Shape {
-        Var flag: Trt = Null;
-        Var x, y : Int;
-        Constructor(a,b: Int; d: String){
-            flag = New Trt(d);
-            Var s: String = flag.Despacito();
-            Self.x = b;
-            Self.y = a;
-            If(d ==. "Hel"){
-                Self.x = a;
-                Self.y = b;
-            }
-        }
-        Destructor(){
-            print("No service");
-        }
-    }
-    Class Program {
-        ## Muda
-        Muda ##
-        Var hello: Array[Int, 5];
-        Var length, width: Int;
-        Var flag2: Shape = New Shape(1,2,"Help");
-        main(){
-            print(flag2.flag.Despacito());
-            flag2.flag.a = "s";
-            a = 1.0;
+    Class Rectangle: Shape{
+        ##
+        Get area of a Rectangle
+        ##
+        Val length, width, k: Float = 20.3, 10.1, 1.2;
+        getArea(){
+            Val area: Float = length*width*k;
+            Return area;
         }
     }
         

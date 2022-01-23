@@ -1,15 +1,12 @@
 
-        Class Shape: Rectangle {
-            ##
-            This part should be ignored, just to check, nothing to comment
-            ##
-            $getSomething(yes: Int){
-                Var x : Float = 12.001;
-                Var t : Int = 0;
-                Var varvar: Int = 01_0;
-                Var y : Float = 0.e1; 
-                Var z : Float = 1.E23; 
-                Return x;
-            }
+    Class Rectangle: Shape{
+        ##
+        Get area of a Rectangle
+        ##
+        Val length, width: Float = 20.31, 1.2, 3.E-8;
+        getArea(){
+            Val area: Float = length*width;
+            Return area;
         }
+    }
         

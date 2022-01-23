@@ -1,1 +1,1 @@
-## 2rDnLulZwmForeach ==## >=<= &== ==== <=>= ##>= #### |||| 5cSkUAUw$I== :::: >=<= ==* ::= ##If :::: ==<= ==>= +
+Var a: String = b +. "Welcome to PPL course";

@@ -1,1 +1,1 @@
-Illegal Escape In String: abc\h
+aAsVN3,<EOF>

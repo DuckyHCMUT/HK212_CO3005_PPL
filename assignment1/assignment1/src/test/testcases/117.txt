@@ -1,1 +1,1 @@
-Var myArr: Array[Float, 10];
+ "Hello \n world \t" 

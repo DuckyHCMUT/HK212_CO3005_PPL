@@ -1,1 +1,1 @@
-"weird escape\b",<EOF>
+weird escape\b,<EOF>

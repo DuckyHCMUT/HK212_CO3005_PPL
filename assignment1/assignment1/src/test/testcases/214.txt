@@ -1,0 +1,8 @@
+
+    Class StringWorker{
+        getString(someString, anotherString: String){
+            Val someString: String = "hello PPL";
+            Return someString;
+        }
+    }
+        
