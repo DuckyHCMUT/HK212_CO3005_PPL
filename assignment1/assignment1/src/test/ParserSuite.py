@@ -215,6 +215,7 @@ class ParserSuite(unittest.TestCase):
         """
         expect = "successful"
         self.assertTrue(TestParser.test(input,expect,211))
+
     # Test a program with 3 classes and some invocation
     def test_212(self):
         input = """
@@ -230,7 +231,7 @@ class ParserSuite(unittest.TestCase):
         
         Class Program {
             main(){
-                Out.printInt(Rectangle::getArea());
+                Out.printInt(Rectangle::$getArea());
             }
         }
         """
@@ -264,6 +265,7 @@ class ParserSuite(unittest.TestCase):
             Var length, width: Int;
 
             $getNumOfShape() {
+                Val temp: Int = 5;
                 Return $numOfShape;
             }
         }
@@ -291,11 +293,90 @@ class ParserSuite(unittest.TestCase):
                 Foreach(x In 100 .. 300 By 5){
                     Out.printInt(x % 10);
                 }
+                Foreach(y In 300 .. -0 By -2){
+                    Self::$doNothing = 1;
+                    a::$doNothing();
+                    Foreach(z In -1 .. 50000000){
+                        print("Hello world");
+                    }
+                }
             }
         }
         """
         expect = """successful"""
         self.assertTrue(TestParser.test(input, expect, 216))
+
+    def test_217(self):
+        input = """
+        Class Program {
+            main() {
+                Val $invalid_value: Int = 100000000; ## Some error should occur here ##
+                Return $invalid_value;
+            }
+        }
+        """
+        expect = """Error on line 4 col 20: $invalid_value"""
+        self.assertTrue(TestParser.test(input,expect,217))
+
+    def test_218(self):
+        input = """
+        Class Program {
+            Var $sus_value: String = "This value is sus!"; ## Susssssss ##
+            main() {
+                Val valid_value: Int = 100000000;
+                valid_value.b.c.d() = Program::$a.b.c().d.e.Self.x::$f()::g.h::$i().j + 1;
+                Return (valid_value - Self::$sus_value + Self.what - Program::$a.b.c(Program::$a.b).d.e.Self.x::$f()::$g.h::$i().j);
+            }
+        }
+        """
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input,expect,218))
+
+    def test_219(self):
+        input = """
+        Class Program {
+            Var a: Int;
+            main() {
+                Val valid_value: Float = 0.5;
+                Self::$a = Program::a::b.c();
+                Return Program::a.b.c;
+            }
+        }
+        """
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input,expect,219))
+
+    def test_220(self):
+        input = """"""
+        expect = """Error on line 1 col 0: <EOF>"""
+        self.assertTrue(TestParser.test(input,expect,220))
+
+    def test_221(self):
+        input = """
+        Class Program {
+            Var a: Array[Array[Int, 5], 5];
+            main() {
+                Val valid_value: Float = 0.5;
+                Self::$a = Program::a::b.c();
+                Return Program::a.b.c;
+            }
+        }
+        """
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input,expect,221))
+
+    def test_222(self):
+        input = """
+        Class Rectangle: Shape{
+            Val myArray: Array[Float, 3];
+                getArray(){
+                    a = a.1;
+                    Return myArray;
+            }
+        }
+            """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 222))
 
     # def test_2(self):
     #     input = """ """

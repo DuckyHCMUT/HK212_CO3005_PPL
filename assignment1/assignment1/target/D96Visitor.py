@@ -29,6 +29,36 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by D96Parser#attr_var_decl.
+    def visitAttr_var_decl(self, ctx:D96Parser.Attr_var_declContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#attr_pair_list.
+    def visitAttr_pair_list(self, ctx:D96Parser.Attr_pair_listContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#attr_pair.
+    def visitAttr_pair(self, ctx:D96Parser.Attr_pairContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#attr_pair_list_arr.
+    def visitAttr_pair_list_arr(self, ctx:D96Parser.Attr_pair_list_arrContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#attr_pair_arr.
+    def visitAttr_pair_arr(self, ctx:D96Parser.Attr_pair_arrContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#attr_array_decl_tail.
+    def visitAttr_array_decl_tail(self, ctx:D96Parser.Attr_array_decl_tailContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by D96Parser#class_method.
     def visitClass_method(self, ctx:D96Parser.Class_methodContext):
         return self.visitChildren(ctx)
@@ -104,13 +134,13 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#expr_tail.
-    def visitExpr_tail(self, ctx:D96Parser.Expr_tailContext):
+    # Visit a parse tree produced by D96Parser#assign_stmt.
+    def visitAssign_stmt(self, ctx:D96Parser.Assign_stmtContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#assign_stmt.
-    def visitAssign_stmt(self, ctx:D96Parser.Assign_stmtContext):
+    # Visit a parse tree produced by D96Parser#assign_lhs.
+    def visitAssign_lhs(self, ctx:D96Parser.Assign_lhsContext):
         return self.visitChildren(ctx)
 
 
@@ -296,11 +326,6 @@ class D96Visitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by D96Parser#instance_method.
     def visitInstance_method(self, ctx:D96Parser.Instance_methodContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#instance_method_tail.
-    def visitInstance_method_tail(self, ctx:D96Parser.Instance_method_tailContext):
         return self.visitChildren(ctx)
 
 

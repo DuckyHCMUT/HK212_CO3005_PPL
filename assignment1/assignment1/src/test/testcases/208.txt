@@ -1,9 +1,1 @@
-
-        Class Rectangle: Shape{
-            ## Var somewhat: Int = 2;##
-            Val myArray: Array[Float, 3];
-                getArray(){
-                    Return myArray;
-            }
-        }
-            
+Foreach (i In 1 .. 100 By 2) { Out.printInt(i);}

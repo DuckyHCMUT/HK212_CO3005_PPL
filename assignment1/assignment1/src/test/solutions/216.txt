@@ -1,1 +1,1 @@
-successful
+ab$cd ab#cd ?abc @somewhere,<EOF>

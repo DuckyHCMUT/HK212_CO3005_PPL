@@ -1,1 +1,1 @@
-Error on line 3 col 24: {
+String,a,,,b,;,a,+.,b,;,a,==.,c,;,<EOF>

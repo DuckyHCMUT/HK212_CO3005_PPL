@@ -1,7 +1,7 @@
-
-    Class Rectangle: Shape {
-        getArea() {
-            Return Self.length * Self.width;
+Int dec = 0, i = 0, rem;
+        While (n!=0) { 
+            rem = n % 10;
+            n = n / 10;
+            dec = dec + rem * pow(2, i);
+            i = i + 1;
         }
-    }
-        
