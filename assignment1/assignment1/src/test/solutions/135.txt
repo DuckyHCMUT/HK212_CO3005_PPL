@@ -1,1 +1,0 @@
-Class,StringWorker,{,getString,(,someString,),{,someString,:,String,=,hello PPL,;,Return,someString,;,},},<EOF>

@@ -2,12 +2,12 @@ import unittest
 from TestUtils import TestParser
 
 class ParserSuite(unittest.TestCase):
-    def test_bkel_1_201(self):
+    def test_bkel_1_301(self):
         input = """Class main{}"""
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect,201))
+        self.assertTrue(TestParser.test(input, expect,301))
 
-    def test_bkel_2_202(self):
+    def test_bkel_2_302(self):
         input = """
     Class Rectangle: Shape {
         getArea() {
@@ -16,9 +16,9 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect,202))
+        self.assertTrue(TestParser.test(input, expect,302))
 
-    def test_bkel_3_203(self):
+    def test_bkel_3_303(self):
         input = """
     Class Shape {
         $getNumOfShape( {
@@ -27,15 +27,15 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = "Error on line 3 col 24: {"
-        self.assertTrue(TestParser.test(input, expect,203))
+        self.assertTrue(TestParser.test(input, expect,303))
 
-    def test_204(self):
+    def test_304(self):
         input = """abc = 1;"""
         expect = "Error on line 1 col 0: abc"
-        self.assertTrue(TestParser.test(input, expect,204))
+        self.assertTrue(TestParser.test(input, expect,304))
     
     # Test with normal class declaration and comment
-    def test_205(self):
+    def test_305(self):
         input = """
     Class Shape: Rectangle {
         ##
@@ -49,10 +49,10 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect,205))
+        self.assertTrue(TestParser.test(input, expect,305))
 
     # Test with equal number of variable and value
-    def test_206(self):
+    def test_306(self):
         input = """
     Class Rectangle: Shape{
         ##
@@ -66,10 +66,10 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 206))
+        self.assertTrue(TestParser.test(input, expect, 306))
 
     # Test with unequal number of variable and value
-    def test_207(self):
+    def test_307(self):
         input = """
     Class Rectangle: Shape{
         ##
@@ -83,10 +83,10 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = "Error on line 6 col 45: ,"
-        self.assertTrue(TestParser.test(input, expect, 207))
+        self.assertTrue(TestParser.test(input, expect, 307))
 
     # Test case with 1 class, comment and array declaration
-    def test_208(self):
+    def test_308(self):
         input = """
         Class Rectangle: Shape{
             ## Var somewhat: Int = 2;##
@@ -97,10 +97,10 @@ class ParserSuite(unittest.TestCase):
         }
             """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 208))
+        self.assertTrue(TestParser.test(input, expect, 308))
     
     # Testcase from Justince, original version
-    def test_209(self):
+    def test_309(self):
         input = """
         Class Trt{
             Var a: String;
@@ -141,10 +141,10 @@ class ParserSuite(unittest.TestCase):
             }
         }"""
         expect = """successful"""
-        self.assertTrue(TestParser.test(input, expect,209))
+        self.assertTrue(TestParser.test(input, expect,309))
 
     # Testcase from Justince, complicated with declaration
-    def test_210(self):
+    def test_310(self):
         input = """
     Class Trt{
         Var $a: String;
@@ -195,9 +195,9 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = """successful"""
-        self.assertTrue(TestParser.test(input, expect,210))
+        self.assertTrue(TestParser.test(input, expect,310))
     # Test a program with literal declaration
-    def test_211(self):
+    def test_311(self):
         input = """
         Class Shape: Rectangle {
             ##
@@ -214,10 +214,10 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input,expect,211))
+        self.assertTrue(TestParser.test(input,expect,311))
 
     # Test a program with 3 classes and some invocation
-    def test_212(self):
+    def test_312(self):
         input = """
         Class Shape{
             Var height, length: Float;
@@ -236,15 +236,15 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input,expect,212))
+        self.assertTrue(TestParser.test(input,expect,312))
     # Test a program with only an unclosed string --> Raise error and print only the string content
-    def test_213(self):
+    def test_313(self):
         input = """ 
             "Hello
         """
         expect = """Hello"""
-        self.assertTrue(TestParser.test(input,expect,213))
-    def test_214(self):
+        self.assertTrue(TestParser.test(input,expect,313))
+    def test_314(self):
         input = """
     Class StringWorker{
         getString(someString, anotherString: String){
@@ -254,10 +254,10 @@ class ParserSuite(unittest.TestCase):
     }
         """
         expect = """successful"""
-        self.assertTrue(TestParser.test(input,expect,214))
+        self.assertTrue(TestParser.test(input,expect,314))
 
     # Test from d96 spec pdf
-    def test_215(self):
+    def test_315(self):
         input = """
         Class Shape {
             Val $numOfShape: Int = 0;
@@ -283,10 +283,10 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = """successful"""
-        self.assertTrue(TestParser.test(input,expect,215))
+        self.assertTrue(TestParser.test(input,expect,315))
     
     # Test case for Foreach - In loop
-    def test_216(self):
+    def test_316(self):
         input = """
         Class Program {
             main() {
@@ -304,9 +304,9 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = """successful"""
-        self.assertTrue(TestParser.test(input, expect, 216))
+        self.assertTrue(TestParser.test(input, expect, 316))
 
-    def test_217(self):
+    def test_317(self):
         input = """
         Class Program {
             main() {
@@ -316,9 +316,9 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = """Error on line 4 col 20: $invalid_value"""
-        self.assertTrue(TestParser.test(input,expect,217))
+        self.assertTrue(TestParser.test(input,expect,317))
 
-    def test_218(self):
+    def test_318(self):
         input = """
         Class Program {
             Var $sus_value: String = "This value is sus!"; ## Susssssss ##
@@ -330,9 +330,9 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = """successful"""
-        self.assertTrue(TestParser.test(input,expect,218))
+        self.assertTrue(TestParser.test(input,expect,318))
 
-    def test_219(self):
+    def test_319(self):
         input = """
         Class Program {
             Var a: Int;
@@ -344,14 +344,14 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = """successful"""
-        self.assertTrue(TestParser.test(input,expect,219))
+        self.assertTrue(TestParser.test(input,expect,319))
 
-    def test_220(self):
+    def test_320(self):
         input = """"""
         expect = """Error on line 1 col 0: <EOF>"""
-        self.assertTrue(TestParser.test(input,expect,220))
+        self.assertTrue(TestParser.test(input,expect,320))
 
-    def test_221(self):
+    def test_321(self):
         input = """
         Class Program {
             Var a: Array[Array[Int, 5], 5];
@@ -363,9 +363,9 @@ class ParserSuite(unittest.TestCase):
         }
         """
         expect = """successful"""
-        self.assertTrue(TestParser.test(input,expect,221))
+        self.assertTrue(TestParser.test(input,expect, 321))
 
-    def test_222(self):
+    def test_322(self):
         input = """
         Class Rectangle: Shape{
             Val myArray: Array[Float, 3];
@@ -376,7 +376,19 @@ class ParserSuite(unittest.TestCase):
         }
             """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 222))
+        self.assertTrue(TestParser.test(input, expect, 322))
+
+    def test_323(self):
+        """ Test unequal variable and value"""
+        input = """
+        Class Rectangle: Shape{
+            Val length, width: Int = 1;
+            }
+        }
+            """ 
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 323))
+
 
     # def test_2(self):
     #     input = """ """

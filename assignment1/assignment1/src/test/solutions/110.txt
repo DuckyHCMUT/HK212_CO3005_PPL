@@ -1,1 +1,0 @@
-Var,myArr,:,Array,[,Float,,,10,],;,<EOF>

@@ -1,1 +1,0 @@
-Class,Rectangle,:,Shape,{,Val,myArray,:,Array,[,Float,,,3,],;,getArray,(,),{,Return,myArray,;,},},<EOF>
