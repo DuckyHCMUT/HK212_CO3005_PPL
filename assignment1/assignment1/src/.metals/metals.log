@@ -2709,3 +2709,4 @@ Caused by: java.lang.IllegalArgumentException: 'other' has different root
 	at scala.meta.internal.metals.MetalsLanguageServer.didClose(MetalsLanguageServer.scala:1187)
 	... 16 more
 
+2022.01.24 22:57:53 INFO  shutting down Metals
