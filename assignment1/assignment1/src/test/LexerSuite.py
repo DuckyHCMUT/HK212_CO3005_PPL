@@ -272,9 +272,9 @@ class LexerSuite(unittest.TestCase):
         """test -0B101111"""
         self.assertTrue(TestLexer.test("-0B101111", "-,0B101111,<EOF>", 158))
 
-    def test_159(self):
-        '''test "string \\ '''
-        self.assertTrue(TestLexer.test('"string\\', 'Unclosed String: string', 159))
+    # def test_159(self):
+    #     '''test "string \\ '''
+    #     self.assertTrue(TestLexer.test('"string\\', 'Unclosed String: string', 159))
 
     def test_160(self):
         '''test "abc\\"'''
@@ -592,7 +592,7 @@ class LexerSuite(unittest.TestCase):
 
     def test_229(self):
         '''test 1.2e-023'''
-        self.assertTrue(TestLexer.test("1.2e-023", "1.2e-0,23,<EOF>", 229))
+        self.assertTrue(TestLexer.test("1.2e-023", "1.2e-023,<EOF>", 229))
 
     def test_230(self):
         '''test """'''
@@ -609,8 +609,7 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.test("00012", "00,012,<EOF>", 233))
 
     def test_234(self):
-        self.assertTrue(TestLexer.test(
-            "0B01010101", "0B0,1010101,<EOF>", 234))
+        self.assertTrue(TestLexer.test("0B01010101", "0B0,1010101,<EOF>", 234))
 
     def test_235(self):
         self.assertTrue(TestLexer.test("0b012", "0b0,12,<EOF>", 235))
@@ -622,78 +621,28 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.test("0057", "00,57,<EOF>", 237))
 
     def test_238(self):
-        """test 0b010"""
         self.assertTrue(TestLexer.test("0b010", "0b0,10,<EOF>", 238))
 
     def test_239(self):
-        """test 0x00AF"""
         self.assertTrue(TestLexer.test("0x00AF", "0x0,0,AF,<EOF>", 239))
 
     def test_240(self):
-        """test 0x0001"""
         self.assertTrue(TestLexer.test("0x0001", "0x0,00,1,<EOF>", 240))
 
-    def test_huge_program_241(self):
-        """test program.d96"""
+    def test_illegal_esc_5_241(self):
+        self.assertTrue(TestLexer.test("\"Dumbledore : '\" Lily? After all this time? \\n \\n \\t \\2 '\" \"", 
+        "Illegal Escape In String: Dumbledore : '\" Lily? After all this time? \\n \\n \\t \\2", 241))
+
+    def test_unclosed_string_super_242(self):
+        self.assertTrue(TestLexer.test("\"abc'\"", "Unclosed String: abc'", 242))
+
+    def test_float_243(self):
+        self.assertTrue(TestLexer.test("0.00000000", "0.00000000,<EOF>", 243))
+
+    def test_legal_escape_244(self):
+        '''test "abc\\h"'''
         self.assertTrue(TestLexer.test(
-        """
-        Class TestNameNodeMetrics {
-            Val CONF : Int = New HdfsConfiguration();
-            Var $DFS_REDUNDANCY_INTERVAL : Int = 1;
-            Val $TEST_ROOT_DIR_PATH : String = New Path("/testNameNodeMetrics");
-            Val NN_METRICS : String = "NameNodeActivity";
-            Var BLOCK_SIZE : Float = 1024e10 * 1024.05;
-            
-            ##
-            Number of datanodes in the cluster
-            ##
-            Var $DATANODE_COUNT : Int = EC_POLICY.getNumDataUnits() + EC_POLICY.getNumParityUnits() + 1;
-            
-            Val cluster;
-            Val fs;
+            '"abc\\h"', 'Illegal Escape In String: abc\h', 244))
 
-            Int getTestPath(fileName : String) {
-                Return New Path(TEST_ROOT_DIR_PATH, fileName);
-            }
-
-            Boolean setUp(a : Int, b : Float) {
-                cluster.waitActive();
-                someFunc();
-                fs.enableErasureCodingPolicy(EC_POLICY.getName());
-                ecDir = getTestPath("/ec");
-                fs.setErasureCodingPolicy(ecDir, EC_POLICY.getName());
-            }
-            
-            Void tearDown() {
-                Val source : Float = DefaultMetricsSystem.instance().getSource("UgiMetrics");
-                If (source != Null) {
-                ##
-                Run only once since the UGI metrics is cleaned up during teardown
-                ##
-                assertQuantileGauges("GetGroups1s", rb);
-                }
-                If (hostsFileWriter != Null) {
-                hostsFileWriter.cleanup();
-                hostsFileWriter = Null;
-                }
-                If (cluster != Null) {
-                cluster.shutdown();
-                cluster = Null;
-                }
-
-                Val includeHosts : Array[Int, 100] = New String[dnAddresses.length - 1];
-                Foreach (i in 1 .. 100 By 1) {
-                includeHosts[i] = dnAddresses[i + 1];
-                }
-            }
-        }
-
-        Class Program {
-            main() {
-                Out.println("Hello World");
-            }
-        }
-        """
-,"""Class,TestNameNodeMetrics,{,Val,CONF,:,Int,=,New,HdfsConfiguration,(,),;,Var,$DFS_REDUNDANCY_INTERVAL,:,Int,=,1,;,Val,$TEST_ROOT_DIR_PATH,:,String,=,New,Path,(,/testNameNodeMetrics,),;,Val,NN_METRICS,:,String,=,NameNodeActivity,;,Var,BLOCK_SIZE,:,Float,=,1024e10,*,1024.05,;,Var,$DATANODE_COUNT,:,Int,=,EC_POLICY,.,getNumDataUnits,(,),+,EC_POLICY,.,getNumParityUnits,(,),+,1,;,Val,cluster,;,Val,fs,;,Int,getTestPath,(,fileName,:,String,),{,Return,New,Path,(,TEST_ROOT_DIR_PATH,,,fileName,),;,},Boolean,setUp,(,a,:,Int,,,b,:,Float,),{,cluster,.,waitActive,(,),;,someFunc,(,),;,fs,.,enableErasureCodingPolicy,(,EC_POLICY,.,getName,(,),),;,ecDir,=,getTestPath,(,/ec,),;,fs,.,setErasureCodingPolicy,(,ecDir,,,EC_POLICY,.,getName,(,),),;,},Void,tearDown,(,),{,Val,source,:,Float,=,DefaultMetricsSystem,.,instance,(,),.,getSource,(,UgiMetrics,),;,If,(,source,!=,Null,),{,assertQuantileGauges,(,GetGroups1s,,,rb,),;,},If,(,hostsFileWriter,!=,Null,),{,hostsFileWriter,.,cleanup,(,),;,hostsFileWriter,=,Null,;,},If,(,cluster,!=,Null,),{,cluster,.,shutdown,(,),;,cluster,=,Null,;,},Val,includeHosts,:,Array,[,Int,,,100,],=,New,String,[,dnAddresses,.,length,-,1,],;,Foreach,(,i,in,1,..,100,By,1,),{,includeHosts,[,i,],=,dnAddresses,[,i,+,1,],;,},},},Class,Program,{,main,(,),{,Out,.,println,(,Hello World,),;,},},<EOF>""", 241))
-
-    
+    def test_float_245(self):
+        self.assertTrue(TestLexer.test("3.2000e7", "3.2000e7,<EOF>", 245))

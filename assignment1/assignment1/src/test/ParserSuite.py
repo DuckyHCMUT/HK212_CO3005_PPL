@@ -42,7 +42,7 @@ class ParserSuite(unittest.TestCase):
         This part should be ignored, just to check, nothing to comment
         ##
         $getSomething(yes: Int){
-            Var x : Int=0;
+            Var x : Int = 0;
             Self.x = 1;
             Return x;
         }
@@ -242,7 +242,8 @@ class ParserSuite(unittest.TestCase):
         input = """ 
             "Hello
         """
-        expect = """Hello"""
+        expect = """Hello
+"""
         self.assertTrue(TestParser.test(input,expect,313))
     def test_314(self):
         input = """
@@ -378,17 +379,15 @@ class ParserSuite(unittest.TestCase):
         expect = "successful"
         self.assertTrue(TestParser.test(input, expect, 322))
 
-    def test_323(self):
-        """ Test unequal variable and value"""
-        input = """
-        Class Rectangle: Shape{
-            Val length, width: Int = 1;
-            }
-        }
-            """ 
-        expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 323))
-
+    # def test_323(self):
+    #     """ Test unequal variable and value"""
+    #     input = """
+    #     Class Rectangle: Shape{
+    #         Val length, width, diameter, stuff, $a: Int = 1;
+    #     }
+    #         """
+    #     expect = "successful"
+    #     self.assertTrue(TestParser.test(input, expect, 323))
 
     # def test_2(self):
     #     input = """ """

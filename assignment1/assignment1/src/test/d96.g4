@@ -21,26 +21,18 @@ class_decl:
 
 class_body: (class_attr | class_method)*;
 
-class_attr: attr_var_decl;
-
+class_attr: var_decl;
 class_method: normal_method | constructor | destructor;
 
-attr_var_decl: (VAR | VAL) (attr_pair_list | attr_pair_list_arr) SEMI; //(decl_tail | array_decl_tail);
-
-attr_pair_list: (ID | DOLLAR_ID) attr_pair all_expr?; // myVar (, myVar1(, myVar2 (, myVar3(: Int =) 100,) 200,) 300,) 400 
-
-attr_pair: COMMA (ID | DOLLAR_ID) attr_pair (all_expr COMMA)? | COLON data_type ASSIGN?; 
-
-attr_pair_list_arr: (ID | DOLLAR_ID) attr_pair_arr attr_array_decl_tail; // myArr (, myArr1 (, myArr2 (, myArr3(:) Array[Int, 5],) Array[Int, 100],) Array[String, 4],) Array[Float, 2]
-
-attr_pair_arr: COMMA (ID | DOLLAR_ID) attr_pair_arr attr_array_decl_tail COMMA | COLON;
-
-attr_array_decl_tail: ARRAY LS (data_type | ARRAY) COMMA 
-	(LITERAL_INT) RS; // Can be primitive or array type
-
-normal_method: (ID | DOLLAR_ID) LB params_list? RB LP block_stmt? RP; 
+normal_method: ID LB params_list? RB LP block_stmt? RP; 
 constructor: CONSTRUCTOR LB params_list? RB LP block_stmt? RP; 
 destructor: DESTRUCTOR LB RB LP block_stmt? RP;
+
+params_list: params (SEMI params)*;
+
+params : ID (COMMA ID)* COLON data_type;
+
+data_type : INT | FLOAT | BOOLEAN | STRING | class_name;
 
 // Section 6: Statements
 // Section 6.1: Variable and constant declaration statement
@@ -67,14 +59,12 @@ pair_arr: COMMA ID pair_arr array_decl_tail COMMA | COLON;
 
 // array_decl_tail: ARRAY LS (data_type | ARRAY) COMMA LITERAL_INT_DEC RS; // Can be primitive or array type
 
-// Array[Array[Int, 5], 5];
-
-array_decl_tail: ARRAY LS (data_type | array_decl_tail) COMMA 
+array_decl_tail: ARRAY LS (data_type | ARRAY) COMMA 
 	(LITERAL_INT) RS; // Can be primitive or array type
 
-// ARRAY [ ARRAY [INT, 5], 5];
-
 object_decl: NEW ID LB RB;
+
+expr_tail: (all_expr COMMA)* all_expr; 
 
 // Assign statement
 // Some situations may appear as follow:
@@ -82,16 +72,8 @@ object_decl: NEW ID LB RB;
 // Self.a = expr;
 // a.b.c = expr;
 
-// assign_stmt: (((class_name DOT)? (ID DOT)*) ID | element_expr) ASSIGN all_expr SEMI;
+assign_stmt: (((class_name DOT)? (ID DOT)*) ID | element_expr) ASSIGN all_expr SEMI;
 
-assign_stmt: assign_lhs ASSIGN all_expr SEMI;
-assign_lhs: (class_name ((DOUBLE_COLON DOLLAR_ID (LB params_list? RB)?) | (DOT ID (LB params_list? RB)?))* ) | ID | DOLLAR_ID;
-
-params_list: params (SEMI params)*;
-
-params : ID (COMMA ID)* COLON data_type;
-
-data_type : INT | FLOAT | BOOLEAN | STRING | class_name;
 
 // If statement
 if_stmt: IF LB all_expr RB LP block_stmt? RP (else_if_body)?;
@@ -170,19 +152,18 @@ index_ops: LS all_expr RS index_ops?; // [3] or [a+2] or [a[b[c[3]]]
 
 // Section 5.6: Member access
 member_access: instance_attr | static_attr | instance_method | static_method;
-
 // 1. Instance attribute
-instance_attr: (class_name DOT)? ID;
+instance_attr: class_name DOT ID;
 
 // 2. Static attribute
-static_attr: (class_name DOUBLE_COLON)? DOLLAR_ID;
+static_attr: ID DOUBLE_COLON ID;
 
 // 3. Instance method invocation
 instance_method: (class_name DOT)? instance_method_tail;
 instance_method_tail: ID LB list_of_expr? RB;
 
 // 4. Static method invocation
-static_method: (class_name DOUBLE_COLON)? DOLLAR_ID LB list_of_expr? RB;
+static_method: (ID DOUBLE_COLON)? ID LB list_of_expr? RB;
 
 // Section 5.7: Object creation
 object_create: NEW ID LB list_of_expr? RB;
@@ -221,7 +202,7 @@ LITERAL_INT_OCT:
 		)
 	)
 	{self.text = self.text.replace('_','')}; // Just need to add a preceeding number zero by the normal decimal notation
-LITERAL_INT_BIN: ('0b' | '0B')('0' | ('1' ('_'? [01])*));
+LITERAL_INT_BIN: ('0b' | '0B')('0' | ('1' [01]*));
 
 LITERAL_FLOAT: 
 		(
@@ -243,11 +224,11 @@ fragment FLOAT_INT:
 		[1-9] ('_'? [0-9])*
 	);
 fragment FLOAT_DECIMAL: DOT [0-9]*;
-fragment FLOAT_EXP: [eE] [+-]? ([0-9]+);
+fragment FLOAT_EXP: [eE] [+-]? [1-9] [0-9]*;
 
 // Strings literal, delimited by double quotation marks, containing STRING_CHAR (string characters)
 LITERAL_STRING: 
-	'"' (STRING_CHAR | DOUBLE_QUOTE | ESC_SEQUENCE)* '"'
+	'"' STRING_CHAR* '"'
 	{ 
 		y = str(self.text)
 		self.text = y[1:-1]
@@ -317,57 +298,42 @@ STRING_CONCAT : '+.';
 DOT : '.';
 DOUBLE_COLON : '::';
 COLON: ':';
+// NEW : 'New'; --> Duplicate from the keyword
 
 // Section 3.3: Identiiers
 ID: [_a-zA-Z][_a-zA-Z0-9]*;
-DOLLAR_ID: STATIC [_a-zA-Z0-9]+;
+DOLLAR_ID: '$'[_a-zA-Z0-9]+;
 
 // Section 3.2: Program comment
 BLOCK_COMMENT : ('##' .*? '##') -> skip;
 
-WS: [ \t\n\r\b\f]+ -> skip; // skip spaces, tabs, newlines
+WS: [ \b\t\n\f\r]+ -> skip; // skip spaces, tabs, newlines
 
 
 // Errors and exceptions
-// UNCLOSE_STRING: '"' (STRING_CHAR | ESC_SEQUENCE)* EOF
-// 	{
-// 		y = str(self.text)
-// 		raise UncloseString(y[1:])
-// 	};
+UNCLOSE_STRING: '"' STRING_CHAR* 
+	{
+		y = str(self.text)
+		possible_char = ['\b', '\t', '\n', '\f', '\r', '"', "'", '\\']
+		if y[-1] in possible_char:
+			raise UncloseString(y[1:-1])
+		else:
+			raise UncloseString(y[1:])
+	};
 
-fragment STRING_CHAR: ~[\\"\n];
-
-UNCLOSE_STRING: '"' (STRING_CHAR | ESC_SEQUENCE)* (EOF | '\n')
-{
-	content = str(self.text)
-	esc = ['"', '\n']
-	if content[-1] in esc:
-		raise UncloseString(content[1:-1])
-	else:
-		raise UncloseString(content[1:])
-};
-
-ILLEGAL_ESCAPE: '"' (STRING_CHAR | ESC_SEQUENCE)* ESC_ILLEGAL
+ILLEGAL_ESCAPE: '"' STRING_CHAR* ESC_ILLEGAL
 	{
 		y = str(self.text)
 		raise IllegalEscape(y[1:])
 	};
 
-// fragment ESC_SEQUENCE: '\\' [bfrnt'"\\] ;
+fragment STRING_CHAR: ~["\\] | ESC_SEQUENCE;
 
-fragment ESC_SEQUENCE: '\\b'
-						| '\\f'
-						| '\\r'
-						| '\\n'
-						| '\\t'
-						| '\\\''
-						| '\\\\'
-						| '\'"';
+fragment ESC_SEQUENCE: '\\' [bfrnt'\\] ;
 
-fragment ESC_ILLEGAL: '\\' ~[bfrnt'\\];
+fragment ESC_ILLEGAL: '\\' ~[bfrnt'\\] ;
 
 ERROR_CHAR: .
 	{
 		raise ErrorToken(self.text)
 	};
-
