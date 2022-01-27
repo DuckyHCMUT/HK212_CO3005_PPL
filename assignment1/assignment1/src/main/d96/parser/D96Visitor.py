@@ -29,11 +29,6 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#class_method.
-    def visitClass_method(self, ctx:D96Parser.Class_methodContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by D96Parser#attr_no_value.
     def visitAttr_no_value(self, ctx:D96Parser.Attr_no_valueContext):
         return self.visitChildren(ctx)
@@ -49,18 +44,33 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#attr_array.
-    def visitAttr_array(self, ctx:D96Parser.Attr_arrayContext):
+    # Visit a parse tree produced by D96Parser#attr_array_no_value.
+    def visitAttr_array_no_value(self, ctx:D96Parser.Attr_array_no_valueContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#attr_pair_arr.
-    def visitAttr_pair_arr(self, ctx:D96Parser.Attr_pair_arrContext):
+    # Visit a parse tree produced by D96Parser#attr_array_with_value.
+    def visitAttr_array_with_value(self, ctx:D96Parser.Attr_array_with_valueContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#attr_array_pair.
+    def visitAttr_array_pair(self, ctx:D96Parser.Attr_array_pairContext):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by D96Parser#attr_array_decl_tail.
     def visitAttr_array_decl_tail(self, ctx:D96Parser.Attr_array_decl_tailContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#any_id.
+    def visitAny_id(self, ctx:D96Parser.Any_idContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#class_method.
+    def visitClass_method(self, ctx:D96Parser.Class_methodContext):
         return self.visitChildren(ctx)
 
 
@@ -89,38 +99,38 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#var_decl_no_value.
-    def visitVar_decl_no_value(self, ctx:D96Parser.Var_decl_no_valueContext):
+    # Visit a parse tree produced by D96Parser#var_no_value.
+    def visitVar_no_value(self, ctx:D96Parser.Var_no_valueContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#var_decl_with_value.
-    def visitVar_decl_with_value(self, ctx:D96Parser.Var_decl_with_valueContext):
+    # Visit a parse tree produced by D96Parser#var_with_value.
+    def visitVar_with_value(self, ctx:D96Parser.Var_with_valueContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#pair.
-    def visitPair(self, ctx:D96Parser.PairContext):
+    # Visit a parse tree produced by D96Parser#var_pair.
+    def visitVar_pair(self, ctx:D96Parser.Var_pairContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#var_arr.
-    def visitVar_arr(self, ctx:D96Parser.Var_arrContext):
+    # Visit a parse tree produced by D96Parser#var_array_no_value.
+    def visitVar_array_no_value(self, ctx:D96Parser.Var_array_no_valueContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#pair_arr.
-    def visitPair_arr(self, ctx:D96Parser.Pair_arrContext):
+    # Visit a parse tree produced by D96Parser#var_array_with_value.
+    def visitVar_array_with_value(self, ctx:D96Parser.Var_array_with_valueContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#array_decl_tail.
-    def visitArray_decl_tail(self, ctx:D96Parser.Array_decl_tailContext):
+    # Visit a parse tree produced by D96Parser#var_array_pair.
+    def visitVar_array_pair(self, ctx:D96Parser.Var_array_pairContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#object_decl.
-    def visitObject_decl(self, ctx:D96Parser.Object_declContext):
+    # Visit a parse tree produced by D96Parser#var_array_decl_tail.
+    def visitVar_array_decl_tail(self, ctx:D96Parser.Var_array_decl_tailContext):
         return self.visitChildren(ctx)
 
 
@@ -179,8 +189,8 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#int_expr.
-    def visitInt_expr(self, ctx:D96Parser.Int_exprContext):
+    # Visit a parse tree produced by D96Parser#scalar_variable.
+    def visitScalar_variable(self, ctx:D96Parser.Scalar_variableContext):
         return self.visitChildren(ctx)
 
 
@@ -204,6 +214,11 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by D96Parser#method_invoc_literal.
+    def visitMethod_invoc_literal(self, ctx:D96Parser.Method_invoc_literalContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by D96Parser#method_invoc.
     def visitMethod_invoc(self, ctx:D96Parser.Method_invocContext):
         return self.visitChildren(ctx)
@@ -214,23 +229,13 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by D96Parser#funcall.
+    def visitFuncall(self, ctx:D96Parser.FuncallContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by D96Parser#block_stmt.
     def visitBlock_stmt(self, ctx:D96Parser.Block_stmtContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#literal_idx_array.
-    def visitLiteral_idx_array(self, ctx:D96Parser.Literal_idx_arrayContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#literal_mtd_array.
-    def visitLiteral_mtd_array(self, ctx:D96Parser.Literal_mtd_arrayContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#array_element.
-    def visitArray_element(self, ctx:D96Parser.Array_elementContext):
         return self.visitChildren(ctx)
 
 
@@ -314,11 +319,6 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#instance_member_access.
-    def visitInstance_member_access(self, ctx:D96Parser.Instance_member_accessContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by D96Parser#instance_attr.
     def visitInstance_attr(self, ctx:D96Parser.Instance_attrContext):
         return self.visitChildren(ctx)
@@ -351,6 +351,26 @@ class D96Visitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by D96Parser#literal.
     def visitLiteral(self, ctx:D96Parser.LiteralContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#literal_array.
+    def visitLiteral_array(self, ctx:D96Parser.Literal_arrayContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#literal_idx_array.
+    def visitLiteral_idx_array(self, ctx:D96Parser.Literal_idx_arrayContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#literal_mtd_array.
+    def visitLiteral_mtd_array(self, ctx:D96Parser.Literal_mtd_arrayContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#array_element.
+    def visitArray_element(self, ctx:D96Parser.Array_elementContext):
         return self.visitChildren(ctx)
 
 

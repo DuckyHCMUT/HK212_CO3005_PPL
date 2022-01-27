@@ -634,7 +634,7 @@ class LexerSuite(unittest.TestCase):
         "Illegal Escape In String: Dumbledore : '\" Lily? After all this time? \\n \\n \\t \\2", 241))
 
     def test_unclosed_string_super_242(self):
-        self.assertTrue(TestLexer.test("\"abc'\"", "Unclosed String: abc'", 242))
+        self.assertTrue(TestLexer.test("\"abc'\"", "Unclosed String: abc'\"", 242))
 
     def test_float_243(self):
         self.assertTrue(TestLexer.test("0.00000000", "0.00000000,<EOF>", 243))
@@ -654,7 +654,7 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.test(' "string" " ','string,Unclosed String:  ', 247))
 
     def test_quote_at_the_end_248(self):
-        self.assertTrue(TestLexer.test("\"String with single quote \'this is good\'\"","""Unclosed String: String with single quote 'this is good'""", 248))
+        self.assertTrue(TestLexer.test("\"String with single quote \'this is good\'\"","""Unclosed String: String with single quote 'this is good'\"""", 248))
 
     def test_dec_or_oct_249(self):
         self.assertTrue(TestLexer.test("0_1_2_3", "0,_1_2_3,<EOF>", 249))
@@ -684,3 +684,13 @@ class LexerSuite(unittest.TestCase):
     def test_cmt_in_str_2(self):
         self.assertTrue(TestLexer.test(
             '"Hello World## " ##', 'Hello World## ,Error Token #', 254))
+
+    def test_255(self):
+        """Calling static function call within the class"""
+        input = """
+        Class Program {
+            Var a: Float = !123 >= 234 && 345 + 456 || 567 <= (678 != a);
+        }
+        """
+        expect = "Class,Program,{,Var,a,:,Float,=,!,123,>=,234,&&,345,+,456,||,567,<=,(,678,!=,a,),;,},<EOF>"
+        self.assertTrue(TestLexer.test(input, expect, 255))
