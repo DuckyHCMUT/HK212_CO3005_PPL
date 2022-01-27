@@ -21,22 +21,22 @@ class_decl:
 
 class_body: (class_attr | class_method)*;
 
-class_attr: attr_var_decl;
+class_attr: (VAR | VAL) (attr_no_value | attr_with_value | attr_array) SEMI;
 
 class_method: normal_method | constructor | destructor;
 
-attr_var_decl: (VAR | VAL) (attr_pair_list | attr_pair_list_arr) SEMI; //(decl_tail | array_decl_tail);
+attr_no_value: (ID | DOLLAR_ID) (COMMA (ID | DOLLAR_ID))* COLON data_type;
 
-attr_pair_list: (ID | DOLLAR_ID) attr_pair all_expr?; // myVar (, myVar1(, myVar2 (, myVar3(: Int =) 100,) 200,) 300,) 400 
+attr_with_value: (ID | DOLLAR_ID) attr_pair all_expr; // myVar (, myVar1(, myVar2 (, myVar3(: Int =) 100,) 200,) 300,) 400 
+attr_pair: COMMA (ID | DOLLAR_ID) attr_pair all_expr COMMA | COLON data_type ASSIGN; 
 
-attr_pair: COMMA (ID | DOLLAR_ID) attr_pair (all_expr COMMA)? | COLON data_type ASSIGN?; 
-
-attr_pair_list_arr: (ID | DOLLAR_ID) attr_pair_arr attr_array_decl_tail; // myArr (, myArr1 (, myArr2 (, myArr3(:) Array[Int, 5],) Array[Int, 100],) Array[String, 4],) Array[Float, 2]
-
+ // myArr (, myArr1 (, myArr2 (, myArr3(:) Array[Int, 5],) Array[Int, 100],) Array[String, 4],) Array[Float, 2]
+attr_array: (ID | DOLLAR_ID) attr_pair_arr attr_array_decl_tail;
 attr_pair_arr: COMMA (ID | DOLLAR_ID) attr_pair_arr attr_array_decl_tail COMMA | COLON;
 
-attr_array_decl_tail: ARRAY LS (data_type | ARRAY) COMMA 
-	(LITERAL_INT) RS; // Can be primitive or array type
+attr_array_decl_tail: ARRAY LS (data_type | attr_array_decl_tail) COMMA 
+	(LITERAL_INT) RS; 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 normal_method: (ID | DOLLAR_ID) LB params_list? RB LP block_stmt? RP; 
 constructor: CONSTRUCTOR LB params_list? RB LP block_stmt? RP; 
@@ -55,53 +55,46 @@ stmt:
 	| method_invoc) 
 	;
 
-var_decl: (VAR | VAL) (pair_list | pair_list_arr) SEMI; //(decl_tail | array_decl_tail);
+var_decl: (VAR | VAL) (var_decl_no_value | var_decl_with_value | var_arr) SEMI; //(decl_tail | array_decl_tail);
 
-pair_list: ID pair all_expr?; // myVar (, myVar1(, myVar2 (, myVar3(: Int =) 100,) 200,) 300,) 400 
+var_decl_no_value: ID (COMMA ID)* COLON data_type;
 
-pair: COMMA ID pair (all_expr COMMA)? | COLON data_type ASSIGN?; 
+var_decl_with_value: ID pair all_expr; // myVar (, myVar1(, myVar2 (, myVar3(: Int =) 100,) 200,) 300,) 400 
 
-pair_list_arr: ID pair_arr array_decl_tail; // myArr (, myArr1 (, myArr2 (, myArr3(:) Array[Int, 5],) Array[Int, 100],) Array[String, 4],) Array[Float, 2]
+pair: COMMA ID pair all_expr COMMA | COLON data_type ASSIGN; 
+
+var_arr: ID pair_arr array_decl_tail; // myArr (, myArr1 (, myArr2 (, myArr3(:) Array[Int, 5],) Array[Int, 100],) Array[String, 4],) Array[Float, 2]
 
 pair_arr: COMMA ID pair_arr array_decl_tail COMMA | COLON;
-
-// array_decl_tail: ARRAY LS (data_type | ARRAY) COMMA LITERAL_INT_DEC RS; // Can be primitive or array type
-
-// Array[Array[Int, 5], 5];
 
 array_decl_tail: ARRAY LS (data_type | array_decl_tail) COMMA 
 	(LITERAL_INT) RS; // Can be primitive or array type
 
-// ARRAY [ ARRAY [INT, 5], 5];
-
 object_decl: NEW ID LB RB;
 
 // Assign statement
-// Some situations may appear as follow:
-// a = expr;
-// Self.a = expr;
-// a.b.c = expr;
-
-// assign_stmt: (((class_name DOT)? (ID DOT)*) ID | element_expr) ASSIGN all_expr SEMI;
-
 assign_stmt: assign_lhs ASSIGN all_expr SEMI;
-assign_lhs: (class_name ((DOUBLE_COLON DOLLAR_ID (LB params_list? RB)?) | (DOT ID (LB params_list? RB)?))* ) | ID | DOLLAR_ID;
+assign_lhs: (class_name ((DOUBLE_COLON DOLLAR_ID (LB params_list? RB)?) | (DOT ID (LB params_list? RB)?))* ) | ID | DOLLAR_ID | ID element_expr;
 
 params_list: params (SEMI params)*;
 
-params : ID (COMMA ID)* COLON data_type;
+params : ID (COMMA ID)* COLON data_type; // need array
 
 data_type : INT | FLOAT | BOOLEAN | STRING | class_name;
 
 // If statement
-if_stmt: IF LB all_expr RB LP block_stmt? RP (else_if_body)?;
+if_stmt: IF LB all_expr RB LP block_stmt? RP (else_if_body)? else_body;
 
 else_if_body: ELSEIF LB all_expr RB LP block_stmt? RP else_if_body?;
 
+else_body: ELSE LP block_stmt? RP;
+
 // For-in statement
 for_in_stmt: FOREACH LB for_in_body RB LP block_stmt RP;
-for_in_body: ID IN for_in_expr DOTDOT for_in_expr (BY for_in_expr)? ;
-for_in_expr: SUBTRACT? LITERAL_INT; // from -999999.... to 999999.... anything~
+for_in_body: ID IN for_in_expr DOTDOT for_in_expr (BY for_in_expr)? ; 
+for_in_expr: all_expr; // from -999999.... to 999999.... anything~
+
+int_expr: ; // later
 
 break_stmt: BREAK SEMI;
 
@@ -113,7 +106,8 @@ class_name: (ID | SELF); // An arbitrary name or Self keyword
 
 // A method invocation statement is an instance/static method invocation, that was described in subsection 5.6, with a semicolon at the end.
 // method_invoc: ID (DOT | DOUBLE_SEMI) STATIC? ID LB expr_list? RB SEMI;  
-method_invoc: (instance_method | static_method ) SEMI;
+method_invoc: class_name (instance_method | static_method) SEMI; // Still some issues here
+
 expr_list: (all_expr COMMA)* all_expr;
 
 block_stmt: (stmt)+;
@@ -128,7 +122,7 @@ array_element: (literal COMMA?)+;
 
 /* Section 5: Expression */
 
-all_expr: (op | member_access | object_create); 
+all_expr: (op | object_create); 
 
 op: op1 (STRING_CONCAT | EQUAL_STRING) op1 | op1; // +., ==., - Binary - Infix - None
 
@@ -144,50 +138,41 @@ op5: (NOT op5) | op6; // ! -  Unary - Prefix - Right-assoc
 
 op6: (SUBTRACT op6) | op7; // (-) - Unary - Prefix - Right-assoc
 
-op7: (op8 index_ops) | op8 ; // [] - Unary - Postfix - Left-assoc
+op7: (op8 element_expr) | op8 ; // [] - Unary - Postfix - Left-assoc
 
-op8: op8 (DOT | DOUBLE_COLON) op9 | op9; // . :: - Binary - Infix - Left-assoc
+op8: op8 DOT op9 | op9; // . - Binary - Infix - Left-assoc
 
-op9: (NEW op9) | operands; // New - Unary - Prefix - Right-assoc
+op9: ID DOUBLE_COLON DOLLAR_ID | op10;
 
-operands: literal | ID | LB op RB | NULL | member_access; // Because member access can also return a value
+op10: (NEW op10) | operands; // New - Unary - Prefix - Right-assoc
 
-// Section 5.1: Arithmetic operators
-arithmetic_ops: SUBTRACT | ADD | MULTIPLY | DIVIDE | MODULO; // - + * / %
-
-// Section 5.2: Boolean operators
-boolean_ops: NOT | AND | OR | EQUAL_STRING; // ! && || ==.
-
-// Section 5.3: String operators
-string_ops: STRING_CONCAT; // +.
-
-// Section 5.4: Relational operators
-relational_ops: EQUAL | NOT_EQUAL | LESS_THAN | GREATER_THAN | LEQ | GEQ;
+operands: literal | ID | LB op RB | NULL; // Because member access can also return a value
 
 // Section 5.5: Index operators
-element_expr: all_expr index_ops; // a + b(index_ops)
-index_ops: LS all_expr RS index_ops?; // [3] or [a+2] or [a[b[c[3]]]
+element_expr: index_ops; // a + b(index_ops)
+index_ops: LS all_expr RS index_ops?; // [3] or [a+2] or a[1][2] or a[a[1]]
 
 // Section 5.6: Member access
-member_access: instance_attr | static_attr | instance_method | static_method;
+static_member_access: static_attr | static_method;
+
+instance_member_access: instance_attr | instance_method;
 
 // 1. Instance attribute
-instance_attr: (class_name DOT)? ID;
+instance_attr: DOT ID;
 
 // 2. Static attribute
-static_attr: (class_name DOUBLE_COLON)? DOLLAR_ID;
+static_attr: DOUBLE_COLON DOLLAR_ID;
 
 // 3. Instance method invocation
-instance_method: (class_name DOT)? instance_method_tail;
-instance_method_tail: ID LB list_of_expr? RB;
+instance_method: DOT ID LB list_of_expr? RB;
 
 // 4. Static method invocation
-static_method: (class_name DOUBLE_COLON)? DOLLAR_ID LB list_of_expr? RB;
+static_method: DOUBLE_COLON DOLLAR_ID LB list_of_expr? RB;
 
 // Section 5.7: Object creation
 object_create: NEW ID LB list_of_expr? RB;
 
-list_of_expr: (op COMMA?)+;
+list_of_expr: op (COMMA op)*;
 
 // Section 3.7: Literals
 literal: LITERAL_INT | LITERAL_FLOAT | LITERAL_STRING;
@@ -201,7 +186,7 @@ LITERAL_INT_DEC:
 		'0' 
 		|
 		([1-9] ('_'? [0-9])*)
-	){self.text = self.text.replace('_','')}; 
+	); 
 
 LITERAL_INT_HEX: 
 	('0x' | '0X')
@@ -209,8 +194,8 @@ LITERAL_INT_HEX:
 		'0' 
 		| 
 		[1-9A-F] ('_'? [0-9A-F])*
-	) 
-	{self.text = self.text.replace('_','')}; // Need to work for non-duplicate underscores
+	) ; // Need to work for non-duplicate underscores
+
 LITERAL_INT_OCT: 
 	(
 		'0'
@@ -219,9 +204,11 @@ LITERAL_INT_OCT:
 		| 
 			([1-7] ('_'? [0-7])*
 		)
-	)
-	{self.text = self.text.replace('_','')}; // Just need to add a preceeding number zero by the normal decimal notation
+	); // Just need to add a preceeding number zero by the normal decimal notation
+	
 LITERAL_INT_BIN: ('0b' | '0B')('0' | ('1' ('_'? [01])*));
+
+
 
 LITERAL_FLOAT: 
 		(
@@ -234,7 +221,6 @@ LITERAL_FLOAT:
 			(FLOAT_DECIMAL FLOAT_EXP) 
 		)
 		{self.text = self.text.replace('_','')};
-		// {print("here")}; 
 
 fragment FLOAT_INT: 
 	'0' 
@@ -273,12 +259,10 @@ DESTRUCTOR: 'Destructor';
 IF: 'If';
 FALSE: 'False';
 BOOLEAN: 'Boolean';
-// VAL: 'Val';
 NEW: 'New';
 ELSEIF : 'Elseif';
 ARRAY: 'Array';
 STRING: 'String';
-// VAR: 'Var';
 BY: 'By';
 ELSE: 'Else';
 IN: 'In';
@@ -327,14 +311,7 @@ BLOCK_COMMENT : ('##' .*? '##') -> skip;
 
 WS: [ \t\n\r\b\f]+ -> skip; // skip spaces, tabs, newlines
 
-
 // Errors and exceptions
-// UNCLOSE_STRING: '"' (STRING_CHAR | ESC_SEQUENCE)* EOF
-// 	{
-// 		y = str(self.text)
-// 		raise UncloseString(y[1:])
-// 	};
-
 fragment STRING_CHAR: ~[\\"\n];
 
 UNCLOSE_STRING: '"' (STRING_CHAR | ESC_SEQUENCE)* (EOF | '\n')

@@ -646,3 +646,41 @@ class LexerSuite(unittest.TestCase):
 
     def test_float_245(self):
         self.assertTrue(TestLexer.test("3.2000e7", "3.2000e7,<EOF>", 245))
+
+    def test_nhan_246(self):
+        self.assertTrue(TestLexer.test(""" "Thanh Nhan \\" """,'Illegal Escape In String: Thanh Nhan \\"', 246))
+
+    def test_no_quotation_247(self):
+        self.assertTrue(TestLexer.test(' "string" " ','string,Unclosed String:  ', 247))
+
+    def test_quote_at_the_end_248(self):
+        self.assertTrue(TestLexer.test("\"String with single quote \'this is good\'\"","""Unclosed String: String with single quote 'this is good'""", 248))
+
+    def test_dec_or_oct_249(self):
+        self.assertTrue(TestLexer.test("0_1_2_3", "0,_1_2_3,<EOF>", 249))
+
+    def test_for_in_without_white_250(self):
+        input = """
+        Foreach (i In 1..100 By 2) {
+            Out.printInt(i);
+        }
+        """
+        expect = "Foreach,(,i,In,1.,.,100,By,2,),{,Out,.,printInt,(,i,),;,},<EOF>"
+        self.assertTrue(TestLexer.test(input, expect, 250))
+
+    def test_string_12(self):
+        '''"He asked me: \'"Where is John?\'""'''
+        self.assertTrue(TestLexer.test('"He asked me: \'"Where is John?\'""',
+        'He asked me: \'"Where is John?\'",<EOF>', 251))
+
+    def test_static_member_3(self):
+        """test $089"""
+        self.assertTrue(TestLexer.test("$089", "$089,<EOF>", 252))
+
+    def test_cmt_in_str_1(self):
+        self.assertTrue(TestLexer.test(
+            '"Hello ##My## World"', """Hello ##My## World,<EOF>""", 253))
+
+    def test_cmt_in_str_2(self):
+        self.assertTrue(TestLexer.test(
+            '"Hello World## " ##', 'Hello World## ,Error Token #', 254))
