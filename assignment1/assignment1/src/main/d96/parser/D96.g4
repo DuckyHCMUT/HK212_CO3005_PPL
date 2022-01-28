@@ -208,7 +208,7 @@ object_create: NEW ID LB list_of_expr? RB;
 list_of_expr: op (COMMA op)*;
 
 // Section 3.7: Literals
-literal: LITERAL_INT | LITERAL_FLOAT | LITERAL_STRING | LITERAL_BOOLEAN;
+literal: LITERAL_INT | LITERAL_FLOAT | LITERAL_STRING | LITERAL_BOOLEAN | LITERAL_ZERO;
 
 // Arrays
 literal_array: literal_idx_array | literal_mtd_array;
@@ -220,37 +220,23 @@ array_element: all_expr (COMMA all_expr)*;
 LITERAL_BOOLEAN: TRUE | FALSE; 
 
 LITERAL_INT: 
-	(LITERAL_INT_DEC | LITERAL_INT_HEX | LITERAL_INT_OCT | LITERAL_INT_BIN | LITERAL_INT_BIN)
+	(LITERAL_INT_DEC | LITERAL_INT_HEX | LITERAL_INT_OCT | LITERAL_INT_BIN)
 	{self.text = self.text.replace('_','')};
 
-LITERAL_INT_DEC: 
-	(
-		'0' 
-		|
-		([1-9] ('_'? [0-9])*)
-	); 
+LITERAL_ZERO: 
+			  '0'                 // Decimal
+			| '00'                // Octal
+			| '0x0' | '0X0'       // Hexadecimal
+			| '0b0' | '0B0'       // Binary
+			;
 
-LITERAL_INT_HEX: 
-	('0x' | '0X')
-	(
-		'0' 
-		| 
-		[1-9A-F] ('_'? [0-9A-F])*
-	) ; // Need to work for non-duplicate underscores
+LITERAL_INT_DEC: ([1-9] ('_'? [0-9])*); 
 
-LITERAL_INT_OCT: 
-	(
-		'0'
-	)
-		('0' // Number zero in octal (00) 
-		| 
-			([1-7] ('_'? [0-7])*
-		)
-	); // Just need to add a preceeding number zero by the normal decimal notation
+LITERAL_INT_HEX: ('0x' | '0X')([1-9A-F] ('_'? [0-9A-F])*) ;
+
+LITERAL_INT_OCT: '0' [1-7] ('_'? [0-7])*; 
 	
-LITERAL_INT_BIN: ('0b' | '0B')('0' | ('1' ('_'? [01])*));
-
-
+LITERAL_INT_BIN: ('0b' | '0B') ('1' ('_'? [01])*);
 
 LITERAL_FLOAT: 
 		(
@@ -259,7 +245,7 @@ LITERAL_FLOAT:
 		// Case 2: Decimal part omitted --> 2E-10, 2E10
 		// Case 3: Integer part omitted --> .E3, .E-5 
 			(FLOAT_INT FLOAT_EXP)
-		|
+		|	
 			(FLOAT_DECIMAL FLOAT_EXP) 
 		)
 		{self.text = self.text.replace('_','')};

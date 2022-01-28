@@ -694,3 +694,18 @@ class LexerSuite(unittest.TestCase):
         """
         expect = "Class,Program,{,Var,a,:,Float,=,!,123,>=,234,&&,345,+,456,||,567,<=,(,678,!=,a,),;,},<EOF>"
         self.assertTrue(TestLexer.test(input, expect, 255))
+
+    def test_str_256(self):
+        """New line in string"""
+        input = """ "My entire life
+            Your career " """
+        expect = "Unclosed String: My entire life\n"
+        self.assertTrue(TestLexer.test(input, expect, 256))
+
+    def test_float_257(self):
+        self.assertTrue(TestLexer.test("1.1e00", "1.1e00,<EOF>", 257))
+
+    def test_str_raw_258(self):
+        input = r""" "Hello \' there" """
+        expect = r"""Hello \' there,<EOF>"""
+        self.assertTrue(TestLexer.test(input, expect, 258))

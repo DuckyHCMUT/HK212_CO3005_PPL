@@ -134,6 +134,11 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by D96Parser#array_rhs.
+    def visitArray_rhs(self, ctx:D96Parser.Array_rhsContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by D96Parser#assign_stmt.
     def visitAssign_stmt(self, ctx:D96Parser.Assign_stmtContext):
         return self.visitChildren(ctx)
