@@ -1605,1014 +1605,543 @@ Class Program {
         self.assertTrue(TestParser.test(input, expect, 374))
 
     def test_375(self):
-        """Test scalar variables"""
+        """ Test failed scalar variables"""
         input = """
         Class Program {
             main() {
                 Foreach (Program.a::$b In 1 .. 100) {
-                    Out.println(4);
+                    Out.println(400);
                 }
             }
         }"""
-        expect = "successful"
+        expect = "Error on line 4 col 34: ::"
         self.assertTrue(TestParser.test(input, expect, 375))
 
-#     def test_simple_program_46(self):
-#         """testing simple program"""
-#         input = """Class Program {
-#             main() {
-#                 a[1].func();
-#                 a[1] = 1;
-#                 Out.println(a.a[1]);
-#                 a[1][2].a[1].func()[0].a[1].func();
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 345))
-
-#     def test_simple_program_37(self):
-#         """access static member without assign it -> not a statement, a::$a are just access value"""
-#         input = """Class Program {
-#             main() {
-#                 ##a::$a[1].func()[0];##
-#                 a::$a;
-#                 a[1]::$func();
-#                 Return;
-#             }
-#         }"""
-#         expect = "Error on line 4 col 21: ;"
-#         self.assertTrue(TestParser.test(input, expect, 346))
-
-#     def test_simple_program_38(self):
-#         """statements inside function, operator in action, non associative operator"""
-#         input = """Class Program {
-#             Val a, b: Array[Int, 5];
-#             Var c: Array[String, 10_0];
-#             main() {
-#                a = 1;
-#                b = 2;
-#                c = Array();
-#                d = Array("1", "2", "3");
-#                e = Array(Array(1, 2, 3), Array(4, 5, 6));
-
-#                c = a + b;
-#                c = (a +. b) ==. c;
-#                c = ((a - b) * (c / d)) + (e + f) % 5;
-#                ##c = d = e = f;
-#                c = d = 4;##
-
-#                d = "Something";
-#                Return;
-#             }
-#         }
-#         """
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 347))
-
-#     def test_simple_program_39(self):
-#         """statements inside function, operator in action, non associative operator"""
-#         input = """Class Program {
-#             Val a, b: Array[Int, 5];
-#             Var c: Array[String, 10_0];
-#             main() {
-#                a = 1;
-#                b = 2;
-#                c = Array();
-#                d = Array("1", "2", "3");
-#                e = Array(Array(1, 2, 3), Array(4, 5, 6));
-
-#                c = a + b;
-#                c = a +. (b ==. c);
-#                c = ((a - b) * (c / d)) + (e + f) % 5;
-#                ##c = d = e = f;
-#                c = d = 4;##
-
-#                d = "Something";
-#                Return;
-#             }
-#         }
-#         """
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 348))
-
-#     def test_simple_program_40(self):
-#         """statements inside function, operator in action, non associative operator and precedence"""
-#         input = """Class Program {
-#             Val a, b: Array[Int, 5];
-#             Var c: Array[String, 10_0];
-#             main() {
-#                a = 1;
-#                b = 2;
-#                c = Array();
-#                d = Array("1", "2", "3");
-#                e = Array(Array(1, 2, 3), Array(4, 5, 6));
-
-#                c = a + b;
-#                c = a +. (b > c ==. a);
-#                c = ((a - b) * (c / d)) + (e + f) % 5;
-#                ##c = d = e = f;
-#                c = d = 4;##
-
-#                d = "Something";
-#                Return;
-#             }
-#         }
-#         """
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 349))
-
-#     def test_simple_program_41(self):
-#         """Idx has lower precendence than member access; therefore, we must put () before execute"""
-#         input = """Class Program {
-#             main() {
-#                 Var a : Int = (a::$a[1]).func()[0];
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 350))
-
-#     def test_simple_program_42(self):
-#         """Idx has lower precendence than member access; therefore, we must put () before execute"""
-#         input = """Class Program {
-#             main() {
-#                 Val a : Int;
-#                 Foreach (i In 1 .. 100 By 1)
-#                 {
-#                     Clib.printf("enter the number:");
-#                     Clib.scanf("%d", a);
-#                     If ( a == 0 ) {
-#                         Break;
-#                     }
-#                 }
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 351))
-
-#     def test_simple_program_43(self):
-#         """Idx has lower precendence than member access; therefore, we must put () before execute"""
-#         input = """Class Program {
-#             main() {
-#                 Val a : Int;
-#                 Foreach (i In 1 .. 100 By 1)
-#                 {
-#                     Clib.printf("enter the number:");
-#                     Clib.scanf("%d", a);
-#                     If ( a == 0 ) {
-#                         Break;
-#                     }
-#                 }
-#                 Return 0;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 352))
-
-#     def test_simple_program_44(self):
-#         """Idx has lower precendence than member access; therefore, we must put () before execute"""
-#         input = """Class Program {
-#             main() {
-#                 Val a : Int;
-#                 Foreach (i In 1 .. 100 By 1)
-#                 {
-#                     Clib.printf("enter the number:");
-#                     Clib.scanf("%d", &a);
-#                     If ( a == 0 ) {
-#                         Break;
-#                     }
-#                 }
-#                 Return 0;
-#             }
-#         }"""
-#         expect = "&"
-#         self.assertTrue(TestParser.test(input, expect, 353))
-
-#     def test_simple_program_45(self):
-#         input = """Class Rectangle: Shape {
-#     getArea() {
-#         Return Self.length * Self.width;
-#     }
-# }
-#         Class Program {
-#             main() {
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 354))
-
-#     def test_static_access_assign_1(self):
-#         """access static member without assign it -> not a statement, fix by assign it"""
-#         input = """Class Program {
-#             main() {
-#                 Val b : Int = a::$a;
-#                 a::$func();
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 356))
-
-#     def test_invalid_statement(self):
-#         """a statement cannot be a index access"""
-#         input = """Class Program {
-#             main() {
-#                 a[1].func()[0];
-#                 a[1].func();
-#                 a[1] = 1;
-#                 Out.println(a.a[1]);
-#                 Return;
-#             }
-#         }"""
-#         expect = "Error on line 3 col 30: ;"
-#         self.assertTrue(TestParser.test(input, expect, 357))
-
-#     def test_precedence_of_index_member_1(self):
-#         """index has lower priority compare to member access -> encapsulate into the ()"""
-#         input = """Class Program {
-#             main() {
-#                 Val b : Int = (a[1]).func()[0];
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 358))
-
-#     def test_no_return_constructor_1(self):
-#         """constructor that has no return statement"""
-#         input = """
-#         Class Map {
-#             Val key: Array[String, 10];
-#             Val value: Array[String, 10];
-#             Constructor(key: Array[String, 10]; value: Array[String, 10]) {
-#                 Self.key = key;
-#                 Self.value = value;
-#             }
-#             Destructor() {
-#                 Self.clean(Self.key);
-#                 Self.clean(Self.value);
-#             }
-#             clean() {
-#                 Out.println("Cleaning");
-#                 Foreach (k In 0 .. Self.key.length() By 1)
-#                 {
-#                     el = Self.key[k];
-
-#                     Cleaner.free(el);
-#                     Self.key = Null;
-#                 }
-#                 Cleaner.free(key);
-#                 Self.key = Null;
-#                 Foreach (v In 0 .. Self.value.length() By 1)
-#                 {
-#                     el = Self.value.a[v];
-
-#                     Cleaner.free(el);
-#                     Self.value = Null;
-#                 }
-#                 Cleaner::$free(value);
-#                 Self.value = Null;
-#                 Val a : Boolean = True;
-#                 Val b : Int = 1;
-#                 Return (True || False) && (a == b);
-#             }
-#         }
-#         Class Program {
-#             main() {
-#                 Val My1stCons, My2ndCons: Int = 1 + 5, 2;
-#                 Var x, y : Int = 0, 0;
-#                 Val sth : Sth = New Sth();
-#                 Return;
-#             }
-#         }
-#         """
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 359))
-
-#     # def test_destructor_with_return_1(self):
-#     #     """destructor that has a return statement"""
-#     #     input = """
-#     #     Class Map {
-#     #         Val key: Array[String, 10];
-#     #         Val value: Array[String, 10];
-#     #         Constructor(key: Array[String, 10]; value: Array[String, 10]) {
-#     #             Self.key = key;
-#     #             Self.value = value;
-#     #             Return;
-#     #         }
-#     #         Destructor() {
-#     #             Self.clean(Self.key);
-#     #             Self.clean(Self.value);
-#     #             Return;
-#     #         }
-#     #         clean() {
-#     #             Out.println("Cleaning");
-#     #             Foreach (k In 0 .. Self.key.length() By 1)
-#     #             {
-#     #                 el = Self.key[k];
-
-#     #                 Self.free(el);
-#     #                 Self.key = Null;
-#     #             }
-#     #             Self.free(key);
-#     #             Self.key = Null;
-#     #             Foreach (v In 0 .. Self.value.length() By 1)
-#     #             {
-#     #                 el = Self.value.a[v];
-
-#     #                 Self.free(el);
-#     #                 Self.value = Null;
-#     #             }
-#     #             Self.free(value);
-#     #             Self.value = Null;
-#     #             Val a : Boolean = True;
-#     #             Val b : Int = 1;
-#     #             Return (True || False) && (a == b);
-#     #         }
-#     #     }
-#     #     Class Program {
-#     #         main() {
-#     #             Val My1stCons, My2ndCons: Int = 1 + 5, 2;
-#     #             Var x, y : Int = 0, 0;
-#     #             Val sth : Sth = New Sth();
-#     #             Return;
-#     #         }
-#     #     }
-#     #     """
-#     #     expect = "successful"
-#     #     self.assertTrue(TestParser.test(input, expect, 360))
-
-#     # def test_unsymmetric_val_decl_ass_1(self):
-#     #     """Declare 2 variables but assign only 1"""
-#     #     input = """
-#     #     Class Map {
-#     #         Val key: Array[String, 10];
-#     #         Val value: Array[String, 10];
-#     #         Constructor(key: Array[String, 10]; value: Array[String, 10]) {
-#     #             Self.key = key;
-#     #             Self.value = value;
-#     #             Return;
-#     #         }
-#     #         Destructor() {
-#     #             Self.clean(Self.key);
-#     #             Self.clean(Self.value);
-#     #         }
-#     #         clean() {
-#     #             Out.println("Cleaning");
-#     #             Foreach (k In 0 .. Self.key.length() By 1)
-#     #             {
-#     #                 el = Self.key[k];
-
-#     #                 Something.free(el);
-#     #                 Self.key = Null;
-#     #             }
-#     #             Something.free(key);
-#     #             Self.key = Null;
-#     #             Foreach (v In 0 .. Self.value.length() By 1)
-#     #             {
-#     #                 el = Self.value.a[v];
-
-#     #                 Self.free(el);
-#     #                 Self.value = Null;
-#     #             }
-#     #             AClass.free(value);
-#     #             Self.value = Null;
-#     #             Val a : Boolean = True;
-#     #             Val b : Int = 1;
-#     #             Return (True || False) && (a == b);
-#     #         }
-#     #     }
-#     #     Class Program {
-#     #         main() {
-#     #             Val My1stCons, My2ndCons: Int = 1 + 5, 2;
-#     #             Var x, y : Int = 0, 0;
-#     #             Val sth : Sth = New Sth();
-#     #             Val a, b : Int = 1;
-#     #             Return;
-#     #         }
-#     #     }
-#     #     """
-#     #     expect = "Error on line 44 col 34: ;"
-#     #     self.assertTrue(TestParser.test(input, expect, 361))
-
-#     def test_static_funcall_within_class_1(self):
-#         """Calling static function call within the class"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Self::$a();
-#                 Return;
-#             }
-#             $a() {
-#                 Return Self::$b;
-#             }
-#         }
-#         """
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 363))
-
-#     def test_index_op_1(self):
-#         """index access as operands"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 a[1][2] = b[1][2][3] - c[1][2][3];
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 364))
-
-#     def test_elseif_1(self):
-#         """testing if-elseif-else"""
-#         input = """
-#         Class Program {
-#             Val a: Int = 1;
-#             fooBar() {
-#                 Self::$fooBar();
-#             }
-#             main() {
-#                 If (1 >= 2) {
-#                     Out.fooBar();
-#                 } Elseif (a <= 2) {
-#                     Self::$fooBar();
-#                 } Elseif (a[1][2] + b[i][j] <= a[1] * a.a + Some::$a()) {
-#                     Out.println(4);
-#                 } Else {
-#                     Out.println("Nothing");
-#                 }
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 365))
-
-#     def test_func_params_declare_1(self):
-#         """testing func params declare"""
-#         input = """
-#         Class Program {
-#             Val a: Int = 1;
-#             fooBar(a, b : Int; c : Float) {
-#                 Self.fooBar1();
-#             }
-#             main() {
-#                 Self.fooBar(a, b, c);
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 366))
-
-#     def test_return_sth_constructor_1(self):
-#         """test return something in constructor"""
-#         input = """
-#         Class D {
-#             Constructor() {
-#                 a = a;
-#                 Return somethingCool;
-#             }
-#         }
-#         Class Program {
-#             main() {
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 367))
-
-#     def test_return_sth_main_1(self):
-#         """test return something in main"""
-#         input = """
-#         Class D {
-#             Constructor() {
-#                 a = a;
-#                 Return;
-#             }
-#         }
-#         Class Program {
-#             main() {
-#                 Return 1;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 368))
-
-#     def test_return_in_if_1(self):
-#         """test return something in if statement"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 If (a == 0) {
-#                     Return 1;
-#                 } Else {
-#                     Return 0;
-#                 }
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 369))
-
-#     def test_return_in_if_2(self):
-#         """test return something in if statement"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (i In 1 .. 10 By 1) {
-#                     If (a == 0) {
-#                         Return somthing;
-#                     }
-#                 }
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 370))
-
-#     def test_multi_constructor_1(self):
-#         """test return something in constructor"""
-#         input = """
-#         Class Program {
-#             Constructor() {
-#                 Return;
-#             }
-#             Constructor(some: Some) {
-#                 Return;
-#             }
-#             main() {
-#                 Foreach (i In 1 .. 10 By 1) {
-#                     If (a == 0) {
-#                         Return somthing;
-#                     }
-#                 }
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 371))
-
-#     def test_multi_destructor_1(self):
-#         """test return something in destructor"""
-#         input = """
-#         Class Program {
-#             Destructor() {
-#                 Return;
-#             }
-#             Destructor() {}
-#             main() {
-#                 Foreach (i In 1 .. 10 By 1) {
-#                     If (a == 0) {
-#                         Return somthing;
-#                     }
-#                 }
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 372))
-
-#     def test_index_static_1(self):
-#         """static function access for index is illegal"""
-#         input = """Class Program {
-#             main() {
-#                 Val b : Int = a::$a;
-#                 a[1]::$func();
-#                 Return;
-#             }
-#         }"""
-#         expect = "Error on line 4 col 20: ::"
-#         self.assertTrue(TestParser.test(input, expect, 373))
-
-#     def test_static_normal_1(self):
-#         """static and normal test"""
-#         input = """
-#         Class C {
-#             func() {
-#                 Return somethingFun;
-#             }
-#         }
-#         Class B {
-#             Val a : C;
-#             Constructor() {
-#                 a = New C();
-#                 Return;
-#             }
-#         }
-#         Class A {
-#             Val $b : B;
-#             Constructor() {
-#                 Self::$b = New B();
-#                 Return;
-#             }
-#         }
-#         Class Program {
-#             main() {
-#                 Val a : A = New A();
-#                 a::$b.a.func();
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 374))
-
-#     def test_db_dbcolon_1(self):
-#         """test a::$b::$c()"""
-#         input = """
-#         Class C {
-#             func() {
-#                 Return somethingFun;
-#             }
-#         }
-#         Class B {
-#             Val a : C;
-#             Constructor() {
-#                 a = New C();
-#                 Return;
-#             }
-#         }
-#         Class A {
-#             Val $b : B;
-#             Constructor() {
-#                 ClassMy::$b = New B();
-#                 Return;
-#             }
-#         }
-#         Class Program {
-#             main() {
-#                 Val a : A = New A();
-#                 a::$b::$c();
-#                 Return;
-#             }
-#         }"""
-#         expect = "Error on line 24 col 21: ::"
-#         self.assertTrue(TestParser.test(input, expect, 375))
-
-#     def test_simple_program_reverse_linked_list(self):
-#         """test some real program"""
-#         input = """
-# 	Class Node {
-# 		Var data : Int;
-# 		Val next : Node;
-
-# 		Constructor(d : Int)
-# 		{
-# 			data = d;
-# 			next = Null;
-# 		}
-
-#         ## Function to reverse the linked list ##
-#         reverse(node : Node)
-#         {
-#             Var prev : Node = Null;
-#             Val current : Node = node;
-#             Val next : Node = Null;
-#             Foreach (i In 1 .. forever By 1) {
-#                 If (current == Null) {
-#                     Break;
-#                 } Else {
-#                     next = current.next;
-#                     current.next = prev;
-#                     prev = current;
-#                     current = next;
-#                 }
-#             }
-#             node = prev;
-#             Return node;
-#         }
-
-#         printList(node : Node)
-#         {
-#             Foreach (a In 1 .. infinity By 1) {
-#                 If (node != Null) {
-#                     System.out.print(node.data +. " ");
-#                     node = node.next;
-#                 } Else {
-#                     Break;
-#                 }
-#             }
-#         }
-#     }
-
-#     Class Program {
-#         main()
-#         {
-#             Val list : LinkedList = New LinkedList();
-#             list.head = New Node(85);
-#             list.head.next = New Node(15);
-#             list.head.next.next = New Node(4);
-#             list.head.next.next.next = New Node(20);
-
-#             System.out.println("Given Linked list");
-#             list.printList(head);
-#             head = list.reverse(head);
-#             System.out.println("");
-#             System.out.println("Reversed linked list ");
-#             list.printList(head);
-#         }
-#     }
-#         """
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 362))
-
-#     def test_continue_stm_1(self):
-#         """test continue statement"""
-#         input = """
-#         Class Simple {
-
-#    main() {
-#       Val numbers : Array[Int, 5] = Array(10, 20, 30, 40, 50);
-
-#       Foreach (i In 0 .. 4 By 1) {
-#          If ( x == 30 ) {
-#             Continue;
-#          }
-#          System.out.print( x );
-#          System.out.print("\\n");
-#       }
-#    }
-# }
-#         """
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 376))
-
-
-
-#     def test_static_access_1(self):
-#         """using double colon but access normal attribute"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 a = a::b;
-#                 Return;
-#             }
-#         }"""
-#         expect = "Error on line 4 col 23: b"
-#         self.assertTrue(TestParser.test(input, expect, 378))
-
-#     def test_empty_program_1(self):
-#         """Totally empty program"""
-#         input = """"""
-#         expect = "Error on line 1 col 0: <EOF>"
-#         self.assertTrue(TestParser.test(input, expect, 379))
-
-#     def test_multi_dim_arr_1(self):
-#         """Multidimension array"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Val a : Array[Array[Int, 10], 0x15];
-#                 Return;
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 380))
-
-#     def test_static_param_1(self):
-#         """Static param are not allowed"""
-#         input = """
-#         Class Program {
-#             main($a : Int) {
-#             }
-#         }"""
-#         expect = "Error on line 3 col 17: $a"
-#         self.assertTrue(TestParser.test(input, expect, 381))
-
-#     def test_wrong_static_access(self):
-#         """Sth::sthElse is wrong"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Car::$abc = 10;
-#                 a = Sth::sthElse;
-#             }
-#         }"""
-#         expect = "Error on line 5 col 25: sthElse"
-#         self.assertTrue(TestParser.test(input, expect, 382))
-
-#     def test_wrong_static_access_1(self):
-#         """a::$b::$c"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Car::$abc = 10;
-#                 a = (a::$b)::$c;
-#                 a = a::$b::$c;
-#             }
-#         }"""
-#         expect = "Error on line 5 col 27: ::"
-#         self.assertTrue(TestParser.test(input, expect, 383))
-
-#     def test_dot_new_1(self):
-#         """a.New A()"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 a = a.New A();
-#             }
-#         }"""
-#         expect = "Error on line 4 col 22: New"
-#         self.assertTrue(TestParser.test(input, expect, 384))
-
-#     def test_no_static_declare_1_in_method(self):
-#         """static statement in method body is not allowed"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Var $a : Int;
-#             }
-#         }"""
-#         expect = "Error on line 4 col 20: $a"
-#         self.assertTrue(TestParser.test(input, expect, 385))
-
-#     def test_no_then_if_stm_1(self):
-#         """no keyword then in if statement"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 If (a == 1) Then {
-#                     HelloWorld();
-#                 }
-#                 Return;
-#             }
-#         }
-#         """
-#         expect = "Error on line 4 col 28: Then"
-#         self.assertTrue(TestParser.test(input, expect, 386))
-
-#     
-
-#     def test_keyword_class_name_1(self):
-#         input = """
-#         Class Continue {
-#             main() {
-#             }
-#         }"""
-#         expect = "Error on line 2 col 14: Continue"
-#         self.assertTrue(TestParser.test(input, expect, 388))
-
-#     def test_weird_static_access(self):
-#         input = """
-#         Class Program {
-#             main() {
-#                 a = "123"::$getValue();
-#             }
-#         }"""
-#         expect = "Error on line 4 col 25: ::"
-#         self.assertTrue(TestParser.test(input, expect, 389))
-
-#     def test_direct_func(self):
-#         input = """Class Program {
-#             getName() {
-#                 Var b: Float = 0.3;
-#             }
-#             main() {
-#                 If (a >= b) {
-#                     Var a: Int = 0;
-#                     a = a + 3;
-#                 }
-#                 Elseif (b >= c) {
-#                     getName(a >= b);
-#                 }
-#                 Elseif (12 >= g) {
-#                     insert("String");
-#                 }
-#             }
-#         }"""
-#         expect = "Error on line 11 col 27: ("
-#         self.assertTrue(TestParser.test(input, expect, 390))
-
-#     def test_no_param_destructor_1(self):
-#         """no param are allowed in destructor"""
-#         input = """
-#         Class Program {
-#             Destructor(w: Int) {
-#                 Self.call();
-#             }
-#             main() {
-#                 Self.a();
-#                 Return;
-#             }
-#         }"""
-#         expect = "Error on line 3 col 23: w"
-#         self.assertTrue(TestParser.test(input, expect, 391))
-
-#     def test_funcall_1(self):
-#         """Chaining function"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 a = a.b.c.d().e().f() + Self::$a();
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 392))
-
-#     def test_foreach_scalar_1(self):
-#         """static member access in foreach"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (Self::$a In 1 .. 100) {
-#                     Out.println(4);
-#                 }
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 394))
-
-#     def test_foreach_scalar_2(self):
-#         """Instance access foreach"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (Self.a.b.c In 1 .. 100) {
-#                     Out.println(4);
-#                 }
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 395))
-
-#     def test_foreach_scalar_3(self):
-#         """Instance and static access"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (Self::$a.b.c In 1 .. 100) {
-#                     Out.println(4);
-#                 }
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 396))
-
-#     def test_foreach_scalar_4(self):
-#         """Instance and static access function"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (Self::$func().b.c In 1 .. 100) {
-#                     Out.println(4);
-#                 }
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 397))
-
-#     def test_foreach_scalar_5(self):
-#         """Instance function access"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (Self.func().b.c In 1 .. 100) {
-#                     Out.println(4);
-#                 }
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 398))
-
-#     def test_foreach_scalar_6(self):
-#         """Instance access"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (Self.func In 1 .. 100) {
-#                     Out.println(4);
-#                 }
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 399))
-
-#     def test_foreach_scalar_7(self):
-#         """Instance access"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (a.a In 1 .. 100) {
-#                     Out.println(4);
-#                 }
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 400))
-
-#     def test_foreach_scalar_8(self):
-#         """Static access"""
-#         input = """
-#         Class Program {
-#             main() {
-#                 Foreach (a::$b In 1 .. 100) {
-#                     Out.println(4);
-#                 }
-#             }
-#         }"""
-#         expect = "successful"
-#         self.assertTrue(TestParser.test(input, expect, 401))
+    def test_376(self):
+        """ Test scalar variables"""
+        input = """Class Program {
+            main() {
+                a[1].func();
+                a[1] = 2.5;
+                Out.println(a.a[2]);
+                a[1][2].a[3].func()[4].a[5].func();
+                Return;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 376))
+
+    def test_377(self):
+        """ Test scalar variables"""
+        input = """Class Program {
+            main() {
+                a::$a[5].func()[0];
+                a::$a;
+                a[4]::$func();
+                Return;
+            }
+        }"""
+        expect = "Error on line 3 col 34: ;"
+        self.assertTrue(TestParser.test(input, expect, 377))
+
+    def test_378(self):
+        """ Test statements inside function, operator in action, non associative operator
+        and wrong assignment operators (nested equal signs)"""
+        input = """Class Program {
+            Val a, b: Array[Int, 5];
+            Var c: Array[String, 10_0];
+            main() {
+               a = 100;
+               c = Array();
+               d = Array("1", "2", "3");
+               e = Array(Array(1, 2, 3), Array(4, 5, 6));
+
+               ## c = a + b; ##
+               c = (a +. b) ==. c;
+               c = ((a - b) * (c / d)) + (e + f) % 5;
+               f[3] = d = e = c[1];
+
+               Return f[3];
+            }
+        }
+        """
+        expect = "Error on line 13 col 24: ="
+        self.assertTrue(TestParser.test(input, expect, 378))
+
+    def test_379(self):
+        """ Test index operator and member access"""
+        input = """Class Program {
+            main() {
+                Var a : Int = (a::$a[1]).func()[0];
+                Return;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 379))
+
+    def test_380(self):
+        """ Test index operator and member access"""
+        input = """Class Program {
+            main() {
+                Val a : Int;
+                Foreach (i In 1 .. 1000 By 5)
+                {
+                    Clip.printf("enter the number:");
+                    Clip.scanf("%d", a);
+                    If ( a == 0 ) {
+                        Break;
+                        Return 100;
+                    }
+                    Else {
+                        Continue;
+                    }
+                }
+                Return;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 380))
+
+    def test_381(self):
+        """ Test scalar variables"""
+        input = """
+        Class Program {
+            main() {
+                Val b : Int = a::$a;
+                a::$func();
+                Return;
+            }
+        }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 381))
+
+    def test_382(self):
+        """ Test for a statement cannot be a index access"""
+        input = """
+        Class Program {
+            main() {
+                a[5].func()[0];
+                b[6].func();
+                c[7] = 1;
+                Out.println(a.a[10]);
+                Return a[10];
+            }
+        }"""
+        expect = "Error on line 4 col 30: ;"
+        self.assertTrue(TestParser.test(input, expect, 382))
+
+    def test_383(self):
+        """ Test as index has lower priority than  member access -> cover by ()"""
+        input = """
+        Class Program {
+            main() {
+                Val myVarB : Int = (a[5]).func()[10];
+                Return;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 383))
+
+    def test_384(self):
+        """ Constructor and Destructor with return statements (Only available for assignment 1)"""
+        input = """
+        Class Map {
+            Val key: Array[String, 10];
+            Val value: Array[String, 10];
+            Var $myMap: Map = New Map(Self.key, Self.value);
+            Constructor(key: Array[String, 10]; value: Array[String, 10]) {
+                Self.key = key;
+                Self.value = value;
+                Return;
+            }
+            Destructor() {
+                Self.clean(Self.key);
+                Self.clean(Self.value);
+                Return;
+            }
+        }
+
+        Class Program {
+            main() {
+                Val sth : Map = New Map(arr1, arr2);
+                Return Null;
+            }
+        }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 384))
+
+
+    def test_385(self):
+        """ Test element operator as operands"""
+        input = """
+        Class Program {
+            main() {
+                a[1][2] = b[1][2][3] - c[1][2][3];
+                Return;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 385))
+
+    def test_386(self):
+        """ Test nested If-Elseif-Else"""
+        input = """
+        Class Program {
+            Val a: Int = 1;
+            fooBar() {
+                Self::$fooBar();
+            }
+            main() {
+                If (1 >= 2) {
+                    Out.fooBar(True);
+                } 
+                Elseif (a <= 2) {
+                    Self::$fooBar();
+                } 
+                Elseif (a[1][2] <= a[1] * a.a + Some::$a()) {
+                    Out.println(400);
+                } 
+                Else {
+                    Out.println("What are you looking for?");
+                }
+                Return;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 386))
+
+    def test_387(self):
+        """ Test function params declare"""
+        input = """
+        Class Program {
+            Val a: Int = 1;
+            fooBar(a, b : Int; c : Float) {
+                Self.fooBar1(True, False, Null);
+            }
+            main() {
+                Self.fooBar(x, y, "ZhongGuo ren");
+                Return;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 387))
+
+    def test_388(self):
+        """ Test return statement in main"""
+        input = """
+        Class D {
+            Constructor() {
+                a = True;
+                b = False;
+                Return;
+            }
+        }
+        Class Program {
+            main() {
+                Return "Zhege ke bu ke ma?";
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 388))
+
+    def test_389(self):
+        """ Test static and instance"""
+        input = """
+        Class C {
+            foo() {
+                Return nothingToReturnHehehehe;
+            }
+        }
+        Class B : C{
+            Val a : C;
+            Val $b : B;
+            Constructor() {
+                a = New C();
+                Self::$b = New B();
+                Return;
+            }
+        }
+
+        Class Program {
+            main() {
+                Val a : A = New A();
+                a::$b.a.foo();
+                Return;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 389))
+
+    def test_390(self):
+        """ Test multiple nested double colon """
+        input = """
+        Class C {
+            foo() {
+                Return nothingToReturnHehehehe;
+            }
+        }
+        Class B : C{
+            Val a : C;
+            Val $b : B;
+            Constructor() {
+                a = New C();
+                Self::$b = New B();
+                Return;
+            }
+        }
+
+        Class Program {
+            main() {
+                Val a : A = New A();
+                a::$b::$c();
+                Return;
+            }
+        }"""
+        expect = "Error on line 20 col 21: ::"
+        self.assertTrue(TestParser.test(input, expect, 390))
+
+    def test_391(self):
+        """ Test actual program to work on linked list"""
+        input = """
+        Class Node {
+            Var data : Int;
+            Val next : Node;
+
+            Constructor(d : Int)
+            {
+                data = d;
+                next = Null;
+            }
+
+            reverse(node : Node)
+            {
+                Var prev : Node = Null;
+                Val current : Node = node;
+                Val next : Node = Null;
+                Foreach (i In 1 .. forever By 1) {
+                    If (current == Null) {
+                        Break;
+                    } 
+                    Else {
+                        next = current.next;
+                        current.next = prev;
+                        prev = current;
+                        current = next;
+                    }
+                }
+                node = prev;
+                Return node;
+            }
+
+            printList(node : Node)
+            {
+                Foreach (a In 1 .. n By 1) {
+                    If (node != Null) {
+                        System.out.print(node.data +. " ");
+                        node = node.next;
+                    } 
+                    Else {
+                        Break;
+                    }
+                }
+            }
+        }
+
+        Class Program {
+            main()
+            {
+                Val num1, num2: Int = 100, 200;
+                Val list : LinkedList = New LinkedList();
+                list.head = New Node(num1);
+                list.head.next = New Node(num2);
+                list.head.next.next = New Node(-516e21);
+                list.head.next.next.next = New Node(985.414400e2);
+
+                System.out.println("Given Linked list: \\n");
+                list.printList(head);
+                head = list.reverse(head);
+                System.out.println("");
+                System.out.println("Reversed linked list: ");
+                list.printList(head);
+            }
+        }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 391))
+
+    def test_392(self):
+        """ Test continue statement """
+        input = """
+        Class Program {
+            main() {
+                Val numbers : Array[Int, 5] = Array(9, 8, 7.5, 6.9, 3);
+
+                Foreach (i In 0 .. 10 By 1) {
+                    If ( x > 6 ) {
+                        Continue;
+                    }
+                    Else{
+                        System.out.print("Passed\\n");
+                    }
+                    System.out.print(x);
+                    System.out.print("\\n");
+                }
+            }
+        }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 392))
+
+    def test_393(self):
+        """ Test on invalid member access (incorrect usage of double colon and dot)"""
+        input = """
+        Class Program {
+            main() {
+                b = a::c;
+                Return;
+            }
+        }"""
+        expect = "Error on line 4 col 23: c"
+        self.assertTrue(TestParser.test(input, expect, 393))
+
+    def test_394(self):
+        """Test chaining function"""
+        input = """
+        Class Program {
+            main() {
+                a = a.b.c.d().e().f() + Self::$a();
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 394))
+
+    def test_395(self):
+        """ Test wrong static access"""
+        input = """
+        Class Program {
+            main() {
+                Bike::$abc = 100;
+                f = Sth::sthWeird;
+            }
+        }
+        """
+        expect = "Error on line 5 col 25: sthWeird"
+        self.assertTrue(TestParser.test(input, expect, 395))
+
+    def test_396(self):
+        """Test static chaining """
+        input = """
+        Class Program {
+            main() {
+                Car::$abc = 100;
+                a = a::$b::$c;
+                a = (a::$b)::$c;
+            }
+        }"""
+        expect = "Error on line 5 col 25: ::"
+        self.assertTrue(TestParser.test(input, expect, 396))
+
+    def test_397(self):
+        """ Test wrongly access the New keyword"""
+        input = """
+        Class Program {
+            main() {
+                a = a.New A();
+            }
+        }"""
+        expect = "Error on line 4 col 22: New"
+        self.assertTrue(TestParser.test(input, expect, 397))
+
+    def test_398(self):
+        """ Test Keyword used as identifier"""
+        input = """
+        Class Continue {
+            main() {
+            }
+        }"""
+        expect = "Error on line 2 col 14: Continue"
+        self.assertTrue(TestParser.test(input, expect, 398))
+
+    def test_399(self):
+        """ Test abnormal chaining of string literal """
+        input = """
+        Class Program {
+            main() {
+                a = "123"::$getValue();
+            }
+        }"""
+        expect = "Error on line 4 col 25: ::"
+        self.assertTrue(TestParser.test(input, expect, 399))
+
+    def test_400(self):
+        """ Test static attribute is not allowed in method"""
+        input = """
+        Class Program {
+            Var $b : Int; ## Valid ##
+            main() {
+                Var $a : Int; ## Invalid ##
+            }
+        }"""
+        expect = "Error on line 5 col 20: $a"
+        self.assertTrue(TestParser.test(input, expect, 400))
+
+    def test_401(self):
+        """ Test no keyword Then in if statement (voided in later assignment spec)"""
+        input = """
+        Class Program {
+            main() {
+                If (a == 1) 
+                Then {
+                    self.Out.print(HelloWorld());
+                }
+                Return;
+            }
+        }
+        """
+        expect = "Error on line 5 col 16: Then"
+        self.assertTrue(TestParser.test(input, expect, 401))
+
+    def test_402(self):
+        """ Test method call without access operator"""
+        input = """Class Program {
+            getName() {
+                Var b: Float = 0.3;
+            }
+            main() {
+                If (a >= b) {
+                    Var a: Int = 0;
+                    a = a + 4;
+                }
+                Elseif (b >= c) {
+                    getName(a == b);
+                }
+                Elseif (12 >= g) {
+                    insert("Please do not print this");
+                }
+            }
+        }
+        """
+        expect = "Error on line 11 col 27: ("
+        self.assertTrue(TestParser.test(input, expect, 402))
+
+    def test_no_param_destructor_1(self):
+        """ Test destructor with passed parameter(s)"""
+        input = """
+        Class Program {
+            Destructor(w: Float) {
+                Self.call();
+            }
+            main() {
+                Self.a();
+                Return;
+            }
+        }
+        """
+        expect = "Error on line 3 col 23: w"
+        self.assertTrue(TestParser.test(input, expect, 403))
+
 
 
     
