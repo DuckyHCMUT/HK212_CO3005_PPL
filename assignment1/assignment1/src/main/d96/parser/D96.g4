@@ -69,7 +69,7 @@ stmt:
 	| return_stmt
 	| method_invoc_literal DOT funcall SEMI
 	| (SELF | ID) DOUBLE_COLON static_method SEMI
-	| LP block_stmt? RP
+	| LP block_stmt? RP 
 	;
 
 // Variable declaration

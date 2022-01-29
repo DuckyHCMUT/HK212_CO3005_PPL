@@ -2112,7 +2112,7 @@ Class Program {
             main() {
                 If (a >= b) {
                     Var a: Int = 0;
-                    a = a + 4;
+                    a = a + 45;
                 }
                 Elseif (b >= c) {
                     getName(a == b);
@@ -2126,7 +2126,7 @@ Class Program {
         expect = "Error on line 11 col 27: ("
         self.assertTrue(TestParser.test(input, expect, 402))
 
-    def test_no_param_destructor_1(self):
+    def test_403(self):
         """ Test destructor with passed parameter(s)"""
         input = """
         Class Program {
@@ -2141,8 +2141,6 @@ Class Program {
         """
         expect = "Error on line 3 col 23: w"
         self.assertTrue(TestParser.test(input, expect, 403))
-
-
 
     
 

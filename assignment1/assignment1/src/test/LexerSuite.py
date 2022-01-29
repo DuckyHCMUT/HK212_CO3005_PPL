@@ -565,8 +565,8 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.test("0x0001", "0x0,00,1,<EOF>", 240))
 
     def test_241(self):
-        self.assertTrue(TestLexer.test("\"Dumbledore : '\" Lily? After all this time? \\n \\n \\t \\2 '\" \"", 
-        "Illegal Escape In String: Dumbledore : '\" Lily? After all this time? \\n \\n \\t \\2", 241))
+        self.assertTrue(TestLexer.test("\"Dumbledore : '\" Lily? After all? \\n \\t \\n \\2 '\" \"", 
+        "Illegal Escape In String: Dumbledore : '\" Lily? After all? \\n \\t \\n \\2", 241))
 
     def test_242(self):
         self.assertTrue(TestLexer.test("\"abc'\"", "Unclosed String: abc'\"", 242))
