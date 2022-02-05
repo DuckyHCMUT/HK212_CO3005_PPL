@@ -131,7 +131,6 @@ return_stmt: RETURN all_expr* SEMI;
 class_name: (ID | SELF); // An arbitrary name or Self keyword
 
 // Method invocation
-// A method invocation statement is an instance/static method invocation, that was described in subsection 5.6, with a semicolon at the end.
 method_invoc_literal: method_invoc_literal DOT (ID | funcall) 
 					| NEW funcall // New X().New
 					| method_invoc_literal element_expr
@@ -139,8 +138,6 @@ method_invoc_literal: method_invoc_literal DOT (ID | funcall)
 					| SELF
 					| ID
 					;
-
-method_invoc: method_invoc_literal | SEMI;
 
 expr_list: (all_expr COMMA)* all_expr;
 
@@ -183,23 +180,13 @@ element_expr: index_ops; // a + b(index_ops)
 index_ops: index_ops LS all_expr RS | LS all_expr RS; // [3] or [a+2] or a[1][2] or a[a[1]]
 
 // Section 5.6: Member access
-// static_member_access: static_attr | static_method;
 static_member_access:
-	(NEW funcall | SELF | ID) DOUBLE_COLON (
+	(SELF | ID) DOUBLE_COLON (
 		DOLLAR_ID
 		| static_method
 	);
 
-// 1. Instance attribute
-instance_attr: DOT ID;
-
-// 2. Static attribute
-static_attr: DOUBLE_COLON DOLLAR_ID; // ::$a
-
-// 3. Instance method invocation
-instance_method: DOT ID LB list_of_expr? RB;
-
-// 4. Static method invocation
+// Static method invocation
 static_method: DOLLAR_ID LB list_of_expr? RB;
 
 // Section 5.7: Object creation
@@ -270,7 +257,7 @@ LITERAL_STRING:
 DOUBLE_QUOTE : ('\'"'); //Double quote inside a string literal
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Section 3.4: Keywords
+// Keywords
 VAL: 'Val';
 VAR: 'Var';
 STATIC: '$';
@@ -297,7 +284,7 @@ IN: 'In';
 RETURN : 'Return';
 SELF: 'Self';
 
-// Section 3.6: Seperators
+// Seperators
 LB: '(';
 RB: ')';
 LS: '[';
@@ -308,7 +295,7 @@ SEMI: ';';
 COMMA : ',';
 DOTDOT: '..';
 
-// Section 3.5: Operators
+// Operators
 ADD: '+';
 SUBTRACT : '-';
 MULTIPLY : '*';
@@ -330,11 +317,11 @@ DOT : '.';
 DOUBLE_COLON : '::';
 COLON: ':';
 
-// Section 3.3: Identiiers
+// Identiiers
 ID: [_a-zA-Z][_a-zA-Z0-9]*;
 DOLLAR_ID: STATIC [_a-zA-Z0-9]+;
 
-// Section 3.2: Program comment
+// Program comment
 BLOCK_COMMENT : ('##' .*? '##') -> skip;
 
 WS: [ \t\n\r\b\f]+ -> skip; // skip spaces, tabs, newlines
@@ -358,8 +345,6 @@ ILLEGAL_ESCAPE: '"' (STRING_CHAR | ESC_SEQUENCE)* ESC_ILLEGAL
 		raise IllegalEscape(y[1:])
 	};
 
-// fragment ESC_SEQUENCE: '\\' [bfrnt'"\\] ;
-
 fragment ESC_SEQUENCE: '\\b'
 						| '\\f'
 						| '\\r'
@@ -375,4 +360,3 @@ ERROR_CHAR: .
 	{
 		raise ErrorToken(self.text)
 	};
-

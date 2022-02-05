@@ -7,12 +7,9 @@
 from abc import ABC
 
 class Exp(ABC):
-    def eval(self):
-        pass
-    def printPrefix(self):
-        pass
+    pass 
 
-class IntLit(int):
+class IntLit:
     def __init__(self, intlit):
         self.intlit = intlit
     def eval(self):
@@ -20,7 +17,7 @@ class IntLit(int):
     def printPrefix(self):
         return self.intlit
 
-class FloatLit(float):
+class FloatLit:
     def __init__(self, floatlit):
         self.floatlit = floatlit
     def eval(self):

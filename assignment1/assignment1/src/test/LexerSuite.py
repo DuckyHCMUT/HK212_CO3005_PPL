@@ -588,5 +588,3 @@ class LexerSuite(unittest.TestCase):
 
     def test_248(self):
         self.assertTrue(TestLexer.test("\"String with single quote \'this is good\'\"","""Unclosed String: String with single quote 'this is good'\"""", 248))
-
-    

@@ -1570,7 +1570,7 @@ Class Program {
                 New X()::$a();
             }
         }"""
-        expect = "Error on line 4 col 29: ;"
+        expect = "Error on line 4 col 23: ::"
         self.assertTrue(TestParser.test(input, expect, 373))
 
     def test_374(self):
@@ -2142,5 +2142,12 @@ Class Program {
         expect = "Error on line 3 col 23: w"
         self.assertTrue(TestParser.test(input, expect, 403))
 
-    
-
+    def test_404(self):
+        """ Test New operator can not be followed by a static member access """
+        input = """Class Program {
+            main() {
+                New X()::$abc();
+            }
+        }"""
+        expect = "Error on line 3 col 23: ::"
+        self.assertTrue(TestParser.test(input, expect, 404))
