@@ -11,6 +11,7 @@
 # Be careful that you are not allowed to use type(), isinstance() when implementing this exercise 
 # Tip: Use Visitor pattern.
 
+# Done
 class IntLit:
     def __init__(self, intlit):
         self.intlit = intlit
@@ -26,19 +27,8 @@ class IntLit:
         return self.intlit
 
 
-class FloatLit:
-    def __init__(self, floatlit):
-        self.floatlit = floatlit
-
-    def accept(self, visitor):
-        return visitor.visit(self)
-
-    def eval(self, visitor):
-        return self.floatlit
-    def printPrefix(self, visitor):
-        return self.floatlit
-    def printPostfix(self, visitor):
-        return self.floatlit
+class FloatLit(IntLit):
+    pass
 
 class BinExp:
     def __init__(self, i1, exp, i2):
@@ -61,9 +51,9 @@ class BinExp:
 
 
     def printPrefix(self, visitor):
-        return self.exp + ' ' + str(self.i1.eval(visitor)) + ' ' + str(self.i2.eval(visitor))
+        return self.exp + ' ' + str(self.i1.printPrefix(visitor)) + ' ' + str(self.i2.printPrefix(visitor))
     def printPostfix(self, visitor):
-        return str(self.i1.eval(visitor)) + ' ' + str(self.i2.eval(visitor)) + ' ' + self.exp
+        return str(self.i1.printPostfix(visitor)) + ' ' + str(self.i2.printPostfix(visitor)) + ' ' + self.exp
 
 class UnExp:
     def __init__(self, exp, i):
@@ -103,8 +93,6 @@ x2 = FloatLit(2.0)
 x3 = BinExp(IntLit(1), "+", IntLit(1))
 x4 = UnExp("-", IntLit(1))
 x5 = BinExp(UnExp("-", IntLit(1)), "+", BinExp(IntLit(4), "*", FloatLit(2.0)))
-
-# x5 = BinExp(-1, +, BinExp(4, *, 2.0)).accept(PrintPrefix)
 
 print(x1.accept(Eval()))
 print(x1.accept(PrintPrefix()))
