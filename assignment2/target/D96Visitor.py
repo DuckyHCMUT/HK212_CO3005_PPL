@@ -214,11 +214,6 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by D96Parser#class_name.
-    def visitClass_name(self, ctx:D96Parser.Class_nameContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by D96Parser#method_invoc_literal.
     def visitMethod_invoc_literal(self, ctx:D96Parser.Method_invoc_literalContext):
         return self.visitChildren(ctx)

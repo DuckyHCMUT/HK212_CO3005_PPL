@@ -16,9 +16,9 @@ program: (class_decl)+ EOF;
 /* Program structure */
 
 class_decl: 
-	('Class' class_name (COLON class_name)? LP class_body RP ); //ID: Serves as identifer
+	('Class' ID (COLON ID)? LP class_body* RP ); //ID: Serves as identifer
 
-class_body: (class_attr | class_method)*;
+class_body: class_attr | class_method;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // For class attributes
@@ -101,7 +101,7 @@ params_list: params (SEMI params)*;
 
 params : ID ((COMMA ID)* COLON (data_type | var_array_decl_tail)); // need array
 
-data_type : INT | FLOAT | BOOLEAN | STRING | class_name;
+data_type : INT | FLOAT | BOOLEAN | STRING | ID | SELF;
 
 // If statement
 if_stmt: IF LB all_expr RB LP block_stmt? RP (else_if_body)? else_body?;
@@ -128,7 +128,7 @@ continue_stmt: CONTINUE SEMI;
 // Return statement
 return_stmt: RETURN all_expr* SEMI;
 
-class_name: (ID | SELF); // An arbitrary name or Self keyword
+// class_name: (ID | SELF); // An arbitrary name or Self keyword
 
 // Method invocation
 method_invoc_literal: method_invoc_literal DOT (ID | funcall) 
