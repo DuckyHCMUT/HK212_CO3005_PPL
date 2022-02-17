@@ -1,0 +1,7 @@
+
+        Class Program{
+            Var x, $y, z: Int;
+            Val t: Float = 3.108;
+            Var f: Float;
+        }
+        

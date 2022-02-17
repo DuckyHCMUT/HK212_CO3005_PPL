@@ -10,7 +10,7 @@ options {
 }
 
 // Program's main structure
-program: (class_decl)+ EOF;
+program: class_decl+ EOF;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Program structure */
@@ -23,21 +23,17 @@ class_body: class_attr | class_method;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // For class attributes
 
-class_attr: (VAR | VAL) 
-			(attr_no_value 
-			| attr_with_value 
-			| attr_array_no_value 
-			| attr_array_with_value) 
-			SEMI;
+class_attr: attr_no_value | attr_with_value | attr_array_no_value | attr_array_with_value;
+			
 
-attr_no_value: any_id (COMMA any_id)* COLON data_type;
+attr_no_value: (VAR | VAL) any_id (COMMA any_id)* COLON data_type SEMI;
 
-attr_with_value: any_id attr_pair all_expr; 
+attr_with_value: (VAR | VAL) any_id attr_pair all_expr SEMI; 
 attr_pair: COMMA any_id attr_pair all_expr COMMA | COLON data_type ASSIGN; 
 
-attr_array_no_value: any_id (COMMA any_id)* COLON attr_array_decl_tail;
+attr_array_no_value: (VAR | VAL) any_id (COMMA any_id)* COLON attr_array_decl_tail SEMI;
 
-attr_array_with_value: any_id attr_array_pair array_rhs; 
+attr_array_with_value: (VAR | VAL) any_id attr_array_pair array_rhs SEMI; 
 attr_array_pair: COMMA any_id attr_array_pair array_rhs COMMA | COLON attr_array_decl_tail ASSIGN; 
 attr_array_decl_tail: ARRAY LS (data_type | attr_array_decl_tail) COMMA (LITERAL_INT) RS;
 
@@ -73,33 +69,29 @@ stmt:
 	;
 
 // Variable declaration
-var_decl: 	(VAR | VAL) 
-			( var_no_value 
-			| var_with_value 
-			| var_array_no_value
-			| var_array_with_value) 
-			SEMI; 
+var_decl: var_no_value | var_with_value | var_array_no_value| var_array_with_value;
 
-var_no_value: ID (COMMA ID)* COLON data_type;
+var_no_value: (VAR | VAL) ID (COMMA ID)* COLON data_type SEMI;
 
-var_with_value: ID var_pair all_expr; 
+var_with_value: (VAR | VAL) ID var_pair all_expr SEMI; 
 var_pair: COMMA ID var_pair all_expr COMMA | COLON data_type ASSIGN; 
 
-var_array_no_value: ID (COMMA ID)* COLON var_array_decl_tail;
+var_array_no_value: (VAR | VAL) ID (COMMA ID)* COLON var_array_decl_tail SEMI;
 
-var_array_with_value: ID var_array_pair array_rhs; 
+var_array_with_value: (VAR | VAL) ID var_array_pair array_rhs SEMI; 
 var_array_pair: COMMA ID var_array_pair array_rhs COMMA | COLON var_array_decl_tail ASSIGN; 
 var_array_decl_tail: ARRAY LS (data_type | var_array_decl_tail) COMMA (LITERAL_INT) RS;
 
-array_rhs: (literal_array | object_create all_expr?);
+array_rhs: literal_array | object_create all_expr?;
 
-// Assign statement, not clean
 assign_stmt: assign_lhs ASSIGN all_expr SEMI;
-assign_lhs: scalar_variable | scalar_variable element_expr;
+assign_lhs: scalar_variable element_expr?;
+// assign_lhs: scalar_variable | scalar_variable element_expr;
 
 params_list: params (SEMI params)*;
 
-params : ID ((COMMA ID)* COLON (data_type | var_array_decl_tail)); // need array
+params : ID ((COMMA ID)* COLON (data_type | var_array_decl_tail)); 
+// a, b, c: Int / a, b, c: Array[Int, 5]
 
 data_type : INT | FLOAT | BOOLEAN | STRING | ID | SELF;
 
@@ -128,7 +120,6 @@ continue_stmt: CONTINUE SEMI;
 // Return statement
 return_stmt: RETURN all_expr* SEMI;
 
-// class_name: (ID | SELF); // An arbitrary name or Self keyword
 
 // Method invocation
 method_invoc_literal: method_invoc_literal DOT (ID | funcall) 
@@ -144,12 +135,12 @@ expr_list: (all_expr COMMA)* all_expr;
 funcall: ID LB list_of_expr? RB;
 
 // Block statement recursively called
-block_stmt: (stmt)+;
+block_stmt: stmt+;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Expression */
 
-all_expr: (op | object_create); 
+all_expr: op | object_create; 
 
 op: op1 (STRING_CONCAT | EQUAL_STRING) op1 | op1; // +., ==., - Binary - Infix - None
 
@@ -169,7 +160,7 @@ op7: op7 LS op7 RS | op8 ; // [] - Unary - Postfix - Left-assoc
 
 op8: op8 DOT (ID | funcall) | op9; // . - Binary - Infix - Left-assoc
 
-op9: (SELF | ID) DOUBLE_COLON (static_method | DOLLAR_ID) | op10; 
+op9: (SELF | ID) DOUBLE_COLON (static_method | DOLLAR_ID) | op10; // :: - Binary - Infix - None
 
 op10: (NEW operands LB list_of_expr? RB) | operands; // New - Unary - Prefix - Right-assoc
 
@@ -180,11 +171,7 @@ element_expr: index_ops; // a + b(index_ops)
 index_ops: index_ops LS all_expr RS | LS all_expr RS; // [3] or [a+2] or a[1][2] or a[a[1]]
 
 // Section 5.6: Member access
-static_member_access:
-	(SELF | ID) DOUBLE_COLON (
-		DOLLAR_ID
-		| static_method
-	);
+static_member_access: (SELF | ID) DOUBLE_COLON (DOLLAR_ID | static_method);
 
 // Static method invocation
 static_method: DOLLAR_ID LB list_of_expr? RB;
@@ -199,8 +186,8 @@ literal: LITERAL_INT | LITERAL_FLOAT | LITERAL_STRING | LITERAL_BOOLEAN | LITERA
 
 // Arrays
 literal_array: literal_idx_array | literal_mtd_array;
-literal_idx_array: 'Array' LB array_element RB;
-literal_mtd_array: 'Array' LB (literal_idx_array COMMA?)* RB;
+literal_idx_array: ARRAY LB array_element? RB;
+literal_mtd_array: ARRAY LB literal_idx_array (COMMA literal_idx_array)* RB;
 
 array_element: all_expr (COMMA all_expr)*;
 

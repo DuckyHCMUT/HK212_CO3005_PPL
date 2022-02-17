@@ -1,4 +1,0 @@
-
-        Class Rectangle {
-            Val $x, y, z: Int = 10, 10 + 10, 1000;
-        }

@@ -1,2 +1,4 @@
-lst = [0,1,2,3,4,5]
-print(list(filter(lambda x: x % 2 == 0, lst)))
+def lstSquare(L):
+  return [L[0]**2] + lstSquare(L[1:]) if L else []
+
+print(lstSquare([1,2,3]))

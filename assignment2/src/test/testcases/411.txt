@@ -1,0 +1,13 @@
+
+        Class Program{
+            notMain(){
+                Val a, b, c: Int;
+            }
+            ##Constructor(){
+                
+            }
+            Destructor(){
+
+            }##
+        }
+        
