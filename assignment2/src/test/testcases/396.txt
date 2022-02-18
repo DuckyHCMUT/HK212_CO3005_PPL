@@ -1,8 +1,0 @@
-
-        Class Program {
-            main() {
-                Car::$abc = 100;
-                a = a::$b::$c;
-                a = (a::$b)::$c;
-            }
-        }

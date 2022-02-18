@@ -1,1 +1,0 @@
-Class Rectangle {} Class Program{main(){Return;}}

@@ -1,1 +1,0 @@
-Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(1),ArrayType(IntLit(2),BoolType)))),MethodDecl(Id(main),Instance,[],Block([AssignStmt(ArrayCell(Id(a),[ArrayCell(Id(b),[IntLit(1),IntLit(1)])]),IntLit(123))]))])])

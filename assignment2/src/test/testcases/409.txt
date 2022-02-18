@@ -1,7 +1,0 @@
-
-        Class Program{
-            Val a: Int = 4 + 5;
-            Var $b: Float = a + 2.3;
-            Val c, d: Int = 0x413EFFAB, 0B0;
-        }
-        

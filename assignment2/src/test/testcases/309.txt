@@ -1,9 +1,0 @@
-Class Program {
-            main() {
-                If (a <= 1) {
-                    Out.putStrLn(5);
-                }
-                Return;
-            }
-        }
-        

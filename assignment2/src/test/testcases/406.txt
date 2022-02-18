@@ -1,4 +1,0 @@
-
-        Class Program : Parent{}
-        Class Subprogram{}
-        

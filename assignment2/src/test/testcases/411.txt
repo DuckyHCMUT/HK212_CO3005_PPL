@@ -1,8 +1,0 @@
-
-        Class Program {
-            Val $c: Int = 0x413EFFAB;
-            main(){
-                Var f: Int = 0x413EFFAB;
-            }
-        }
-        

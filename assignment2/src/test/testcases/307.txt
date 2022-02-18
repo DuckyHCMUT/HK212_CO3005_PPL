@@ -1,7 +1,0 @@
-Class Program {
-            main() {
-                Output.putStrLn(1);
-                Output.putStrLn(10);
-                Return;
-            }
-        }

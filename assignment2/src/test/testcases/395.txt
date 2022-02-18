@@ -1,8 +1,0 @@
-
-        Class Program {
-            main() {
-                Bike::$abc = 100;
-                f = Sth::sthWeird;
-            }
-        }
-        

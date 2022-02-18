@@ -1,6 +1,0 @@
-
-        Class Program {
-            main() {
-                New X()::$a();
-            }
-        }

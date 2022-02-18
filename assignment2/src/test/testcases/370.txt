@@ -1,6 +1,0 @@
-
-        Class Program {
-            main() {
-                Val a : Array[Int, 1] = Array(1, );
-            }
-        }

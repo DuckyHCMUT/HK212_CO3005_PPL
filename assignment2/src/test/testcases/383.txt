@@ -1,7 +1,0 @@
-
-        Class Program {
-            main() {
-                Val myVarB : Int = (a[5]).func()[10];
-                Return;
-            }
-        }

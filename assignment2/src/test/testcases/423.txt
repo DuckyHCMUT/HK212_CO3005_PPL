@@ -1,8 +1,0 @@
-
-        Class Program{
-            Val $a: Int = 5;
-            Constructor(){
-                Program::$a = Self::$a;
-            }
-        }
-        

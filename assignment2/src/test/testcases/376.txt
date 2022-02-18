@@ -1,9 +1,0 @@
-Class Program {
-            main() {
-                a[1].func();
-                a[1] = 2.5;
-                Out.println(a.a[2]);
-                a[1][2].a[3].func()[4].a[5].func();
-                Return;
-            }
-        }

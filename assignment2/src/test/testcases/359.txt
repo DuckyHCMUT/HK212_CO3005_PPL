@@ -1,8 +1,0 @@
-
-        Class Rectangle: Shape{
-            Val length, width: Int = 1, 2;
-            doSomething(){
-                Val a, b, c: Int = 1; ##Error goes here##
-            }
-        }
-            

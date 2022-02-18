@@ -1,9 +1,0 @@
-
-        Class Rectangle: Shape{
-            Val myArray: Array[Float, 3];
-                getArray(){
-                    a = a.1;
-                    Return myArray;
-            }
-        }
-            
