@@ -24,7 +24,7 @@ class_body: class_attr | class_method;
 // For class attributes
 
 class_attr: attr_no_value | attr_with_value | attr_array_no_value | attr_array_with_value;
-			
+
 
 attr_no_value: (VAR | VAL) any_id (COMMA any_id)* COLON data_type SEMI;
 
@@ -35,12 +35,10 @@ attr_array_no_value: (VAR | VAL) any_id (COMMA any_id)* COLON attr_array_decl_ta
 
 attr_array_with_value: (VAR | VAL) any_id attr_array_pair array_rhs SEMI; 
 attr_array_pair: COMMA any_id attr_array_pair array_rhs COMMA | COLON attr_array_decl_tail ASSIGN; 
-attr_array_decl_tail: ARRAY LS (data_type | attr_array_decl_tail) COMMA (LITERAL_INT) RS;
+attr_array_decl_tail: ARRAY LS (data_type | attr_array_decl_tail) COMMA LITERAL_INT RS;
 
 any_id: ID | DOLLAR_ID;
 
-// Right-hand side of an array --> Check lower lines
-// array_rhs: (literal_array | object_create all_expr?);
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // For class methods
@@ -63,13 +61,13 @@ stmt:
 	| break_stmt
 	| continue_stmt
 	| return_stmt
-	| method_invoc_literal DOT funcall SEMI
-	| (SELF | ID) DOUBLE_COLON static_method SEMI
-	| LP block_stmt? RP 
+	| method_invoc
+	| static_method_invoc
+	| block_stmt_stmt
 	;
 
 // Variable declaration
-var_decl: var_no_value | var_with_value | var_array_no_value| var_array_with_value;
+var_decl: var_no_value | var_with_value | var_array_no_value | var_array_with_value;
 
 var_no_value: (VAR | VAL) ID (COMMA ID)* COLON data_type SEMI;
 
@@ -80,13 +78,13 @@ var_array_no_value: (VAR | VAL) ID (COMMA ID)* COLON var_array_decl_tail SEMI;
 
 var_array_with_value: (VAR | VAL) ID var_array_pair array_rhs SEMI; 
 var_array_pair: COMMA ID var_array_pair array_rhs COMMA | COLON var_array_decl_tail ASSIGN; 
-var_array_decl_tail: ARRAY LS (data_type | var_array_decl_tail) COMMA (LITERAL_INT) RS;
+var_array_decl_tail: ARRAY LS (data_type | var_array_decl_tail) COMMA LITERAL_INT RS;
 
-array_rhs: literal_array | object_create all_expr?;
+
+array_rhs: literal_array | object_create;
 
 assign_stmt: assign_lhs ASSIGN all_expr SEMI;
 assign_lhs: scalar_variable element_expr?;
-// assign_lhs: scalar_variable | scalar_variable element_expr;
 
 params_list: params (SEMI params)*;
 
@@ -96,8 +94,8 @@ params : ID ((COMMA ID)* COLON (data_type | var_array_decl_tail));
 data_type : INT | FLOAT | BOOLEAN | STRING | ID | SELF;
 
 // If statement
-if_stmt: IF LB all_expr RB LP block_stmt? RP (else_if_body)? else_body?;
-else_if_body: ELSEIF LB all_expr RB LP block_stmt? RP else_if_body?;
+if_stmt: IF LB all_expr RB LP block_stmt? RP (else_if_body | else_body)?;
+else_if_body: ELSEIF LB all_expr RB LP block_stmt? RP (else_if_body | else_body)?;
 else_body: ELSE LP block_stmt? RP;
 
 // Foreach-In statement
@@ -120,6 +118,13 @@ continue_stmt: CONTINUE SEMI;
 // Return statement
 return_stmt: RETURN all_expr* SEMI;
 
+method_invoc: method_invoc_literal DOT funcall SEMI;
+
+static_method_invoc: (SELF | ID) DOUBLE_COLON static_method SEMI;
+
+block_stmt_stmt: LP block_stmt? RP;
+
+block_stmt: stmt+;
 
 // Method invocation
 method_invoc_literal: method_invoc_literal DOT (ID | funcall) 
@@ -134,8 +139,6 @@ expr_list: (all_expr COMMA)* all_expr;
 
 funcall: ID LB list_of_expr? RB;
 
-// Block statement recursively called
-block_stmt: stmt+;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Expression */
@@ -156,7 +159,7 @@ op5: (NOT op5) | op6; // ! -  Unary - Prefix - Right-assoc
 
 op6: (SUBTRACT op6) | op7; // (-) - Unary - Prefix - Right-assoc
 
-op7: op7 LS op7 RS | op8 ; // [] - Unary - Postfix - Left-assoc
+op7: op7 LS op8 RS | LS op8 RS | op8; // [] - Unary - Postfix - Left-assoc
 
 op8: op8 DOT (ID | funcall) | op9; // . - Binary - Infix - Left-assoc
 

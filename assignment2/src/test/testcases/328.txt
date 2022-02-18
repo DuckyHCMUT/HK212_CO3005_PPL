@@ -1,0 +1,15 @@
+Class Program {
+            Val a, b: Array[Int, 5];
+            Var c: Array[String, 10_0];
+            Var c: Array[Int, 10] = Array(1, 2, 3, 4, 5);
+            main() {
+               a = 1;
+               b = 2;
+               c = Array();
+               d = Array("1", "2", "3");
+               e = Array(Array(1, 2, 3), Array(4, 5, 6));
+               d = "Something";
+               Return;
+            }
+        }
+        

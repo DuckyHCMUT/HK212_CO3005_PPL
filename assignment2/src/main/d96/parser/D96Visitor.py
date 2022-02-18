@@ -214,6 +214,26 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by D96Parser#method_invoc.
+    def visitMethod_invoc(self, ctx:D96Parser.Method_invocContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#static_method_invoc.
+    def visitStatic_method_invoc(self, ctx:D96Parser.Static_method_invocContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#block_stmt_stmt.
+    def visitBlock_stmt_stmt(self, ctx:D96Parser.Block_stmt_stmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by D96Parser#block_stmt.
+    def visitBlock_stmt(self, ctx:D96Parser.Block_stmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by D96Parser#method_invoc_literal.
     def visitMethod_invoc_literal(self, ctx:D96Parser.Method_invoc_literalContext):
         return self.visitChildren(ctx)
@@ -226,11 +246,6 @@ class D96Visitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by D96Parser#funcall.
     def visitFuncall(self, ctx:D96Parser.FuncallContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#block_stmt.
-    def visitBlock_stmt(self, ctx:D96Parser.Block_stmtContext):
         return self.visitChildren(ctx)
 
 

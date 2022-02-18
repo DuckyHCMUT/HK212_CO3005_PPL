@@ -1,0 +1,26 @@
+
+        Class Program {
+            main() {
+                Foreach (a::$b In 1 .. 1006) {
+                    Out.println(12);
+                }
+                Foreach (a.a In 1 .. 1007) {
+                    Out.println(13);
+                }
+                Foreach (Self.func In 1 .. 1008) {
+                    Out.println(14);
+                }
+                Foreach (Self::$func().b.c In 1 .. 1009) {
+                    Out.println(15);
+                }
+                Foreach (Self::$a.b.c In 1 .. 1010) {
+                    Out.println(16);
+                }
+                Foreach (Self.a.b.c In 1 .. 1011) {
+                    Out.println(17);
+                }
+                Foreach (Self::$a In 1 .. 1012) {
+                    Out.println(18);
+                }
+            }
+        }

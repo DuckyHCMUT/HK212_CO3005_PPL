@@ -1,0 +1,20 @@
+Class Program {
+            getName() {
+                Var b: Float = 0.3;
+            }
+            main() {
+                If (a >= b) {
+                    Var a: Int = 0;
+                    a = a + 3;
+                }
+                Elseif (b >= c) {
+                    getName(a >= b);
+                }
+                Elseif (12 >= g) {
+                    insert("String");
+                }
+                Else {
+                    Tam = Self.Tam;
+                }
+            }
+        }

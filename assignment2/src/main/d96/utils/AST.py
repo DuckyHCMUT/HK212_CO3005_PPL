@@ -231,7 +231,6 @@ class CallStmt(Stmt):
 
     def __str__(self):
         return "Call(" + str(self.obj) + "," + str(self.method) + ",[" + ','.join(str(i) for i in self.param) + "])"
-       #return "CallExpr(" + str(self.obj) + "," + str(self.method) + ",[" + ','.join(str(i) for i in self.param) + "])"
        
 
 # used for local variable or parameter declaration

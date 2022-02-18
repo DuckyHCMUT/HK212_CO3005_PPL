@@ -1,0 +1,24 @@
+
+        Class Map {
+            Val key: Array[String, 10];
+            Val value: Array[String, 10];
+            Var $myMap: Map = New Map(Self.key, Self.value);
+            Constructor(key: Array[String, 10]; value: Array[String, 10]) {
+                Self.key = key;
+                Self.value = value;
+                Return;
+            }
+            Destructor() {
+                Self.clean(Self.key);
+                Self.clean(Self.value);
+                Return;
+            }
+        }
+
+        Class Program {
+            main() {
+                Val sth : Map = New Map(arr1, arr2);
+                Return Null;
+            }
+        }
+        

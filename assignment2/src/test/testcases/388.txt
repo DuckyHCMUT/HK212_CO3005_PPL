@@ -1,0 +1,14 @@
+
+        Class D {
+            Constructor() {
+                a = True;
+                b = False;
+                Return;
+            }
+        }
+        Class Program {
+            main() {
+                Val sth : Array[Float, 3] = New Map(B);
+                Return "Zhege ke bu ke ma?";
+            }
+        }

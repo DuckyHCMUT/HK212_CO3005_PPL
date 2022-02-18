@@ -1,0 +1,6 @@
+Class Program {
+            main() {
+                Out.println(a.a[5]);
+                Return;
+            }
+        }

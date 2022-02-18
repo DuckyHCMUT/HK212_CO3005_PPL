@@ -1,0 +1,9 @@
+
+        Class Rectangle: Shape{
+            ## Var somewhat: Int = 2;##
+            Val myArray: Array[Float, 3];
+                getArray(){
+                    Return myArray;
+            }
+        }
+            

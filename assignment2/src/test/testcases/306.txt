@@ -1,0 +1,12 @@
+
+    Class Shape: Rectangle {
+        ##
+        This part should be ignored, just to check, nothing to comment
+        ##
+        $getSomething(yes: Int){
+            Var x : Int = 0;
+            Self.x = 1;
+            Return x;
+        }
+    }
+        

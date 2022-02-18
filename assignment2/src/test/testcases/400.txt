@@ -1,0 +1,7 @@
+
+        Class Program {
+            Var $b : Int; ## Valid ##
+            main() {
+                Var $a : Int; ## Invalid ##
+            }
+        }

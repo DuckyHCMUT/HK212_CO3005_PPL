@@ -1,0 +1,8 @@
+Class Program {
+            Val a : Int, b : String;
+
+            main() {
+                Out.println(4);
+                Return;
+            }
+        }

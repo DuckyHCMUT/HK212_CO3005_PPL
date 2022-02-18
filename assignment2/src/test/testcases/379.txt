@@ -1,0 +1,6 @@
+Class Program {
+            main() {
+                Var a : Int = (a::$a[1]).func()[0];
+                Return;
+            }
+        }

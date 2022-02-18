@@ -1,0 +1,14 @@
+Class Program {
+            Val a, b: Array[Int, 5];
+            Var c: Array[String, 1_023];
+            main() {
+               a = b[5];
+               c = Array();
+               d = Array("1", "2", "3");
+               e = Array(Array(1, 2, 3), Array(9, 8, 7));
+               f = e;
+               d = "Weirdo things and stuff";
+               Return;
+            }
+        }
+        

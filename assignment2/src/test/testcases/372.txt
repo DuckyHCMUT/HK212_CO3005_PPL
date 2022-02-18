@@ -1,0 +1,7 @@
+
+        Class Program {
+            main() {
+                Val a : Int = a[1] + b[2]; 
+                a = New X()::$a();
+            }
+        }

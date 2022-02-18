@@ -1,0 +1,7 @@
+Class Program {
+            main() {
+                a[5] = 1;
+                Return;
+            }
+        }
+        

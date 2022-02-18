@@ -1,0 +1,11 @@
+Class Program {
+            Val a, b: Array[Int, 3];
+            Var c: Array[String, 10_0001];
+            Var d: Array[Float, 1];
+            Var $c, $d, $e: Array[Boolean, 10];
+            main() {
+               Out.println("Xo hang kiem 30 nghin");
+               Return;
+            }
+        }
+        

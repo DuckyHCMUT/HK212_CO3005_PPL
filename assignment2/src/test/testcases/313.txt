@@ -1,0 +1,10 @@
+Class Program {
+            Var a : Int = 4;
+            Val b : String = "Hello World";
+            Var $c, d : Float = 1.0, 2e10;
+
+            main() {
+                Out.println(4);
+                Return;
+            }
+        }

@@ -1,0 +1,9 @@
+
+        Class Program {
+            main() {
+                Val b : Int = a::$a;
+                a::$func();
+                Return;
+            }
+        }
+        

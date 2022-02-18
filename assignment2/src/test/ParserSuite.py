@@ -584,7 +584,7 @@ Class Program {
             Val a, b: Array[Int, 5];
             Var c: Array[String, 1_023];
             main() {
-               a = 111;
+               a = b[5];
                c = Array();
                d = Array("1", "2", "3");
                e = Array(Array(1, 2, 3), Array(9, 8, 7));
@@ -1840,6 +1840,7 @@ Class Program {
         }
         Class Program {
             main() {
+                Val sth : Array[Float, 3] = New Map(B);
                 Return "Zhege ke bu ke ma?";
             }
         }"""

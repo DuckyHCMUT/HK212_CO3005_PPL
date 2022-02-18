@@ -1,0 +1,25 @@
+Class Program {
+            main() {
+                If (a == 3) {
+                    Out.putIntLn(4);
+                    If (b == 4) {
+                        Out.putStrLn(4);
+                        Out.putStrLn(5);
+                    }
+                    If ((a == 3) && (b == 4)) {
+                        Out.putIntLn(4);
+                    }
+                    If ((a == 3) || (b == 4)) {
+                        Out.putIntLn(5);
+                    }
+                    If (!(a == 3) && (b != 4)) {
+                        Out.putIntLn(4);
+                        If ((a > 3) || (b <= 4)) {
+                            Out.putIntLn(5);
+                        }
+                    }
+                }
+                Return;
+            }
+        }
+        

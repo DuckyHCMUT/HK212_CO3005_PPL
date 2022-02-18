@@ -1,0 +1,8 @@
+
+        Class Program {
+            main() {
+                Foreach (Program.a::$b In 1 .. 100) {
+                    Out.println(400);
+                }
+            }
+        }

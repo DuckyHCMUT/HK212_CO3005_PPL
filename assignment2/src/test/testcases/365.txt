@@ -1,0 +1,8 @@
+
+        Class Program {
+            main() {
+                Foreach (Self::$func().b.c In 1 .. 100) {
+                    Out.println(4);
+                }
+            }
+        }

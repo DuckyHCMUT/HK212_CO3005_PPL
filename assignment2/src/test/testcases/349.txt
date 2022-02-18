@@ -1,0 +1,6 @@
+Class Program {
+            main() {
+                Val b : Int = a[5].func()[6];
+                Return;
+            }
+        }

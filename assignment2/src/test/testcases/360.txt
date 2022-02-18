@@ -1,0 +1,11 @@
+
+        Class Program {
+            Val $hehehehe : Array[Int, 0];
+            main() {
+                Val a : Array[Int, 0b0];
+                Var b : Array[Int, 0x0];
+                Val c : Array[Int, 0B0];
+                Val d : Array[Int, 00];
+                Var e : Array[Int, 0X0];
+            }
+        }
