@@ -1,14 +1,13 @@
 # Generate Abstract Syntax Tree from a parse tree generated from ANTLR
 
-from dataclasses import Field
 from D96Visitor import D96Visitor
 from D96Parser import D96Parser
 from AST import *
 
 ### Remember to uncomment this mess before submit to BKEL ###
-from main.d96.utils.AST import ArrayCell, ArrayLiteral, Assign, AttributeDecl, BinaryOp, Block, BoolType, BooleanLiteral, Break, CallExpr, ClassDecl, ClassType, ConstDecl, Continue, FieldAccess, For, If, MethodDecl, NewExpr, NullLiteral, Return
-from main.d96.utils.AST import FloatLiteral, StringLiteral, IntLiteral, SelfLiteral, StringType, UnaryOp
-from main.d96.utils.AST import FloatType, Id, Instance, IntType, Program, Static, VarDecl, ArrayType, CallStmt
+# from main.d96.utils.AST import ArrayCell, ArrayLiteral, Assign, AttributeDecl, BinaryOp, Block, BoolType, BooleanLiteral, Break, CallExpr, ClassDecl, ClassType, ConstDecl, Continue, FieldAccess, For, If, MethodDecl, NewExpr, NullLiteral, Return
+# from main.d96.utils.AST import FloatLiteral, StringLiteral, IntLiteral, SelfLiteral, StringType, UnaryOp
+# from main.d96.utils.AST import FloatType, Id, Instance, IntType, Program, Static, VarDecl, ArrayType, CallStmt
 
 class ASTGeneration(D96Visitor):
     # Visit a parse tree produced by D96Parser#program.
