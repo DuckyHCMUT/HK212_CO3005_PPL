@@ -88,7 +88,7 @@ assign_lhs: scalar_variable element_expr?;
 
 params_list: params (SEMI params)*;
 
-params : ID ((COMMA ID)* COLON (data_type | var_array_decl_tail)); 
+params : ID (COMMA ID)* COLON (data_type | var_array_decl_tail); 
 // a, b, c: Int / a, b, c: Array[Int, 5]
 
 data_type : INT | FLOAT | BOOLEAN | STRING | ID | SELF;
@@ -116,7 +116,7 @@ break_stmt: BREAK SEMI;
 continue_stmt: CONTINUE SEMI;
 
 // Return statement
-return_stmt: RETURN all_expr* SEMI;
+return_stmt: RETURN all_expr? SEMI;
 
 method_invoc: method_invoc_literal DOT funcall SEMI;
 
@@ -159,7 +159,9 @@ op5: (NOT op5) | op6; // ! -  Unary - Prefix - Right-assoc
 
 op6: (SUBTRACT op6) | op7; // (-) - Unary - Prefix - Right-assoc
 
-op7: op7 LS op8 RS | LS op8 RS | op8; // [] - Unary - Postfix - Left-assoc
+op7: op7 postfix_array_exp+ | op8; // [] - Unary - Postfix - Left-assoc
+
+postfix_array_exp: LS all_expr RS;
 
 op8: op8 DOT (ID | funcall) | op9; // . - Binary - Infix - Left-assoc
 

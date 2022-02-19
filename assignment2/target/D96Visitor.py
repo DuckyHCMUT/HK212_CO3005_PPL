@@ -294,6 +294,11 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by D96Parser#postfix_array_exp.
+    def visitPostfix_array_exp(self, ctx:D96Parser.Postfix_array_expContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by D96Parser#op8.
     def visitOp8(self, ctx:D96Parser.Op8Context):
         return self.visitChildren(ctx)

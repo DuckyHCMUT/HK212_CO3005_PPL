@@ -2087,3 +2087,14 @@ Class Program {
         }"""
         expect = "Error on line 5 col 20: $a"
         self.assertTrue(TestParser.test(input, expect, 400))
+
+    def test_401(self):
+        input = """
+        Class Program : Something {
+                Var a : Array[Int, 5] = Array(1, 2, 3, 4, 5);
+                Val c : Int = a[1];
+                Val b : Int = a[1][2];
+                Val $d : Int = a[arr[1]];
+            }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 401))

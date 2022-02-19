@@ -100,7 +100,7 @@ class ASTGenSuite(unittest.TestCase):
             Val arr, $brr: Array[Array[Float, 2], 3] = Array(Array(2.1, -1.3), Array(0.1, 3.1e3), Array(-0.00001, 123.321E-123)), Array(Array(1.2, 0.132), Array(0.9931, 10.1e3), Array(0.00001111, 1111111119.332321e-2));
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[AttributeDecl(Instance,ConstDecl(Id(arr),ArrayType(IntLit(3),ArrayType(IntLit(2),FloatType)),[[FloatLit(2.1),UnaryOp(-,FloatLit(1.3))],[FloatLit(0.1),FloatLit(3.1e3)],[UnaryOp(-,FloatLit(0.00001)),FloatLit(123.321E-123)]])),AttributeDecl(Static,ConstDecl(Id($brr),ArrayType(IntLit(3),ArrayType(IntLit(2),FloatType)),[[FloatLit(1.2),FloatLit(0.132)],[FloatLit(0.9931),FloatLit(10.1e3)],[FloatLit(0.00001111),FloatLit(1111111119.332321e-2)]]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[AttributeDecl(Instance,ConstDecl(Id(arr),ArrayType(IntLit(3),ArrayType(IntLit(2),FloatType)),[[FloatLit(2.1),UnaryOp(-,FloatLit(1.3))],[FloatLit(0.1),FloatLit(3100.0)],[UnaryOp(-,FloatLit(1e-05)),FloatLit(1.23321e-121)]])),AttributeDecl(Static,ConstDecl(Id($brr),ArrayType(IntLit(3),ArrayType(IntLit(2),FloatType)),[[FloatLit(1.2),FloatLit(0.132)],[FloatLit(0.9931),FloatLit(10100.0)],[FloatLit(1.111e-05),FloatLit(11111111.19332321)]]))])])"""
         self.assertTrue(TestAST.test(input, expect, 410))
 
     def test_simple_program_411(self):
@@ -113,7 +113,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[AttributeDecl(Static,ConstDecl(Id($c),IntType,IntLit(1094647723))),MethodDecl(Id(main),Instance,[],Block([VarDecl(Id(f),IntType,IntLit(1094647723))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[AttributeDecl(Static,ConstDecl(Id($c),IntType,IntLit(1094647723))),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(f),IntType,IntLit(1094647723))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 411))
 
     def test_method_412(self):
@@ -160,7 +160,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[param(Id(inp),IntType)],Block([VarDecl(Id(a),FloatType),AssignStmt(Id(a),FloatLit(3.5031041095815))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[param(Id(inp),IntType)],Block([VarDecl(Id(a),FloatType),AssignStmt(Id(a),FloatLit(3.5031041095815))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 415))
 
     def _test_simple_program_416(self):
@@ -176,7 +176,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(4),BoolType))),AssignStmt(ArrayCell(Id(a),[IntLit(0)]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[IntLit(1)]),ArrayCell(Id(a),[IntLit(0)])),AssignStmt(ArrayCell(Id(a),[BinaryOp(+,IntLit(1),IntLit(1))]),BooleanLit(False)),AssignStmt(ArrayCell(Id(a),[BinaryOp(/,IntLit(12),IntLit(3))]),BooleanLit(True))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(4),BoolType))),AssignStmt(ArrayCell(Id(a),[IntLit(0)]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[IntLit(1)]),ArrayCell(Id(a),[IntLit(0)])),AssignStmt(ArrayCell(Id(a),[BinaryOp(+,IntLit(1),IntLit(1))]),BooleanLit(False)),AssignStmt(ArrayCell(Id(a),[BinaryOp(/,IntLit(12),IntLit(3))]),BooleanLit(True))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 416))
 
     def test_simple_program_417(self):
@@ -192,7 +192,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(2),ArrayType(IntLit(3),BoolType)))),AssignStmt(ArrayCell(Id(a),[IntLit(0),IntLit(0)]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[IntLit(1),IntLit(0)]),BooleanLit(False)),AssignStmt(ArrayCell(Id(a),[IntLit(0),IntLit(1)]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[IntLit(1),IntLit(1)]),BooleanLit(False))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(2),ArrayType(IntLit(3),BoolType)))),AssignStmt(ArrayCell(Id(a),[IntLit(0),IntLit(0)]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[IntLit(1),IntLit(0)]),BooleanLit(False)),AssignStmt(ArrayCell(Id(a),[IntLit(0),IntLit(1)]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[IntLit(1),IntLit(1)]),BooleanLit(False))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 417))
 
     def test_simple_program_418(self):
@@ -208,7 +208,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(2),ArrayType(IntLit(2),BoolType)))),AssignStmt(ArrayCell(Id(a),[BinaryOp(*,IntLit(0),IntLit(10000000)),IntLit(0)]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[BinaryOp(/,BinaryOp(*,BinaryOp(*,IntLit(1),IntLit(1)),IntLit(1)),IntLit(1)),IntLit(0)]),BooleanLit(False)),AssignStmt(ArrayCell(Id(a),[BinaryOp(*,IntLit(0),IntLit(757)),BinaryOp(/,IntLit(9999),IntLit(9999))]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[BinaryOp(+,BinaryOp(/,BinaryOp(*,IntLit(1),IntLit(9)),IntLit(9)),IntLit(0)),BinaryOp(/,IntLit(9999),IntLit(9999))]),BooleanLit(False))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(2),ArrayType(IntLit(2),BoolType)))),AssignStmt(ArrayCell(Id(a),[BinaryOp(*,IntLit(0),IntLit(10000000)),IntLit(0)]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[BinaryOp(/,BinaryOp(*,BinaryOp(*,IntLit(1),IntLit(1)),IntLit(1)),IntLit(1)),IntLit(0)]),BooleanLit(False)),AssignStmt(ArrayCell(Id(a),[BinaryOp(*,IntLit(0),IntLit(757)),BinaryOp(/,IntLit(9999),IntLit(9999))]),BooleanLit(True)),AssignStmt(ArrayCell(Id(a),[BinaryOp(+,BinaryOp(/,BinaryOp(*,IntLit(1),IntLit(9)),IntLit(9)),IntLit(0)),BinaryOp(/,IntLit(9999),IntLit(9999))]),BooleanLit(False))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 418))
 
     def _test_simple_program_419(self):
@@ -222,7 +222,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(1),ArrayType(IntLit(2),BoolType)))),MethodDecl(Id(main),Instance,[],Block([VarDecl(Id(b),BoolType,ArrayCell(Id(a),[IntLit(0), IntLit(0)])))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(1),ArrayType(IntLit(2),BoolType)))),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(b),BoolType,ArrayCell(Id(a),[IntLit(0), IntLit(0)])))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 419))
 
     def _test_simple_program_420(self):
@@ -235,7 +235,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(1),ArrayType(IntLit(2),BoolType)))),MethodDecl(Id(main),Instance,[],Block([AssignStmt(ArrayCell(Id(a),[ArrayCell(Id(b),[IntLit(1)])]),IntLit(123))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(a),ArrayType(IntLit(1),ArrayType(IntLit(2),BoolType)))),MethodDecl(Id(main),Static,[],Block([AssignStmt(ArrayCell(Id(a),[ArrayCell(Id(b),[IntLit(1)])]),IntLit(123))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 420))
 
     def test_simple_program_421(self):
@@ -248,7 +248,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([AssignStmt(Id(a),CallExpr(Id(Prog),Id(b),[Id(e),Id(f),Id(g)])),AssignStmt(Id(b),FieldAccess(Id(Program),Id(a)))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),CallExpr(Id(Prog),Id(b),[Id(e),Id(f),Id(g)])),AssignStmt(Id(b),FieldAccess(Id(Program),Id(a)))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 421))
 
     def test_simple_program_422(self):
@@ -262,7 +262,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([AssignStmt(Id(a),CallExpr(Id(Prog),Id($b),[Id(e),Id(f),Id(g)])),AssignStmt(Id(b),FieldAccess(Id(Program),Id($a))),AssignStmt(Id(c),FieldAccess(Self(),Id($f)))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),CallExpr(Id(Prog),Id($b),[Id(e),Id(f),Id(g)])),AssignStmt(Id(b),FieldAccess(Id(Program),Id($a))),AssignStmt(Id(c),FieldAccess(Self(),Id($f)))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 422))
 
     def test_simple_program_423(self):
@@ -289,7 +289,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([If(BinaryOp(>,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(2))]))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([If(BinaryOp(>,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(2))]))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 424))
 
     def test_short_program_425(self):
@@ -306,7 +306,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([If(BinaryOp(>,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(2))]),If(BinaryOp(==,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(1))])))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([If(BinaryOp(>,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(2))]),If(BinaryOp(==,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(1))])))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 425))
 
     def test_short_program_426(self):
@@ -326,7 +326,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([If(BinaryOp(>,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(2))]),If(BinaryOp(==,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(1))]),Block([AssignStmt(Id(a),IntLit(0))])))]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([If(BinaryOp(>,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(2))]),If(BinaryOp(==,Id(a),Id(b)),Block([AssignStmt(Id(a),IntLit(1))]),Block([AssignStmt(Id(a),IntLit(0))])))]))])])"""
         self.assertTrue(TestAST.test(input, expect, 426))
 
     def test_short_program_427(self):
@@ -340,7 +340,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([For(Id(a),IntLit(1),IntLit(100000),Block([AssignStmt(FieldAccess(Id(Global),Id($b)),BinaryOp(+,Id(a),IntLit(2)))])])]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(a),IntLit(1),IntLit(100000),IntLit(1),Block([AssignStmt(FieldAccess(Id(Global),Id($b)),BinaryOp(+,Id(a),IntLit(2)))])])]))])])"""
         self.assertTrue(TestAST.test(input, expect, 427))
 
     def test_short_program_428(self):
@@ -354,7 +354,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[],Block([For(Id(a),IntLit(1),IntLit(100000),IntLit(5),Block([AssignStmt(FieldAccess(Id(Global),Id($b)),BinaryOp(+,Id(a),IntLit(2)))])])]))])])"""
+        expect = """Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(a),IntLit(1),IntLit(100000),IntLit(5),Block([AssignStmt(FieldAccess(Id(Global),Id($b)),BinaryOp(+,Id(a),IntLit(2)))])])]))])])"""
         self.assertTrue(TestAST.test(input, expect, 428))
 
     # def test_simple_program_(self):
