@@ -567,7 +567,7 @@ class ASTGeneration(D96Visitor):
     def visitReturn_stmt(self, ctx:D96Parser.Return_stmtContext):
         # RETURN SEMI
         if ctx.getChildCount() == 2:
-            return Return()
+            return Return(None)
         # RETURN all_expr SEMI
         expr = self.visit(ctx.all_expr())
         return Return(expr)

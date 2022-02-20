@@ -173,6 +173,8 @@ class ParserSuite(unittest.TestCase):
         Val length, width, k: Float = 20.3, 10.1, 1.2;
         getArea(){
             Val area: Float = length*width*k;
+            Var b: Int = a[3[1]];
+            f[3[1]] = b;
             Return area;
         }
     }
