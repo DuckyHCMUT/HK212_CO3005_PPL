@@ -1497,19 +1497,18 @@ Class Program {
         """ Test continue statement"""
         input = """
         Class Simple {
+            main() {
+                Val numbers : Array[Int, 5] = Array(10, 20, 30, 40, 50);
 
-   main() {
-      Val numbers : Array[Int, 5] = Array(10, 20, 30, 40, 50);
-
-      Foreach (i In 0 .. 4 By 1) {
-         If ( x == 30 ) {
-            Continue;
-         }
-         System.out.print( x );
-         System.out.print("\\n");
-      }
-   }
-}
+                Foreach (i In 0 .. 4 By 1) {
+                    If ( x == 30 ) {
+                        Continue;
+                    }
+                    System.out.print( x );
+                    System.out.print("\\n");
+                }
+            }
+        }
         """
         expect = "successful"
         self.assertTrue(TestParser.test(input, expect, 368))
@@ -1621,7 +1620,8 @@ Class Program {
 
     def test_376(self):
         """ Test scalar variables"""
-        input = """Class Program {
+        input = """
+        Class Program {
             main() {
                 a[1].func();
                 a[1] = 2.5;
@@ -1635,7 +1635,8 @@ Class Program {
 
     def test_377(self):
         """ Test scalar variables"""
-        input = """Class Program {
+        input = """
+        Class Program {
             main() {
                 a::$a[5].func()[0];
                 a::$a;
@@ -1649,7 +1650,8 @@ Class Program {
     def test_378(self):
         """ Test statements inside function, operator in action, non associative operator
         and wrong assignment operators (nested equal signs)"""
-        input = """Class Program {
+        input = """
+        Class Program {
             Val a, b: Array[Int, 5];
             Var c: Array[String, 10_0];
             main() {

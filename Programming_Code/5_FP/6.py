@@ -6,7 +6,7 @@
 from functools import reduce
 
 def flatten(lst):
-    return reduce(lambda a, b: a + b, lst) if lst else []
+    return [reduce(lambda a, b: a + b, x) for x in lst]
 
 # Test 1
 print(flatten([[1,2,3],[4,5],[6,7]]))
