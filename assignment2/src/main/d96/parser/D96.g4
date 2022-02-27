@@ -35,7 +35,8 @@ attr_array_no_value: (VAR | VAL) any_id (COMMA any_id)* COLON attr_array_decl_ta
 
 attr_array_with_value: (VAR | VAL) any_id attr_array_pair array_rhs SEMI; 
 attr_array_pair: COMMA any_id attr_array_pair array_rhs COMMA | COLON attr_array_decl_tail ASSIGN; 
-attr_array_decl_tail: ARRAY LS (data_type | attr_array_decl_tail) COMMA LITERAL_INT RS;
+
+attr_array_decl_tail: ARRAY LS (prim_type | attr_array_decl_tail) COMMA LITERAL_INT RS; // h
 
 any_id: ID | DOLLAR_ID;
 
@@ -78,7 +79,7 @@ var_array_no_value: (VAR | VAL) ID (COMMA ID)* COLON var_array_decl_tail SEMI;
 
 var_array_with_value: (VAR | VAL) ID var_array_pair array_rhs SEMI; 
 var_array_pair: COMMA ID var_array_pair array_rhs COMMA | COLON var_array_decl_tail ASSIGN; 
-var_array_decl_tail: ARRAY LS (data_type | var_array_decl_tail) COMMA LITERAL_INT RS;
+var_array_decl_tail: ARRAY LS (prim_type | var_array_decl_tail) COMMA LITERAL_INT RS; // h
 
 
 array_rhs: literal_array | object_create;
@@ -91,7 +92,9 @@ params_list: params (SEMI params)*;
 params : ID (COMMA ID)* COLON (data_type | var_array_decl_tail); 
 // a, b, c: Int / a, b, c: Array[Int, 5]
 
-data_type : INT | FLOAT | BOOLEAN | STRING | ID | SELF;
+data_type : prim_type | ID;
+
+prim_type : INT | FLOAT | BOOLEAN | STRING;
 
 // If statement
 if_stmt: IF LB all_expr RB LP block_stmt? RP (else_if_body | else_body)?;
@@ -103,11 +106,15 @@ for_in_stmt: FOREACH LB for_in_body RB LP block_stmt? RP;
 for_in_body: scalar_variable IN for_in_expr DOTDOT for_in_expr (BY for_in_expr)? ; 
 for_in_expr: all_expr;
 
-scalar_variable: scalar_variable DOT (ID | funcall)
-				| static_member_access
-				| SELF 
+// scalar_variable: scalar_variable DOT ID
+// 				| static_member_access
+// 				| SELF 
+// 				| ID; 
+
+scalar_variable: scalar_variable DOT ID
 				| ID 
-				;
+				| SELF DOT ID 
+				| ID DOUBLE_COLON DOLLAR_ID;
 
 // Break statement
 break_stmt: BREAK SEMI;
@@ -165,7 +172,7 @@ postfix_array_exp: LS all_expr RS;
 
 op8: op8 DOT (ID | funcall) | op9; // . - Binary - Infix - Left-assoc
 
-op9: (SELF | ID) DOUBLE_COLON (static_method | DOLLAR_ID) | op10; // :: - Binary - Infix - None
+op9: ID DOUBLE_COLON (static_method | DOLLAR_ID) | op10; // :: - Binary - Infix - None
 
 op10: (NEW operands LB list_of_expr? RB) | operands; // New - Unary - Prefix - Right-assoc
 
@@ -176,7 +183,7 @@ element_expr: index_ops; // a + b(index_ops)
 index_ops: index_ops LS all_expr RS | LS all_expr RS; // [3] or [a+2] or a[1][2] or a[a[1]]
 
 // Section 5.6: Member access
-static_member_access: (SELF | ID) DOUBLE_COLON (DOLLAR_ID | static_method);
+static_member_access: ID DOUBLE_COLON (DOLLAR_ID | static_method);
 
 // Static method invocation
 static_method: DOLLAR_ID LB list_of_expr? RB;

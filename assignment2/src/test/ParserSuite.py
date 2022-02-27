@@ -252,7 +252,7 @@ class ParserSuite(unittest.TestCase):
     cluster.waitActive();
     STH.someFunc();
     fs.enableErasureCodingPolicy(EC_POLICY.getName());
-    ecDir = Self::$getTestPath("/ec");
+    ecDir = Self.getTestPath("/ec");
     fs.setErasureCodingPolicy(ecDir, EC_POLICY.getName());
   }
 
@@ -893,12 +893,12 @@ Class Program {
             Var $sus_value: String = "This value is sus!"; ## Susssssss ##
             main() {
                 Val valid_value: Int = 100000000;
-                valid_value.b.c.d() = Program::$a.b.c().d.e.x::$f()::g.h::$i().j + 1;
+                valid_value.b.c.d = Program::$a.b.c().d.e.x::$f()::g.h::$i().j + 1;
                 Return (valid_value - Self::$sus_value + Self.what - Program::$a.b.c(Program::$a.b).d.e.x::$f()::$g.h::$i().j);
             }
         }
         """
-        expect = """Error on line 6 col 61: ::"""
+        expect = """Error on line 6 col 59: ::"""
         self.assertTrue(TestParser.test(input, expect, 341))
 
     def test_342(self):
@@ -1107,7 +1107,7 @@ Class Program {
         }
 
         Class Motor:Vehicle{
-            Var $motorList:Array[Motor, 100];
+            Var $motorList: Array[Motor, 100];
             Var $numOfMotor: Int = 0;
             Val maxSpeed: Int = 40;
             Constructor(){
@@ -1119,7 +1119,7 @@ Class Program {
             }
         }
         """
-        output = "successful"
+        output = "Error on line 79 col 34: Motor"
         self.assertTrue(TestParser.test(input, output, 345))
 
     def test_346(self):
@@ -1210,7 +1210,7 @@ Class Program {
             }
         }
         """
-        expect = """Error on line 6 col 36: a"""
+        expect = """Error on line 6 col 25: ="""
         self.assertTrue(TestParser.test(input, expect, 348))
 
     def test_349(self):
@@ -1250,7 +1250,7 @@ Class Program {
                     Out.printInt(x % 10);
                 }
                 Foreach(y In 300 .. -0 By -2){
-                    Self::$doNothing = 1;
+                    Self.doNothing = 1;
                     a::$doNothing();
                     Foreach(z In -1 .. 50000000){
                         Out.print("Hello world");
@@ -1289,12 +1289,12 @@ Class Program {
     def test_355(self):
         input = """Class Program {
             main() {
-                a[5] = 1;
+                a[5] = Self::$a;
                 Return;
             }
         }
         """
-        expect = "successful"
+        expect = "Error on line 3 col 27: ::"
         self.assertTrue(TestParser.test(input, expect, 355))
 
     def test_356(self):
@@ -1418,7 +1418,7 @@ Class Program {
         self.assertTrue(TestParser.test(input, expect, 364))
 
     def test_365(self):
-        """ Test ionstance and static access function"""
+        """ Test instance and static access function"""
         input = """
         Class Program {
             main() {
@@ -1427,7 +1427,7 @@ Class Program {
                 }
             }
         }"""
-        expect = "successful"
+        expect = "Error on line 4 col 29: ::"
         self.assertTrue(TestParser.test(input, expect, 365))
 
     def test_366(self):
@@ -1588,16 +1588,16 @@ Class Program {
                 Foreach (Self.func In 1 .. 1008) {
                     Out.println(14);
                 }
-                Foreach (Self::$func().b.c In 1 .. 1009) {
+                Foreach (fun::$func.b.c In 1 .. 1009) {
                     Out.println(15);
                 }
-                Foreach (Self::$a.b.c In 1 .. 1010) {
+                Foreach (cc::$a.b.c In 1 .. 1010) {
                     Out.println(16);
                 }
                 Foreach (Self.a.b.c In 1 .. 1011) {
                     Out.println(17);
                 }
-                Foreach (Self::$a In 1 .. 1012) {
+                Foreach (return::$a In 1 .. 1012) {
                     Out.println(18);
                 }
             }
@@ -1644,7 +1644,7 @@ Class Program {
                 Return;
             }
         }"""
-        expect = "Error on line 3 col 34: ;"
+        expect = "Error on line 4 col 34: ;"
         self.assertTrue(TestParser.test(input, expect, 377))
 
     def test_378(self):
@@ -1669,7 +1669,7 @@ Class Program {
             }
         }
         """
-        expect = "Error on line 13 col 24: ="
+        expect = "Error on line 14 col 24: ="
         self.assertTrue(TestParser.test(input, expect, 378))
 
     def test_379(self):
@@ -1864,7 +1864,7 @@ Class Program {
             Val $b : B;
             Constructor() {
                 a = New C();
-                Self::$b = New B();
+                Self.b = New B();
                 Return;
             }
         }
@@ -1904,7 +1904,7 @@ Class Program {
                 Return;
             }
         }"""
-        expect = "Error on line 20 col 21: ::"
+        expect = "Error on line 12 col 25: ="
         self.assertTrue(TestParser.test(input, expect, 390))
 
     def test_391(self):
@@ -2016,7 +2016,7 @@ Class Program {
         input = """
         Class Program {
             main() {
-                a = a.b.c.d().e().f() + Self::$a();
+                a = a.b.c.d().e().f() + Self.a();
             }
         }"""
         expect = "successful"
@@ -2102,3 +2102,24 @@ Class Program {
             }"""
         expect = "successful"
         self.assertTrue(TestParser.test(input, expect, 401))
+
+    def test_402(self):
+        input = """
+        Class Program{
+            main(){
+                If (a > b){}
+                Else{}
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 402))
+
+    def test_array_obj_999(self):
+        input = """
+        Class Program {
+            main() {
+                Var a: Array[Sth, 10];
+            }
+        }"""
+        expect = "Error on line 4 col 29: Sth"
+        self.assertTrue(TestParser.test(input, expect, 999))

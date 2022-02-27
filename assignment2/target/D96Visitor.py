@@ -164,6 +164,11 @@ class D96Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by D96Parser#prim_type.
+    def visitPrim_type(self, ctx:D96Parser.Prim_typeContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by D96Parser#if_stmt.
     def visitIf_stmt(self, ctx:D96Parser.If_stmtContext):
         return self.visitChildren(ctx)
