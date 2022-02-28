@@ -2114,6 +2114,37 @@ Class Program {
         expect = "successful"
         self.assertTrue(TestParser.test(input, expect, 402))
 
+    def test_403(self):
+        input = """
+        Class Program{
+            main(){
+                a = a.b().c;
+            }
+        }"""
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 403))
+    
+    def test_404(self):
+        input = """
+        Class Program{
+            main(){      
+                If (Sys.not(!True)) {
+                    falseLit = !!!!!!!-----------------True;
+                    a = ------------1;
+                    b = !!!!!!!!!!!!!2;
+                    Obj.doMany();
+                    Self.google();
+                    Continue;
+                    Self.callFunc(1, a, b, a != b);
+                }
+                Return (True + !False);
+            }
+        }
+        """
+        expect = "successful"
+        self.assertTrue(TestParser.test(input, expect, 404))
+    
+
     def test_array_obj_999(self):
         input = """
         Class Program {
