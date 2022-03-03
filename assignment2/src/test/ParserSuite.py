@@ -947,7 +947,7 @@ Class Program {
         }
     }
         """
-        expect = "successful"
+        expect = "Error on line 20 col 16: ::"
         self.assertTrue(TestParser.test(input, expect, 342))
 
     def test_343(self):
@@ -1210,7 +1210,7 @@ Class Program {
             }
         }
         """
-        expect = """Error on line 6 col 25: ="""
+        expect = """Error on line 6 col 20: ::"""
         self.assertTrue(TestParser.test(input, expect, 348))
 
     def test_349(self):
@@ -1813,7 +1813,7 @@ Class Program {
                 Return;
             }
         }"""
-        expect = "successful"
+        expect = "Error on line 5 col 20: ::"
         self.assertTrue(TestParser.test(input, expect, 386))
 
     def test_387(self):
@@ -1904,7 +1904,7 @@ Class Program {
                 Return;
             }
         }"""
-        expect = "Error on line 12 col 25: ="
+        expect = "Error on line 12 col 20: ::"
         self.assertTrue(TestParser.test(input, expect, 390))
 
     def test_391(self):
@@ -2101,7 +2101,7 @@ Class Program {
                 Val $d : Int = a[arr[1]];
             }"""
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 401))
+        self.assertTrue(TestParser.test(input, expect, 994))
 
     def test_402(self):
         input = """
@@ -2112,7 +2112,7 @@ Class Program {
             }
         }"""
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 402))
+        self.assertTrue(TestParser.test(input, expect, 995))
 
     def test_403(self):
         input = """
@@ -2122,7 +2122,7 @@ Class Program {
             }
         }"""
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 403))
+        self.assertTrue(TestParser.test(input, expect, 996))
     
     def test_404(self):
         input = """
@@ -2142,15 +2142,23 @@ Class Program {
         }
         """
         expect = "successful"
-        self.assertTrue(TestParser.test(input, expect, 404))
-    
+        self.assertTrue(TestParser.test(input, expect, 997))
+
+    def test_assign_stm_6(self):
+        input = """Class Program {
+            $a() {
+                a.a[1][23] = a.foo() +. AClass.foo();
+            }
+        }"""
+        expect = """successful"""
+        self.assertTrue(TestParser.test(input, expect, 575))
 
     def test_array_obj_999(self):
         input = """
         Class Program {
             main() {
-                Var a: Array[Sth, 10];
+                a::$b.c.d()[a] = Null;
             }
         }"""
-        expect = "Error on line 4 col 29: Sth"
+        expect = "Error on line 4 col 31: ="
         self.assertTrue(TestParser.test(input, expect, 999))

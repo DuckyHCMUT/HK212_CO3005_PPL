@@ -85,7 +85,10 @@ var_array_decl_tail: ARRAY LS (prim_type | var_array_decl_tail) COMMA LITERAL_IN
 array_rhs: literal_array | object_create;
 
 assign_stmt: assign_lhs ASSIGN all_expr SEMI;
-assign_lhs: scalar_variable element_expr?;
+
+assign_lhs: (LB assign_lhs RB) 
+		| (scalar_variable element_expr?);
+
 
 params_list: params (SEMI params)*;
 
@@ -106,15 +109,13 @@ for_in_stmt: FOREACH LB for_in_body RB LP block_stmt? RP;
 for_in_body: scalar_variable IN for_in_expr DOTDOT for_in_expr (BY for_in_expr)? ; 
 for_in_expr: all_expr;
 
-// scalar_variable: scalar_variable DOT ID
-// 				| static_member_access
-// 				| SELF 
-// 				| ID; 
-
-scalar_variable: scalar_variable DOT ID
+scalar_variable: scalar_variable DOT ID 
+				| LB scalar_variable RB
 				| ID 
-				| SELF DOT ID 
-				| ID DOUBLE_COLON DOLLAR_ID;
+				| SELF DOT ID
+				| ID DOUBLE_COLON DOLLAR_ID
+				;
+				
 
 // Break statement
 break_stmt: BREAK SEMI;
@@ -127,7 +128,7 @@ return_stmt: RETURN all_expr? SEMI;
 
 method_invoc: method_invoc_literal DOT funcall SEMI;
 
-static_method_invoc: (SELF | ID) DOUBLE_COLON static_method SEMI;
+static_method_invoc: ID DOUBLE_COLON static_method SEMI;
 
 block_stmt_stmt: LP block_stmt? RP;
 
@@ -135,6 +136,7 @@ block_stmt: stmt+;
 
 // Method invocation
 method_invoc_literal: method_invoc_literal DOT (ID | funcall) 
+					| LB method_invoc_literal RB
 					| NEW funcall // New X().New
 					| method_invoc_literal element_expr
 					| static_member_access
@@ -180,7 +182,9 @@ operands: literal | SELF | ID | LB op RB | NULL | literal_array; // Because memb
 
 // Section 5.5: Index operators
 element_expr: index_ops; // a + b(index_ops)
-index_ops: index_ops LS all_expr RS | LS all_expr RS; // [3] or [a+2] or a[1][2] or a[a[1]]
+index_ops: 
+		index_ops LS all_expr RS // a[1][2] 
+		| LS all_expr RS; // [3] or [a+2] or a[a[1]]
 
 // Section 5.6: Member access
 static_member_access: ID DOUBLE_COLON (DOLLAR_ID | static_method);

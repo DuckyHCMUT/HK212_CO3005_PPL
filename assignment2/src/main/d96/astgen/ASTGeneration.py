@@ -211,7 +211,6 @@ class ASTGeneration(D96Visitor):
 
 
     # Visit a parse tree produced by D96Parser#attr_array_decl_tail.
-    # attr_array_decl_tail: ARRAY LS (data_type | attr_array_decl_tail) COMMA LITERAL_INT RS;
     # attr_array_decl_tail: ARRAY LS (prim_type | attr_array_decl_tail) COMMA LITERAL_INT RS;
     def visitAttr_array_decl_tail(self, ctx:D96Parser.Attr_array_decl_tailContext):
         if ctx.prim_type():
@@ -436,9 +435,13 @@ class ASTGeneration(D96Visitor):
 
 
     # Visit a parse tree produced by D96Parser#assign_lhs.
-    # assign_lhs: scalar_variable
-    # assign_lhs: scalar_variable element_expr
+    # assign_lhs: LB assign_lhs RB | scalar_variable element_expr?;
     def visitAssign_lhs(self, ctx:D96Parser.Assign_lhsContext):
+        # LB assign_lhs RB
+        if ctx.assign_lhs():
+            return self.visit(ctx.assign_lhs())
+
+        # scalar_variable element_expr?;
         scalar = self.visit(ctx.scalar_variable())
         if ctx.element_expr():
             ele_expr = self.visit(ctx.element_expr())
@@ -548,32 +551,19 @@ class ASTGeneration(D96Visitor):
 
 
     # Visit a parse tree produced by D96Parser#scalar_variable.
-    # scalar_variable: scalar_variable DOT ID
-    # | static_member_access | SELF | ID 
-
+    # scalar_variable: scalar_variable DOT ID 
+    # 				| LB scalar_variable RB
+    # 				| ID 
+    # 				| SELF DOT ID
+    # 				| ID DOUBLE_COLON DOLLAR_ID
     def visitScalar_variable(self, ctx:D96Parser.Scalar_variableContext):
-        # # static_member_access | SELF | ID
-        # if ctx.getChildCount() == 1: 
-        #     if ctx.static_member_access():
-        #         return self.visit(ctx.static_member_access())
-        #     if ctx.SELF(): return SelfLiteral()
-        #     if ctx.ID(): return Id(ctx.ID().getText())
-        
-        # # scalar_variable DOT ID
-        # if ctx.getChildCount() == 3:
-        #     obj = self.visit(ctx.scalar_variable())
-        #     # if ctx.ID(): 
-        #     id = Id(ctx.ID().getText())
-        #     return FieldAccess(obj, id)
-
-        # scalar_variable: scalar_variable DOT ID
-        #			| ID 
-        #			| SELF DOT ID 
-        #			| ID DOUBLE_COLON DOLLAR_ID;
-
         # ID
         if ctx.getChildCount() == 1:
             return Id(ctx.ID().getText())
+        
+        # LB scalar_variable RB
+        if ctx.LB():
+            return self.visit(ctx.scalar_variable())
         
         # scalar_variable DOT ID
         if ctx.scalar_variable():
@@ -617,9 +607,9 @@ class ASTGeneration(D96Visitor):
 
 
     # Visit a parse tree produced by D96Parser#static_method_invoc.
-    # static_method_invoc: (SELF | ID) DOUBLE_COLON static_method SEMI;
+    # static_method_invoc: ID DOUBLE_COLON static_method SEMI;
     def visitStatic_method_invoc(self, ctx:D96Parser.Static_method_invocContext):
-        obj = SelfLiteral() if ctx.SELF() else Id(ctx.ID().getText())
+        obj = Id(ctx.ID().getText())
         id, paramList = self.visit(ctx.static_method())
         return CallStmt(obj, id, paramList)
 
@@ -632,7 +622,8 @@ class ASTGeneration(D96Visitor):
 
     # Visit a parse tree produced by D96Parser#method_invoc_literal.
     # method_invoc_literal: 
-    # method_invoc_literal DOT (ID | funcall) 
+    # | LB method_invoc_literal RB
+    # | method_invoc_literal DOT (ID | funcall) 
     # | NEW funcall | method_invoc_literal element_expr
     # | static_member_access | SELF | ID
     def visitMethod_invoc_literal(self, ctx:D96Parser.Method_invoc_literalContext):
@@ -655,8 +646,13 @@ class ASTGeneration(D96Visitor):
                 return NewExpr(id, exprList)
         
         # method_invoc_literal DOT (ID | funcall) 
-        # ID.ID or ID.funcall
+        # LB method_invoc_literal RB
         if ctx.getChildCount() == 3:
+            # LB method_invoc_literal RB
+            if ctx.LB():
+                return self.visit(ctx.method_invoc_literal())
+
+            # method_invoc_literal DOT (ID | funcall) 
             obj = self.visit(ctx.method_invoc_literal())
             if ctx.ID():
                 id = Id(ctx.ID().getText())
@@ -817,22 +813,6 @@ class ASTGeneration(D96Visitor):
 
 
     # Visit a parse tree produced by D96Parser#op9.
-    # op9: (SELF | ID) DOUBLE_COLON (static_method | DOLLAR_ID) | op10
-    # def visitOp9(self, ctx:D96Parser.Op9Context):
-    #     if ctx.getChildCount() == 1:
-    #         return self.visit(ctx.op10()) 
-
-    #     if ctx.SELF(): obj = SelfLiteral() 
-    #     if ctx.ID(): obj = Id(ctx.ID().getText())
-
-    #     if ctx.static_method():
-    #         id, exprList = self.visit(ctx.static_method())
-    #         return CallExpr(obj, id, exprList)
-    #     if ctx.DOLLAR_ID():
-    #         return FieldAccess(obj, Id(ctx.DOLLAR_ID().getText()))
-
-
-    # 5:06PM 26/2/2022
     # op9: ID DOUBLE_COLON (static_method | DOLLAR_ID) | op10;
     def visitOp9(self, ctx:D96Parser.Op9Context):
         if ctx.getChildCount() == 1:
@@ -890,24 +870,7 @@ class ASTGeneration(D96Visitor):
         return self.visit(ctx.index_ops()) + [self.visit(ctx.all_expr())] 
 
 
-    # 5:06PM 26/2/2022
     # Visit a parse tree produced by D96Parser#static_member_access.
-    # static_member_access: (SELF | ID) DOUBLE_COLON (DOLLAR_ID | static_method);
-    # def visitStatic_member_access(self, ctx:D96Parser.Static_member_accessContext):
-    #     # Left: SELF | ID
-    #     if ctx.SELF():
-    #         id = SelfLiteral()
-    #     if ctx.ID():
-    #         id = Id(ctx.ID().getText())
-        
-    #     # Right: DOLLAR_ID | static_method
-    #     if ctx.DOLLAR_ID(): 
-    #         return FieldAccess(id, Id(ctx.DOLLAR_ID().getText()))
-    #     if ctx.static_method():
-    #         right, exprList = self.visit(ctx.static_method())
-    #         return CallExpr(id, right, exprList)   
-
-    # Currently: 
     # static_member_access: ID DOUBLE_COLON (DOLLAR_ID | static_method);
     def visitStatic_member_access(self, ctx:D96Parser.Static_member_accessContext):
         id = Id(ctx.ID().getText())

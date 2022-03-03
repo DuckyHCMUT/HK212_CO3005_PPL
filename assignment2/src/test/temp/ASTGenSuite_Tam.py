@@ -28,26 +28,33 @@ class ASTGenSuite(unittest.TestCase):
         self.assertTrue(TestAST.test(input, expect, 304))
 
     def test_program_structure5(self):
+        input = """Class Program {
+            main(a : Int) {}
+        }"""
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[param(Id(a),IntType)],Block([]))])])"
+        self.assertTrue(TestAST.test(input, expect, 305))
+
+    def test_program_structure6(self):
         input = """Class _Continue {
             main() {}
         }"""
         expect = "Program([ClassDecl(Id(_Continue),[MethodDecl(Id(main),Instance,[],Block([]))])])"
-        self.assertTrue(TestAST.test(input, expect, 305))
-
-    def test_program_structure6(self):
-        input = """Class Program {} Class _program {} Class program {}"""
-        expect = "Program([ClassDecl(Id(Program),[]),ClassDecl(Id(_program),[]),ClassDecl(Id(program),[])])"
         self.assertTrue(TestAST.test(input, expect, 306))
 
     def test_program_structure7(self):
+        input = """Class Program {} Class _program {} Class program {}"""
+        expect = "Program([ClassDecl(Id(Program),[]),ClassDecl(Id(_program),[]),ClassDecl(Id(program),[])])"
+        self.assertTrue(TestAST.test(input, expect, 307))
+
+    def test_program_structure8(self):
         input = """Class Program {
             _main() {}
             main() {}
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(_main),Instance,[],Block([])),MethodDecl(Id(main),Static,[],Block([]))])])"
-        self.assertTrue(TestAST.test(input, expect, 307))
+        self.assertTrue(TestAST.test(input, expect, 308))
 
-    def test_program_structure8(self):
+    def test_program_structure9(self):
         input = """Class Program {
             main() {
                 Val a: Array[Array[Int, 10], 0x15];
@@ -55,21 +62,21 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([ConstDecl(Id(a),ArrayType(21,ArrayType(10,IntType)),None),Return()]))])])"
-        self.assertTrue(TestAST.test(input, expect, 308))
+        self.assertTrue(TestAST.test(input, expect, 309))
 
     def test_attr_declaration1(self):
         input = """Class Shape {
             Var num: Array[Int, 2] = Array(1, 2 + 3);
         }"""
         expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Instance,VarDecl(Id(num),ArrayType(2,IntType),[IntLit(1),BinaryOp(+,IntLit(2),IntLit(3))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 309))
+        self.assertTrue(TestAST.test(input, expect, 310))
 
     def test_attr_declaration2(self):
         input = """Class Shape {
             Val $num: Array[Int, 2] = Array(0123 + 0456, 1_234);
         }"""
         expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Static,ConstDecl(Id($num),ArrayType(2,IntType),[BinaryOp(+,IntLit(83),IntLit(302)),IntLit(1234)]))])])"
-        self.assertTrue(TestAST.test(input, expect, 310))
+        self.assertTrue(TestAST.test(input, expect, 311))
 
     def test_method_declaration1(self):
         input = """Class Shape {
@@ -80,7 +87,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Instance,VarDecl(Id(num1),IntType,IntLit(1))),AttributeDecl(Instance,VarDecl(Id(num2),IntType,IntLit(2))),MethodDecl(Id(GetFunc),Instance,[param(Id(a),IntType),param(Id(b),IntType),param(Id(c),FloatType)],Block([VarDecl(Id(num3),IntType,Id(a)),ConstDecl(Id(num4),IntType,Id(a)),ConstDecl(Id(num5),IntType,Id(b))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 311))
+        self.assertTrue(TestAST.test(input, expect, 312))
     
     def test_method_declaration2(self):
         input = """Class Shape {
@@ -91,7 +98,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Instance,VarDecl(Id(num1),IntType,IntLit(1))),AttributeDecl(Instance,VarDecl(Id(num2),IntType,IntLit(2))),MethodDecl(Id(GetFunc),Instance,[param(Id(a),IntType),param(Id(b),IntType),param(Id(c),FloatType)],Block([VarDecl(Id(num3),IntType,Id(a)),ConstDecl(Id(num4),IntType,Id(b))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 312))
+        self.assertTrue(TestAST.test(input, expect, 313))
 
     def test_attr_var_decl1(self):
         input = """Class Shape {
@@ -102,7 +109,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Instance,VarDecl(Id(num1),IntType,BooleanLit(True))),AttributeDecl(Static,ConstDecl(Id($num2),BoolType,IntLit(1))),MethodDecl(Id(main),Instance,[],Block([VarDecl(Id(num3),ArrayType(2,IntType),[StringLit(abc),IntLit(2)])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 313))
+        self.assertTrue(TestAST.test(input, expect, 314))
 
     def test_attr_var_decl2(self):
         input = """Class Program {
@@ -114,7 +121,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Static,VarDecl(Id($a),IntType,IntLit(15))),AttributeDecl(Instance,VarDecl(Id(b),FloatType,FloatLit(5500.0))),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(res),IntType,BinaryOp(+,Id(a),Id(b))),Call(Id(Out),Id(printInt),[Id(res)])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 314))
+        self.assertTrue(TestAST.test(input, expect, 315))
 
     def test_attr_var_decl3(self):
         input = """Class Program {
@@ -125,7 +132,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(a),IntType,IntLit(1))),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(b),IntType,IntLit(2)),VarDecl(Id(res),IntType,BinaryOp(+,Id(a),Id(b)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 315))
+        self.assertTrue(TestAST.test(input, expect, 316))
 
     def test_attr_var_decl4(self):
         input = """Class Program {
@@ -137,7 +144,14 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(ab),StringType,StringLit())),AttributeDecl(Static,ConstDecl(Id($bc),StringType,StringLit(a1b2))),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(a),StringType,StringLit(abcdef)),ConstDecl(Id(b),StringType,StringLit(123456))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 316))
+        self.assertTrue(TestAST.test(input, expect, 317))
+
+    def test_attr_var_decl5(self):
+        input = """Class Program1 {
+            Val a: Int = Self.function(1, str1 +. str2);
+        }"""
+        expect = "Program([ClassDecl(Id(Program1),[AttributeDecl(Instance,ConstDecl(Id(a),IntType,CallExpr(Self(),Id(function),[IntLit(1),BinaryOp(+.,Id(str1),Id(str2))])))])])"
+        self.assertTrue(TestAST.test(input, expect, 318))
 
     def test_constructor_destructor1(self):
         input = """Class Shape {
@@ -148,7 +162,7 @@ class ASTGenSuite(unittest.TestCase):
         }
         """
         expect = "Program([ClassDecl(Id(Shape),[MethodDecl(Id(Constructor),Instance,[],Block([Return()])),MethodDecl(Id(Destructor),Instance,[],Block([]))])])"
-        self.assertTrue(TestAST.test(input, expect, 317))
+        self.assertTrue(TestAST.test(input, expect, 319))
 
     def test_constructor_destructor2(self):
         input = """Class Shape {
@@ -156,7 +170,7 @@ class ASTGenSuite(unittest.TestCase):
             Destructor() {}
         }"""
         expect = "Program([ClassDecl(Id(Shape),[MethodDecl(Id(Constructor),Instance,[],Block([])),MethodDecl(Id(Destructor),Instance,[],Block([]))])])"
-        self.assertTrue(TestAST.test(input, expect, 318))
+        self.assertTrue(TestAST.test(input, expect, 320))
 
     def test_constructor_destructor3(self):
         input = """Class Shape {
@@ -168,7 +182,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Shape),[MethodDecl(Id(Constructor),Instance,[],Block([Return()])),MethodDecl(Id(Destructor),Instance,[],Block([Return()]))])])"
-        self.assertTrue(TestAST.test(input, expect, 319))
+        self.assertTrue(TestAST.test(input, expect, 321))
 
     def test_constructor_destructor4(self):
         input = """Class Shape {
@@ -180,7 +194,7 @@ class ASTGenSuite(unittest.TestCase):
             Destructor() {}
         }"""
         expect = "Program([ClassDecl(Id(Shape),[MethodDecl(Id(Constructor),Instance,[param(Id(length),IntType),param(Id(width),IntType),param(Id(area),FloatType)],Block([AssignStmt(FieldAccess(Self(),Id(length)),Id(length)),AssignStmt(FieldAccess(Self(),Id(width)),Id(width)),Return()])),MethodDecl(Id(Destructor),Instance,[],Block([]))])])"
-        self.assertTrue(TestAST.test(input, expect, 320))
+        self.assertTrue(TestAST.test(input, expect, 322))
 
     def test_constructor_destructor5(self):
         input = """Class Shape {
@@ -191,7 +205,7 @@ class ASTGenSuite(unittest.TestCase):
             Destructor() {}
         }"""
         expect = "Program([ClassDecl(Id(Shape),[MethodDecl(Id(Constructor),Instance,[],Block([VarDecl(Id(a),IntType,IntLit(10)),Return()])),MethodDecl(Id(Destructor),Instance,[],Block([]))])])"
-        self.assertTrue(TestAST.test(input, expect, 321))
+        self.assertTrue(TestAST.test(input, expect, 323))
 
     def test_constructor_destructor6(self):
         input = """Class Program {
@@ -204,25 +218,25 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(Destructor),Instance,[],Block([Call(Self(),Id(call),[])])),MethodDecl(Id(main),Static,[],Block([Call(Self(),Id(a),[]),Return()]))])])"
-        self.assertTrue(TestAST.test(input, expect, 322))
+        self.assertTrue(TestAST.test(input, expect, 324))
 
     def test_indexed_arr1(self):
         input = """Class Program {
             main() {
-                Val a : Array[Int, 1];
+                Val a : Array[Int, 1] = Array(1);
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([ConstDecl(Id(a),ArrayType(1,IntType),None)]))])])"
-        self.assertTrue(TestAST.test(input, expect, 323))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([ConstDecl(Id(a),ArrayType(1,IntType),[IntLit(1)])]))])])"
+        self.assertTrue(TestAST.test(input, expect, 325))
 
     def test_indexed_arr2(self):
         input = """Class Program {
             main() {
-                Val a : Array[Int, 5];
+                Val a : Array[Int, 0xAB];
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([ConstDecl(Id(a),ArrayType(5,IntType),None)]))])])"
-        self.assertTrue(TestAST.test(input, expect, 324))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([ConstDecl(Id(a),ArrayType(171,IntType),None)]))])])"
+        self.assertTrue(TestAST.test(input, expect, 326))
 
     def test_multi_arr1(self):
         input = """Class Program {
@@ -232,7 +246,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),[[StringLit(A)],[StringLit(B)],[StringLit(C)]]),AssignStmt(ArrayCell(FieldAccess(Self(),Id(a)),[IntLit(0)]),IntLit(1))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 325))
+        self.assertTrue(TestAST.test(input, expect, 327))
 
     def test_multi_arr2(self):
         input = """Class Program {
@@ -245,7 +259,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(arr),ArrayType(3,ArrayType(3,IntType)),[[StringLit(Volve),StringLit(22),StringLit(18)],[StringLit(Saab),StringLit(5),StringLit(2)],[StringLit(Land Rover),StringLit(17),StringLit(15)]]),Call(Id(Out),Id(printStr),[ArrayCell(Id(arr),[IntLit(1),IntLit(1)])]),AssignStmt(ArrayCell(Id(arr),[IntLit(1),IntLit(2)]),StringLit(33))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 326))
+        self.assertTrue(TestAST.test(input, expect, 328))
 
     def test_multi_arr3(self):
         input = """Class Program {
@@ -256,16 +270,19 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(arr),ArrayType(3,IntType),[IntLit(1),BinaryOp(+,IntLit(2),IntLit(2)),BooleanLit(True)]),AssignStmt(ArrayCell(Id(arr),[IntLit(3)]),IntLit(3)),Call(Id(Out),Id(printStr),[Id(arr)])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 327))
+        self.assertTrue(TestAST.test(input, expect, 329))
 
     def test_var_decl_stmt1(self):
         input = """Class Program {
             main() {
                 Val num: Array[Int, 1];
             }
+            {
+                Var num1: Array[Float, 2] = Array(1.5, 2.5);
+            }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([ConstDecl(Id(num),ArrayType(1,IntType),None)]))])])"
-        self.assertTrue(TestAST.test(input, expect, 328))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([ConstDecl(Id(num),ArrayType(1,IntType),None)])),AttributeDecl(Instance,VarDecl(Id(num1),ArrayType(2,FloatType),[FloatLit(1.5),FloatLit(2.5)]))])])"
+        self.assertTrue(TestAST.test(input, expect, 330))
 
     def test_var_decl_stmt2(self):
         input = """Class Program {
@@ -274,7 +291,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(num),ArrayType(2,FloatType),[FloatLit(1.5),FloatLit(200000.0)])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 329))
+        self.assertTrue(TestAST.test(input, expect, 331))
 
     def test_var_decl_stmt3(self):
         input = """Class Shape {
@@ -283,7 +300,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Shape),[MethodDecl(Id(methodA),Instance,[],Block([VarDecl(Id(a),IntType)]))])])"
-        self.assertTrue(TestAST.test(input, expect, 330))
+        self.assertTrue(TestAST.test(input, expect, 332))
 
     def test_var_decl_stmt4(self):
         input = """Class Program {
@@ -296,7 +313,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(a),IntType,UnaryOp(-,IntLit(1))),ConstDecl(Id(b),FloatType,UnaryOp(-,FloatLit(1.5))),VarDecl(Id(c),BoolType),AssignStmt(Id(c),BooleanLit(True)),AssignStmt(Id(c),UnaryOp(!,Id(c)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 331))
+        self.assertTrue(TestAST.test(input, expect, 333))
 
     def test_direct_func(self):
         input = """Class Program {
@@ -317,7 +334,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(getName),Instance,[],Block([VarDecl(Id(b),FloatType,FloatLit(7e-10))])),MethodDecl(Id(main),Static,[],Block([If(BinaryOp(>=,Id(a),Id(b)),Block([VarDecl(Id(a),IntType,IntLit(0)),AssignStmt(Id(a),BinaryOp(+,Id(a),IntLit(3)))]),If(BinaryOp(<=,Id(b),Id(c)),Block([Call(Self(),Id(getName),[BinaryOp(>=,Id(a),Id(b))])]),Block([AssignStmt(Id(c),FieldAccess(Self(),Id(a)))])))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 332))
+        self.assertTrue(TestAST.test(input, expect, 334))
 
     def test_instance_access1(self):
         input = """Class Program {
@@ -328,7 +345,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(FieldAccess(FieldAccess(Id(Shape),Id(width)),Id(val)),IntLit(5)),AssignStmt(Id(a),FieldAccess(Id(a),Id($c))),AssignStmt(Id(a),FieldAccess(FieldAccess(Id(Shape),Id(width)),Id(val)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 333))
+        self.assertTrue(TestAST.test(input, expect, 335))
 
     def test_instance_access2(self):
         input = """Class Program {
@@ -340,7 +357,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(FieldAccess(Id(Shape),Id(width)),FieldAccess(Self(),Id(_width))),AssignStmt(FieldAccess(Id(Shape),Id(area)),BinaryOp(*,FieldAccess(Id(Shape),Id(length)),FieldAccess(Self(),Id(_width)))),VarDecl(Id(d),IntType,FieldAccess(Id(Shape),Id(area))),Call(Id(Out),Id(printInt),[Id(d)])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 334))
+        self.assertTrue(TestAST.test(input, expect, 336))
 
     def test_instance_access3(self):
         input = """Class Program {
@@ -349,14 +366,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),FieldAccess(BinaryOp(+,IntLit(1),IntLit(2)),Id(b)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 335))
-
-    def test_main_param1(self):
-        input = """Class Program {
-            main(a : Int) {}
-        }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Instance,[param(Id(a),IntType)],Block([]))])])"
-        self.assertTrue(TestAST.test(input, expect, 336))
+        self.assertTrue(TestAST.test(input, expect, 337))
 
     def test_static_access2(self):
         input = """Class Program {
@@ -366,17 +376,23 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(FieldAccess(Id(Shape),Id(width)),IntLit(10)),AssignStmt(Id(a),FieldAccess(Id(Shape),Id($length)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 337))
+        self.assertTrue(TestAST.test(input, expect, 338))
 
     def test_static_access3(self):
         input = """Class Program {
+            foo() {
+                Program.x.y.z();
+                (x.y[1][2][3]).foo();
+                Shape::$area.calculate();
+                (Shape::$w.s[1][0b10]).eval();
+            }
             main() {
                 Shape::$width = 10;
                 a = Shape::$area;
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(FieldAccess(Id(Shape),Id($width)),IntLit(10)),AssignStmt(Id(a),FieldAccess(Id(Shape),Id($area)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 338))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(foo),Instance,[],Block([Call(FieldAccess(FieldAccess(Id(Program),Id(x)),Id(y)),Id(z),[]),Call(ArrayCell(FieldAccess(Id(x),Id(y)),[IntLit(1),IntLit(2),IntLit(3)]),Id(foo),[]),Call(FieldAccess(Id(Shape),Id($area)),Id(calculate),[]),Call(ArrayCell(FieldAccess(FieldAccess(Id(Shape),Id($w)),Id(s)),[IntLit(1),IntLit(2)]),Id(eval),[])])),MethodDecl(Id(main),Static,[],Block([AssignStmt(FieldAccess(Id(Shape),Id($width)),IntLit(10)),AssignStmt(Id(a),FieldAccess(Id(Shape),Id($area)))]))])])"
+        self.assertTrue(TestAST.test(input, expect, 339))
 
     def test_static_access4(self):
         input = """Class Example {
@@ -395,7 +411,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Example),[AttributeDecl(Static,ConstDecl(Id($a),IntType,IntLit(0))),AttributeDecl(Instance,VarDecl(Id(b),IntType,IntLit(1))),MethodDecl(Id($getA),Static,[],Block([Return(CallExpr(NewExpr(Id(X),[]),Id(Y),[]))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(res1),IntType,BinaryOp(+,CallExpr(Id(Example),Id($getA),[]),FieldAccess(Id(Example),Id(b)))),VarDecl(Id(res2),IntType,BinaryOp(+,FieldAccess(Id(Example),Id(b)),CallExpr(Id(Example),Id($getA),[]))),Call(Id(Out),Id(printInt),[BinaryOp(+,Id(res1),Id(res2))])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 339))
+        self.assertTrue(TestAST.test(input, expect, 340))
 
     def test_static_access5(self):
         input = """Class Program {
@@ -403,12 +419,12 @@ class ASTGenSuite(unittest.TestCase):
             main() {
                 Var b: Int = 100000000;
                 b.c.d = Program::$a() + 1;
-                Return (b - Self::$a + Self.what - Program::$a());
+                Return (b - Program::$a + Self.what - Program::$a());
             }
         }
         """
-        expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Static,VarDecl(Id($a),StringType,StringLit(Hello World))),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(b),IntType,IntLit(100000000)),AssignStmt(FieldAccess(FieldAccess(Id(b),Id(c)),Id(d)),BinaryOp(+,CallExpr(Id(Program),Id($a),[]),IntLit(1))),Return(BinaryOp(-,BinaryOp(+,BinaryOp(-,Id(b),FieldAccess(Self(),Id($a))),FieldAccess(Self(),Id(what))),CallExpr(Id(Program),Id($a),[])))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 340))
+        expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Static,VarDecl(Id($a),StringType,StringLit(Hello World))),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(b),IntType,IntLit(100000000)),AssignStmt(FieldAccess(FieldAccess(Id(b),Id(c)),Id(d)),BinaryOp(+,CallExpr(Id(Program),Id($a),[]),IntLit(1))),Return(BinaryOp(-,BinaryOp(+,BinaryOp(-,Id(b),FieldAccess(Id(Program),Id($a))),FieldAccess(Self(),Id(what))),CallExpr(Id(Program),Id($a),[])))]))])])"
+        self.assertTrue(TestAST.test(input, expect, 341))
 
     def test_operator1(self):
         input = """Class Program {
@@ -419,7 +435,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),BinaryOp(!=,Id(g),BinaryOp(>,BinaryOp(%,BinaryOp(/,BinaryOp(*,Id(b),Id(c)),Id(d)),Id(e)),Id(f)))),AssignStmt(Id(b),CallExpr(BinaryOp(==.,BinaryOp(+.,Id(abc),Id(def)),Id(ghi)),Id(upper),[])),AssignStmt(Id(c),BinaryOp(&&,BinaryOp(||,IntLit(1),BooleanLit(True)),BooleanLit(False)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 341))
+        self.assertTrue(TestAST.test(input, expect, 342))
 
     def test_operator2(self):
         input = """Class Program {
@@ -430,7 +446,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),BinaryOp(+,BinaryOp(+,UnaryOp(-,IntLit(1)),UnaryOp(-,IntLit(2))),UnaryOp(-,IntLit(3)))),AssignStmt(Id(b),BinaryOp(+.,Id(str1),FieldAccess(Id(str2),Id(str3)))),AssignStmt(Id(c),UnaryOp(!,BooleanLit(True)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 342))
+        self.assertTrue(TestAST.test(input, expect, 343))
 
     def test_operator3(self):
         input = """Class Program {
@@ -440,21 +456,21 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),BinaryOp(+,ArrayCell(Id(a),[FieldAccess(Id(a),Id(b))]),ArrayCell(Id(c),[FieldAccess(Id(a),Id($b))]))),AssignStmt(Id(d),BinaryOp(==.,BinaryOp(||,BinaryOp(&&,BinaryOp(&&,BooleanLit(True),BooleanLit(False)),BooleanLit(True)),BooleanLit(False)),Id(e)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 343))
+        self.assertTrue(TestAST.test(input, expect, 344))
 
     def test_operator4(self):
         input = """Class Program {
             Var a: Float = a.b().c;
         }"""
         expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(a),FloatType,FieldAccess(CallExpr(Id(a),Id(b),[]),Id(c))))])])"
-        self.assertTrue(TestAST.test(input, expect, 344))
+        self.assertTrue(TestAST.test(input, expect, 345))
 
     def test_operator5(self):
         input = """Class Program {
             Var $a: String = a::$b.c();
         }"""
         expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Static,VarDecl(Id($a),StringType,CallExpr(FieldAccess(Id(a),Id($b)),Id(c),[])))])])"
-        self.assertTrue(TestAST.test(input, expect, 345))
+        self.assertTrue(TestAST.test(input, expect, 346))
 
     def test_operator6(self):
         input = """Class Program {
@@ -463,7 +479,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([Call(Id(_New),Id($abc),[])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 346))
+        self.assertTrue(TestAST.test(input, expect, 347))
 
     def test_operator7(self):
         input = """Class Program {
@@ -472,7 +488,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),FieldAccess(Id(_New),Id($abc)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 347))
+        self.assertTrue(TestAST.test(input, expect, 348))
 
     def test_operator8(self):
         input = """Class Program {
@@ -482,7 +498,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([ConstDecl(Id(a),IntType,BinaryOp(+,ArrayCell(Id(a),[IntLit(1)]),ArrayCell(Id(b),[IntLit(2)]))),AssignStmt(Id(a),NewExpr(Id(X),[]))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 348))
+        self.assertTrue(TestAST.test(input, expect, 349))
 
     def test_operator9(self):
         input = """Class Program {
@@ -491,7 +507,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),FieldAccess(NewExpr(Id(b),[]),Id(c)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 349))
+        self.assertTrue(TestAST.test(input, expect, 350))
 
     def test_operator10(self):
         input = """Class Shape {
@@ -508,7 +524,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Instance,VarDecl(Id(length),IntType)),AttributeDecl(Instance,VarDecl(Id(width),IntType)),MethodDecl(Id(Constructor),Instance,[param(Id(_length),IntType),param(Id(_width),IntType)],Block([AssignStmt(FieldAccess(Self(),Id(length)),Id(_length)),AssignStmt(FieldAccess(Self(),Id(width)),Id(_width))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(obj1),ClassType(Id(Shape)),NewExpr(Id(Shape),[IntLit(1),IntLit(4)])),ConstDecl(Id(obj2),ClassType(Id(Shape)),NullLiteral())]))])])"
-        self.assertTrue(TestAST.test(input, expect, 350))
+        self.assertTrue(TestAST.test(input, expect, 351))
 
     def test_assign_stmt1(self):
         input = """Class Program {
@@ -520,7 +536,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Static,VarDecl(Id($a),ArrayType(3,IntType),[IntLit(1),IntLit(2),IntLit(3)])),MethodDecl(Id(main),Static,[],Block([AssignStmt(ArrayCell(Id(a),[IntLit(1)]),IntLit(4)),VarDecl(Id(b),IntType,IntLit(10)),ConstDecl(Id(c),FloatType,FloatLit(1234.567))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 351))
+        self.assertTrue(TestAST.test(input, expect, 352))
 
     def test_assign_stmt2(self):
         input = """Class Program {
@@ -529,21 +545,21 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(FieldAccess(Id(_123),Id($_456)),BinaryOp(+,IntLit(1),IntLit(2)))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 352))
+        self.assertTrue(TestAST.test(input, expect, 353))
 
     def test_assign_stmt3(self):
         input = """Class Program {
             main() {
-                a::$b.c(e).f = a::$b.c() - a.b().c;
+                a::$b.c.d = a::$b.c() - a.b().c;
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(FieldAccess(CallExpr(FieldAccess(Id(a),Id($b)),Id(c),[Id(e)]),Id(f)),BinaryOp(-,CallExpr(FieldAccess(Id(a),Id($b)),Id(c),[]),FieldAccess(CallExpr(Id(a),Id(b),[]),Id(c))))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 353))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(FieldAccess(FieldAccess(FieldAccess(Id(a),Id($b)),Id(c)),Id(d)),BinaryOp(-,CallExpr(FieldAccess(Id(a),Id($b)),Id(c),[]),FieldAccess(CallExpr(Id(a),Id(b),[]),Id(c))))]))])])"
+        self.assertTrue(TestAST.test(input, expect, 354))
 
     def test_assign_stmt4(self):
         input = """Class Shape {
             $methodA(){
-                Return Self::$A;
+                Return Shape::$A;
             }
         }
         Class Program {
@@ -552,14 +568,14 @@ class ASTGenSuite(unittest.TestCase):
                 Out.printInt(a);
             }
         }"""
-        expect = "Program([ClassDecl(Id(Shape),[MethodDecl(Id($methodA),Static,[],Block([Return(FieldAccess(Self(),Id($A)))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(a),IntType,CallExpr(Id(Shape),Id($methodA),[])),Call(Id(Out),Id(printInt),[Id(a)])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 354))
+        expect = "Program([ClassDecl(Id(Shape),[MethodDecl(Id($methodA),Static,[],Block([Return(FieldAccess(Id(Shape),Id($A)))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(a),IntType,CallExpr(Id(Shape),Id($methodA),[])),Call(Id(Out),Id(printInt),[Id(a)])]))])])"
+        self.assertTrue(TestAST.test(input, expect, 355))
 
     def test_assign_stmt5(self):
         input = """Class _program {
             Var $a: Int = 0b10;
             $methodA() {
-                Return Self::$a;
+                Return _program::$a;
             }
         }
         Class Program {
@@ -570,44 +586,20 @@ class ASTGenSuite(unittest.TestCase):
                 Out.printInt(b);
             }
         }"""
-        expect = "Program([ClassDecl(Id(_program),[AttributeDecl(Static,VarDecl(Id($a),IntType,IntLit(2))),MethodDecl(Id($methodA),Static,[],Block([Return(FieldAccess(Self(),Id($a)))]))]),ClassDecl(Id(Program),[AttributeDecl(Static,VarDecl(Id($c),ClassType(Id(_program)),NullLiteral())),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(b),IntType),AssignStmt(Id(b),CallExpr(Id(_program),Id($methodA),[])),Call(Id(Out),Id(printInt),[Id(b)])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 355))
-
-    def test_assign_stmt6(self):
-        input = """Class _Program {
-            Var $A: Array[Array[String, 3], 3];
-            $getMethodA() {
-                Return Self::$A;
-            }
-            $setMethodA(_a: Array[Array[String, 3], 3]) {
-                Self::$A = _a;
-            }
-        }
-        Class Program {
-            main() {
-                Var arr: Array[Array[String, 3], 3] = Array(Array("Volvo", "22", "18"), Array("Saab", "5", "2"), Array("Land Rover", "17", "15"));
-                _Program::$setMethodA(arr);
-                Out.printLn(_Program::$getMethodA());
-            }
-        }"""
-        expect = "Program([ClassDecl(Id(_Program),[AttributeDecl(Static,VarDecl(Id($A),ArrayType(3,ArrayType(3,StringType)))),MethodDecl(Id($getMethodA),Static,[],Block([Return(FieldAccess(Self(),Id($A)))])),MethodDecl(Id($setMethodA),Static,[param(Id(_a),ArrayType(3,ArrayType(3,StringType)))],Block([AssignStmt(FieldAccess(Self(),Id($A)),Id(_a))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(arr),ArrayType(3,ArrayType(3,StringType)),[[StringLit(Volvo),StringLit(22),StringLit(18)],[StringLit(Saab),StringLit(5),StringLit(2)],[StringLit(Land Rover),StringLit(17),StringLit(15)]]),Call(Id(_Program),Id($setMethodA),[Id(arr)]),Call(Id(Out),Id(printLn),[CallExpr(Id(_Program),Id($getMethodA),[])])]))])])"
+        expect = "Program([ClassDecl(Id(_program),[AttributeDecl(Static,VarDecl(Id($a),IntType,IntLit(2))),MethodDecl(Id($methodA),Static,[],Block([Return(FieldAccess(Id(_program),Id($a)))]))]),ClassDecl(Id(Program),[AttributeDecl(Static,VarDecl(Id($c),ClassType(Id(_program)),NullLiteral())),MethodDecl(Id(main),Static,[],Block([VarDecl(Id(b),IntType),AssignStmt(Id(b),CallExpr(Id(_program),Id($methodA),[])),Call(Id(Out),Id(printInt),[Id(b)])]))])])"
         self.assertTrue(TestAST.test(input, expect, 356))
 
     def test_assign_stmt7(self):
         input = """Class Program {
             main() {
                 a = _1a2b3c::$d();
+                (A[1][2][True]) = New x() + 2 * New Y();
+                System.print("a " + i + ": " + b.d[i - 1]);
+                System.print("a " + i + ": " + c::$e[i - 1]);
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),CallExpr(Id(_1a2b3c),Id($d),[]))]))])])"
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),CallExpr(Id(_1a2b3c),Id($d),[])),AssignStmt(ArrayCell(Id(A),[IntLit(1),IntLit(2),BooleanLit(True)]),BinaryOp(+,NewExpr(Id(x),[]),BinaryOp(*,IntLit(2),NewExpr(Id(Y),[])))),Call(Id(System),Id(print),[BinaryOp(+,BinaryOp(+,BinaryOp(+,StringLit(a ),Id(i)),StringLit(: )),ArrayCell(FieldAccess(Id(b),Id(d)),[BinaryOp(-,Id(i),IntLit(1))]))]),Call(Id(System),Id(print),[BinaryOp(+,BinaryOp(+,BinaryOp(+,StringLit(a ),Id(i)),StringLit(: )),ArrayCell(FieldAccess(Id(c),Id($e)),[BinaryOp(-,Id(i),IntLit(1))]))])]))])])"
         self.assertTrue(TestAST.test(input, expect, 357))
-
-    def test_assign_stmt8(self):
-        input = """Class Program1 {
-            Val a: Int = Self.function(1, str1 +. str2);
-        }"""
-        expect = "Program([ClassDecl(Id(Program1),[AttributeDecl(Instance,ConstDecl(Id(a),IntType,CallExpr(Self(),Id(function),[IntLit(1),BinaryOp(+.,Id(str1),Id(str2))])))])])"
-        self.assertTrue(TestAST.test(input, expect, 358))
 
     def test_if_stmt1(self):
         input = """Class Program {
@@ -620,7 +612,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Instance,VarDecl(Id(a),IntType)),AttributeDecl(Instance,VarDecl(Id(b),IntType)),MethodDecl(Id(main),Static,[],Block([If(BinaryOp(&&,BinaryOp(>,Id(a),IntLit(0)),BinaryOp(>,Id(b),IntLit(0))),Block([Call(Id(Out),Id(printLn),[StringLit(Hello)])]))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 359))
+        self.assertTrue(TestAST.test(input, expect, 358))
 
     def test_if_stmt2(self):
         input = """Class Program {
@@ -635,7 +627,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(a),IntType,IntLit(1)),VarDecl(Id(b),IntType,IntLit(2)),If(BinaryOp(<,Id(a),Id(b)),Block([Call(Id(Out),Id(printLn),[StringLit(a is smaller than b)])]),Block([Call(Id(Out),Id(printLn),[StringLit(a is not smaller than b)])]))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 360))
+        self.assertTrue(TestAST.test(input, expect, 359))
 
     def test_if_stmt3(self):
         input = """Class Program {
@@ -654,7 +646,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(a),IntType,IntLit(1)),VarDecl(Id(b),FloatType,FloatLit(2.0)),If(BinaryOp(<,Id(a),Id(b)),Block([Call(Id(Out),Id(printLn),[StringLit(a is smaller than b)])]),If(BinaryOp(==,Id(a),Id(b)),Block([Call(Id(Out),Id(printLn),[StringLit(a is equal to b)])]),Block([Call(Id(Out),Id(printLn),[StringLit(a is greater than b)])])))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 361))
+        self.assertTrue(TestAST.test(input, expect, 360))
 
     def test_if_stmt4(self):
         input = """Class Program {
@@ -677,7 +669,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([If(BinaryOp(&&,BinaryOp(>,Id(a),Id(b)),BinaryOp(>,Id(b),Id(c))),Block([Call(Id(Out),Id(printLn),[StringLit(1)])])),If(BinaryOp(&&,BinaryOp(>,Id(a),Id(b)),BinaryOp(<,Id(b),Id(c))),Block([Call(Id(Out),Id(printLn),[StringLit(2)])])),If(BinaryOp(&&,BinaryOp(<,Id(a),Id(b)),BinaryOp(>,Id(b),Id(c))),Block([Call(Id(Out),Id(printLn),[StringLit(3)])])),If(BinaryOp(&&,BinaryOp(<,Id(a),Id(b)),BinaryOp(<,Id(b),Id(c))),Block([Call(Id(Out),Id(printLn),[StringLit(4)])]),Block([Call(Id(Out),Id(printLn),[StringLit(5)])]))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 362))
+        self.assertTrue(TestAST.test(input, expect, 361))
 
     def test_if_stmt5(self):
         input = """Class Program {
@@ -693,7 +685,7 @@ class ASTGenSuite(unittest.TestCase):
         }
         """
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([If(BinaryOp(==,Id(a),IntLit(1)),Block([Call(Id(System),Id(HelloWorld),[])]),Block([Call(Id(System),Id(HelloVietNam),[])])),Return()]))])])"
-        self.assertTrue(TestAST.test(input, expect, 363))
+        self.assertTrue(TestAST.test(input, expect, 362))
 
     def test_foreach_stmt1(self):
         input = """Class Program {
@@ -710,13 +702,13 @@ class ASTGenSuite(unittest.TestCase):
                 Foreach (x In 5 .. 2) {
                     Out.printInt(arr[x]);
                     If (x % 5 == 0) {
-                        Return Self::$a;
+                        Return Program::$a;
                     }
                 }
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(i),IntLit(1),IntLit(100),IntLit(2),Block([Call(Id(Out),Id(printInt),[Id(i)]),If(BinaryOp(==,BinaryOp(%,Id(i),IntLit(2)),IntLit(0)),Block([Break]),If(BinaryOp(==,BinaryOp(%,Id(i),IntLit(3)),IntLit(1)),Block([Continue])))])]),For(Id(x),IntLit(5),IntLit(2),IntLit(1),Block([Call(Id(Out),Id(printInt),[ArrayCell(Id(arr),[Id(x)])]),If(BinaryOp(==,BinaryOp(%,Id(x),IntLit(5)),IntLit(0)),Block([Return(FieldAccess(Self(),Id($a)))]))])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 364))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(i),IntLit(1),IntLit(100),IntLit(2),Block([Call(Id(Out),Id(printInt),[Id(i)]),If(BinaryOp(==,BinaryOp(%,Id(i),IntLit(2)),IntLit(0)),Block([Break]),If(BinaryOp(==,BinaryOp(%,Id(i),IntLit(3)),IntLit(1)),Block([Continue])))])]),For(Id(x),IntLit(5),IntLit(2),IntLit(1),Block([Call(Id(Out),Id(printInt),[ArrayCell(Id(arr),[Id(x)])]),If(BinaryOp(==,BinaryOp(%,Id(x),IntLit(5)),IntLit(0)),Block([Return(FieldAccess(Id(Program),Id($a)))]))])])]))])])"
+        self.assertTrue(TestAST.test(input, expect, 363))
 
     def test_foreach_stmt2(self):
         input = """Class Program {
@@ -727,7 +719,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(Self(),Id(i)),BinaryOp(-,Id(n),IntLit(100)),BinaryOp(+,Id(n),IntLit(1)),IntLit(175),Block([Call(Id(Out),Id(printLn),[IntLit(1194684)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 365))
+        self.assertTrue(TestAST.test(input, expect, 364))
 
     def test_foreach_stmt3(self):
         input = """Class Program {
@@ -739,7 +731,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(i),BooleanLit(True),BooleanLit(False),ArrayCell(Id(a),[IntLit(0)]),Block([AssignStmt(ArrayCell(Id(a),[IntLit(1)]),Id(i)),Call(Id(Out),Id(printInt),[ArrayCell(Id(a),[Id(i)])])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 366))
+        self.assertTrue(TestAST.test(input, expect, 365))
 
     def test_foreach_stmt4(self):
         input = """Class Program {
@@ -750,7 +742,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(x),IntLit(100),IntLit(1),BooleanLit(True),Block([AssignStmt(ArrayCell(Id(a),[Id(i)]),Id(x))])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 367))
+        self.assertTrue(TestAST.test(input, expect, 366))
 
     def test_foreach_stmt5(self):
         input = """Class Program {
@@ -761,7 +753,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(i),Id(a),Id(b),Id(c),Block([Call(Id(Out),Id(printLn),[Id(a)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 368))
+        self.assertTrue(TestAST.test(input, expect, 367))
 
     def test_foreach_stmt6(self):
         input = """Class Program {
@@ -772,7 +764,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(i),IntLit(1),IntLit(10),IntLit(2),Block([Call(Id(Out),Id(printInt),[Id(i)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 369))
+        self.assertTrue(TestAST.test(input, expect, 368))
 
     def test_break_stmt1(self):
         input = """Class Program {
@@ -781,7 +773,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([Break]))])])"
-        self.assertTrue(TestAST.test(input, expect, 370))
+        self.assertTrue(TestAST.test(input, expect, 369))
 
     def test_break_stmt2(self):
         input = """Class Program {
@@ -794,7 +786,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(i),IntLit(1),IntLit(100),IntLit(101),Block([If(BinaryOp(==,Id(i),IntLit(5)),Block([Break]))])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 371))
+        self.assertTrue(TestAST.test(input, expect, 370))
 
     def test_continue_stmt1(self):
         input = """Class Program {
@@ -803,7 +795,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([Continue]))])])"
-        self.assertTrue(TestAST.test(input, expect, 372))
+        self.assertTrue(TestAST.test(input, expect, 371))
 
     def test_continue_stmt2(self):
         input = """Class Program {
@@ -816,7 +808,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(Id(x),IntLit(5),IntLit(2),IntLit(1),Block([If(BinaryOp(==,Id(x),IntLit(3)),Block([Continue]))])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 373))
+        self.assertTrue(TestAST.test(input, expect, 372))
 
     def test_method_invocation_stmt1(self):
         input = """Class Program {
@@ -825,7 +817,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([Call(Id(Shape),Id($getNumOfShape),[])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 374))
+        self.assertTrue(TestAST.test(input, expect, 373))
 
     def test_scalar_var1(self):
         input = """Class Program {
@@ -836,7 +828,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(Self(),Id(func)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 375))
+        self.assertTrue(TestAST.test(input, expect, 374))
 
     def test_scalar_var2(self):
         input = """Class Program {
@@ -847,7 +839,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(Id(a),Id(_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 376))
+        self.assertTrue(TestAST.test(input, expect, 375))
 
     def test_scalar_var3(self):
         input = """Class Program {
@@ -859,7 +851,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(Self(),Id(a)),Id(b)),IntLit(1),IntLit(10),IntLit(2),Block([AssignStmt(Id(a),FieldAccess(FieldAccess(FieldAccess(Self(),Id(a)),Id(b)),Id(_val))),AssignStmt(Id(b),FieldAccess(Id(Program),Id(d)))])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 377))
+        self.assertTrue(TestAST.test(input, expect, 376))
 
     def test_scalar_var4(self):
         input = """Class Program {
@@ -870,18 +862,18 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(FieldAccess(Self(),Id(a)),Id(b)),Id(_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 378))
+        self.assertTrue(TestAST.test(input, expect, 377))
 
     def test_scalar_var5(self):
         input = """Class Program {
             main() {
-                Foreach (Self.func().b._val In 1 .. 10 By 3) {
+                Foreach (Self.func.b._val In 1 .. 10 By 3) {
                     Out.println("abc");
                 }
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(CallExpr(Self(),Id(func),[]),Id(b)),Id(_val)),IntLit(1),IntLit(10),IntLit(3),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 379))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(FieldAccess(Self(),Id(func)),Id(b)),Id(_val)),IntLit(1),IntLit(10),IntLit(3),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
+        self.assertTrue(TestAST.test(input, expect, 378))
 
     def test_scalar_var6(self):
         input = """Class Program {
@@ -892,51 +884,51 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(Id(a),Id($b)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 380))
+        self.assertTrue(TestAST.test(input, expect, 379))
 
     def test_scalar_var7(self):
         input = """Class Program {
             main() {
-                Foreach (Self::$a In 1 .. 10 By 2) {
+                Foreach (_0123::$a In 1 .. 10 By 2) {
                     Out.printLn("abc");
                 }
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(Self(),Id($a)),IntLit(1),IntLit(10),IntLit(2),Block([Call(Id(Out),Id(printLn),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 381))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(Id(_0123),Id($a)),IntLit(1),IntLit(10),IntLit(2),Block([Call(Id(Out),Id(printLn),[StringLit(abc)])])])]))])])"
+        self.assertTrue(TestAST.test(input, expect, 380))
 
     def test_scalar_var8(self):
         input = """Class Program {
             main() {
-                Foreach (Self::$a.b._val In 1 .. 10) {
+                Foreach (Program::$a.b._val In 1 .. 10) {
                     Out.println("abc");
                 }
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(FieldAccess(Self(),Id($a)),Id(b)),Id(_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 382))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(FieldAccess(Id(Program),Id($a)),Id(b)),Id(_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
+        self.assertTrue(TestAST.test(input, expect, 381))
 
     def test_scalar_var9(self):
         input = """Class Program {
             main() {
-                Foreach (Self::$func().b._val In 1 .. 10) {
+                Foreach (a::$func.b._val In 1 .. 10) {
                     Out.println("abc");
                 }
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(CallExpr(Self(),Id($func),[]),Id(b)),Id(_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 383))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(FieldAccess(Id(a),Id($func)),Id(b)),Id(_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(println),[StringLit(abc)])])])]))])])"
+        self.assertTrue(TestAST.test(input, expect, 382))
 
     def test_scalar_var10(self):
         input = """Class Program {
             main() {
-                Foreach (Program::$a(_1)._val In 1 .. 10) {
+                Foreach (Program::$a._val In 1 .. 10) {
                     Out.printLn("abc");
                 }
             }
         }"""
-        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(CallExpr(Id(Program),Id($a),[Id(_1)]),Id(_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(printLn),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 384))
+        expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(FieldAccess(Id(Program),Id($a)),Id(_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(printLn),[StringLit(abc)])])])]))])])"
+        self.assertTrue(TestAST.test(input, expect, 383))
 
     def test_scalar_var11(self):
         input = """Class Program {
@@ -947,7 +939,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([For(FieldAccess(Id(Program),Id($_val)),IntLit(1),IntLit(10),IntLit(1),Block([Call(Id(Out),Id(printLn),[StringLit(abc)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 385))
+        self.assertTrue(TestAST.test(input, expect, 384))
 
     def test_simple_program1(self):
         input = """Class IOString {
@@ -969,7 +961,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(IOString),[MethodDecl(Id(__init__),Instance,[],Block([AssignStmt(FieldAccess(Self(),Id(s)),StringLit())])),MethodDecl(Id(getString),Instance,[],Block([AssignStmt(FieldAccess(Self(),Id(s)),CallExpr(Id(System),Id(str),[CallExpr(Id(System),Id(input),[])]))])),MethodDecl(Id(printString),Instance,[],Block([Call(Id(Out),Id(print),[CallExpr(Id(s),Id(upper),[])])]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(strObj),StringType,NewExpr(Id(IOString),[])),Call(Id(strObj),Id(getString),[]),Call(Id(strObj),Id(printString),[])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 386))
+        self.assertTrue(TestAST.test(input, expect, 385))
 
     def test_simple_program2(self):
         input = """Class Program {
@@ -981,7 +973,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(c),IntType,IntLit(50)),VarDecl(Id(h),IntType,IntLit(30)),VarDecl(Id(d),IntType,CallExpr(Id(Math),Id(int),[CallExpr(Id(System),Id(input),[StringLit(Enter D: )])])),VarDecl(Id(Q),IntType,CallExpr(Id(Math),Id(int),[BinaryOp(/,BinaryOp(*,BinaryOp(*,IntLit(2),Id(c)),Id(d)),Id(h))])),Call(Id(Out),Id(print),[CallExpr(Id(Math),Id(round),[CallExpr(Id(Math),Id(sqrt),[Id(Q)])])])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 387))
+        self.assertTrue(TestAST.test(input, expect, 386))
     
     def test_simple_program3(self):
         input = """Class Program {
@@ -1002,7 +994,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(input_str),StringType,CallExpr(Id(System),Id(input),[])),VarDecl(Id(dimensions),ArrayType(2,IntType)),For(Id(x),IntLit(0),CallExpr(Id(input_str),Id(length),[]),IntLit(1),Block([AssignStmt(ArrayCell(Id(dimensions),[Id(x)]),ArrayCell(Id(input_str),[Id(x)]))])]),VarDecl(Id(rowNum),IntType,ArrayCell(Id(dimensions),[IntLit(0)])),VarDecl(Id(colNum),IntType,ArrayCell(Id(dimensions),[IntLit(1)])),VarDecl(Id(multilist),ArrayType(1,ArrayType(1,IntType))),For(Id(row),IntLit(0),Id(rowNum),IntLit(1),Block([For(Id(col),IntLit(0),Id(colNum),IntLit(1),Block([AssignStmt(ArrayCell(Id(multilist),[Id(row),Id(col)]),BinaryOp(*,Id(row),Id(col)))])])])]),Call(Id(Out),Id(print),[Id(multilist)])]))])])"
-        self.assertTrue(TestAST.test(input, expect, 388))
+        self.assertTrue(TestAST.test(input, expect, 387))
 
     def test_simple_program4(self):
         input = """Class Solution {
@@ -1020,7 +1012,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Solution),[MethodDecl(Id(leastBricks),Instance,[param(Id(wall),ArrayType(10,ArrayType(10,IntType)))],Block([VarDecl(Id(m),ArrayType(10,ArrayType(10,IntType))),VarDecl(Id(res),IntType,CallExpr(Id(wall),Id(size),[])),VarDecl(Id(n),IntType,CallExpr(Id(wall),Id(size),[])),For(Id(row),IntLit(0),Id(n),IntLit(1),Block([VarDecl(Id(curr_width),IntType,IntLit(0)),For(Id(i),IntLit(0),BinaryOp(-,CallExpr(Id(row),Id(size),[]),IntLit(1)),IntLit(1),Block([AssignStmt(Id(curr_width),BinaryOp(+,Id(curr_width),ArrayCell(Id(row),[Id(i)]))),AssignStmt(Id(res),CallExpr(Id(Math),Id(min),[Id(res),BinaryOp(-,Id(n),BinaryOp(+,ArrayCell(Id(m),[Id(curr_width)]),IntLit(1)))]))])])])]),Return(Id(res))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 389))
+        self.assertTrue(TestAST.test(input, expect, 388))
 
     def test_simple_program5(self):
         input = """Class Solution {
@@ -1035,7 +1027,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Solution),[MethodDecl(Id(fib),Instance,[param(Id(n),IntType)],Block([If(BinaryOp(==,Id(n),IntLit(0)),Block([Return(IntLit(0))])),If(BinaryOp(==,Id(n),IntLit(1)),Block([Return(IntLit(1))])),Return(BinaryOp(+,CallExpr(Self(),Id(fib),[BinaryOp(-,Id(n),IntLit(1))]),CallExpr(Self(),Id(fib),[BinaryOp(-,Id(n),IntLit(2))])))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 390))
+        self.assertTrue(TestAST.test(input, expect, 389))
 
     def test_simple_program6(self):
         input = """Class Solution {
@@ -1059,7 +1051,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Solution),[MethodDecl(Id(fizzBuzz),Instance,[param(Id(n),IntType)],Block([VarDecl(Id(ans),ArrayType(10,StringType)),For(Id(i),IntLit(1),Id(n),IntLit(1),Block([If(BinaryOp(==,BinaryOp(%,Id(i),IntLit(15)),IntLit(0)),Block([Call(Id(ans),Id(push_back),[StringLit(FizzBuzz)])]),If(BinaryOp(==,BinaryOp(%,Id(i),IntLit(3)),IntLit(0)),Block([Call(Id(ans),Id(push_back),[StringLit(Fizz)])]),If(BinaryOp(==,BinaryOp(%,Id(i),IntLit(5)),IntLit(0)),Block([Call(Id(ans),Id(push_back),[StringLit(Buzz)])]),Block([Call(Id(ans),Id(push_back),[CallExpr(Id(System),Id(to_string),[Id(i)])])]))))])]),Return(Id(ans))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 391))
+        self.assertTrue(TestAST.test(input, expect, 390))
 
     def test_simple_program7(self):
         input = """Class Solution {
@@ -1086,7 +1078,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Solution),[MethodDecl(Id(candy),Instance,[param(Id(ratings),ArrayType(10,IntType))],Block([VarDecl(Id(n),IntType,CallExpr(Id(rating),Id(size),[])),VarDecl(Id(res),IntType,IntLit(0)),VarDecl(Id(count),ArrayType(10,IntType)),For(Id(i),IntLit(0),Id(n),IntLit(1),Block([AssignStmt(ArrayCell(Id(count),[Id(i)]),IntLit(1))])]),For(Id(i),IntLit(1),Id(n),IntLit(1),Block([If(BinaryOp(>,ArrayCell(Id(ratings),[Id(i)]),ArrayCell(Id(ratings),[BinaryOp(-,Id(i),IntLit(1))])),Block([AssignStmt(ArrayCell(Id(count),[Id(i)]),BinaryOp(+,ArrayCell(Id(count),[BinaryOp(-,Id(i),IntLit(1))]),IntLit(1)))]))])]),For(Id(i),BinaryOp(-,Id(n),IntLit(2)),IntLit(0),UnaryOp(-,IntLit(1)),Block([If(BinaryOp(&&,BinaryOp(>,ArrayCell(Id(ratings),[Id(i)]),ArrayCell(Id(ratings),[BinaryOp(+,Id(i),IntLit(1))])),BinaryOp(<=,ArrayCell(Id(count),[Id(i)]),ArrayCell(Id(count),[BinaryOp(+,Id(i),IntLit(1))]))),Block([AssignStmt(ArrayCell(Id(count),[Id(i)]),BinaryOp(+,ArrayCell(Id(count),[BinaryOp(+,Id(i),IntLit(1))]),IntLit(1)))]))])]),For(Id(i),IntLit(0),Id(n),IntLit(1),Block([AssignStmt(Id(result),BinaryOp(+,Id(result),ArrayCell(Id(count),[Id(i)])))])]),Return(Id(result))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 392))
+        self.assertTrue(TestAST.test(input, expect, 391))
 
     def test_simple_program8(self):
         input = """Class Solution {
@@ -1106,7 +1098,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }"""
         expect = "Program([ClassDecl(Id(Solution),[MethodDecl(Id(breakPalindrome),Instance,[param(Id(palindrome),StringType)],Block([VarDecl(Id(res),StringType),If(BinaryOp(==,CallExpr(Id(palindrome),Id(size),[]),IntLit(1)),Block([Return(Id(res))])),For(Id(i),IntLit(0),BinaryOp(/,CallExpr(Id(palindrome),Id(size),[]),IntLit(2)),IntLit(1),Block([If(BinaryOp(!=,ArrayCell(Id(palindrome),[Id(i)]),StringLit(a)),Block([AssignStmt(ArrayCell(Id(palindrome),[Id(i)]),StringLit(a)),Return(Id(palindrome))]))])]),AssignStmt(ArrayCell(Id(palindrome),[BinaryOp(-,CallExpr(Id(palindrome),Id(size),[]),IntLit(1))]),StringLit(b)),Return(Id(palindrome))]))])])"
-        self.assertTrue(TestAST.test(input, expect, 393))
+        self.assertTrue(TestAST.test(input, expect, 392))
 
     def test_simple_program9(self):
         input = """Class Program {
@@ -1130,6 +1122,26 @@ class ASTGenSuite(unittest.TestCase):
         }
         """
         expect = "Program([ClassDecl(Id(Program),[AttributeDecl(Instance,ConstDecl(Id(a),ArrayType(5,IntType),None)),AttributeDecl(Instance,ConstDecl(Id(b),ArrayType(5,IntType),None)),AttributeDecl(Instance,VarDecl(Id(c),ArrayType(100,StringType))),MethodDecl(Id(main),Static,[],Block([AssignStmt(Id(a),IntLit(1)),AssignStmt(Id(b),[]),AssignStmt(Id(c),[StringLit(1),StringLit(2),StringLit(3)]),AssignStmt(Id(d),BinaryOp(+,[[IntLit(1),IntLit(2),IntLit(3)],[IntLit(4),IntLit(5),IntLit(6)]],[IntLit(1),IntLit(2),IntLit(3)])),AssignStmt(Id(e),BinaryOp(+,Id(a),Id(b))),AssignStmt(Id(f),BinaryOp(==.,BinaryOp(+.,Id(a),Id(b)),Id(c))),AssignStmt(Id(g),BinaryOp(-,CallExpr(Id(f),Id(callFunc),[]),CallExpr(Id(g),Id($something),[Id(a),Id(b)]))),AssignStmt(Id(h),FieldAccess(Id(g),Id($somethingElse))),AssignStmt(Id(i),CallExpr(Id(g),Id(someValue),[])),AssignStmt(Id(j),StringLit(Something special)),Return()]))])])"
+        self.assertTrue(TestAST.test(input, expect, 393))
+
+    def test_simple_program10(self):
+        input = """Class _Program {
+            Var $A: Array[Array[String, 3], 3];
+            $getMethodA() {
+                Return _Program::$A;
+            }
+            $setMethodA(_a: Array[Array[String, 3], 3]) {
+                _Program::$A = _a;
+            }
+        }
+        Class Program {
+            main() {
+                Var arr: Array[Array[String, 3], 3] = Array(Array("Volvo", "22", "18"), Array("Saab", "5", "2"), Array("Land Rover", "17", "15"));
+                _Program::$setMethodA(arr);
+                Out.printLn(_Program::$getMethodA());
+            }
+        }"""
+        expect = "Program([ClassDecl(Id(_Program),[AttributeDecl(Static,VarDecl(Id($A),ArrayType(3,ArrayType(3,StringType)))),MethodDecl(Id($getMethodA),Static,[],Block([Return(FieldAccess(Id(_Program),Id($A)))])),MethodDecl(Id($setMethodA),Static,[param(Id(_a),ArrayType(3,ArrayType(3,StringType)))],Block([AssignStmt(FieldAccess(Id(_Program),Id($A)),Id(_a))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([VarDecl(Id(arr),ArrayType(3,ArrayType(3,StringType)),[[StringLit(Volvo),StringLit(22),StringLit(18)],[StringLit(Saab),StringLit(5),StringLit(2)],[StringLit(Land Rover),StringLit(17),StringLit(15)]]),Call(Id(_Program),Id($setMethodA),[Id(arr)]),Call(Id(Out),Id(printLn),[CallExpr(Id(_Program),Id($getMethodA),[])])]))])])"
         self.assertTrue(TestAST.test(input, expect, 394))
 
     def test_simple_program11(self):
@@ -1160,7 +1172,7 @@ class ASTGenSuite(unittest.TestCase):
             Var length, width: Int;
 
             $getNumOfShape() {
-                Return Self::$numOfShape;
+                Return Shape::$numOfShape;
             }
         }
         Class Rectangle: Shape {
@@ -1174,7 +1186,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Static,ConstDecl(Id($numOfShape),IntType,IntLit(0))),AttributeDecl(Instance,ConstDecl(Id(immutableAttribute),IntType,IntLit(0))),AttributeDecl(Instance,VarDecl(Id(length),IntType)),AttributeDecl(Instance,VarDecl(Id(width),IntType)),MethodDecl(Id($getNumOfShape),Static,[],Block([Return(FieldAccess(Self(),Id($numOfShape)))]))]),ClassDecl(Id(Rectangle),Id(Shape),[MethodDecl(Id(getArea),Instance,[],Block([Return(BinaryOp(*,FieldAccess(Self(),Id(length)),FieldAccess(Self(),Id(width))))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([Call(Id(Out),Id(printInt),[FieldAccess(Id(Shape),Id($numOfShape))])]))])])"
+        expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Static,ConstDecl(Id($numOfShape),IntType,IntLit(0))),AttributeDecl(Instance,ConstDecl(Id(immutableAttribute),IntType,IntLit(0))),AttributeDecl(Instance,VarDecl(Id(length),IntType)),AttributeDecl(Instance,VarDecl(Id(width),IntType)),MethodDecl(Id($getNumOfShape),Static,[],Block([Return(FieldAccess(Id(Shape),Id($numOfShape)))]))]),ClassDecl(Id(Rectangle),Id(Shape),[MethodDecl(Id(getArea),Instance,[],Block([Return(BinaryOp(*,FieldAccess(Self(),Id(length)),FieldAccess(Self(),Id(width))))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([Call(Id(Out),Id(printInt),[FieldAccess(Id(Shape),Id($numOfShape))])]))])])"
         self.assertTrue(TestAST.test(input, expect, 396))
 
     def test_complex_program2(self):
@@ -1184,7 +1196,7 @@ class ASTGenSuite(unittest.TestCase):
             Var length, width: Int;
 
             $getNumOfShape() {
-                Return Self::$numOfShape;
+                Return Shape::$numOfShape;
             }
         }
         Class Rectangle: Shape {
@@ -1203,7 +1215,7 @@ class ASTGenSuite(unittest.TestCase):
             }
         }
         """
-        expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Static,ConstDecl(Id($numOfShape),IntType,IntLit(0))),AttributeDecl(Instance,ConstDecl(Id(immutableAttribute),IntType,IntLit(0))),AttributeDecl(Instance,VarDecl(Id(length),IntType)),AttributeDecl(Instance,VarDecl(Id(width),IntType)),MethodDecl(Id($getNumOfShape),Static,[],Block([Return(FieldAccess(Self(),Id($numOfShape)))]))]),ClassDecl(Id(Rectangle),Id(Shape),[MethodDecl(Id(getArea),Instance,[],Block([Return(BinaryOp(*,FieldAccess(Self(),Id(length)),FieldAccess(Self(),Id(width))))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([Call(Id(Out),Id(printInt),[FieldAccess(Id(Shape),Id($numOfShape))]),VarDecl(Id(r),IntType),VarDecl(Id(s),IntType),AssignStmt(Id(r),FloatLit(2.0)),VarDecl(Id(a),ArrayType(5,IntType)),AssignStmt(Id(s),BinaryOp(*,BinaryOp(*,Id(r),Id(r)),FieldAccess(Self(),Id(myPI)))),AssignStmt(ArrayCell(Id(a),[IntLit(0)]),Id(s))]))])])"
+        expect = "Program([ClassDecl(Id(Shape),[AttributeDecl(Static,ConstDecl(Id($numOfShape),IntType,IntLit(0))),AttributeDecl(Instance,ConstDecl(Id(immutableAttribute),IntType,IntLit(0))),AttributeDecl(Instance,VarDecl(Id(length),IntType)),AttributeDecl(Instance,VarDecl(Id(width),IntType)),MethodDecl(Id($getNumOfShape),Static,[],Block([Return(FieldAccess(Id(Shape),Id($numOfShape)))]))]),ClassDecl(Id(Rectangle),Id(Shape),[MethodDecl(Id(getArea),Instance,[],Block([Return(BinaryOp(*,FieldAccess(Self(),Id(length)),FieldAccess(Self(),Id(width))))]))]),ClassDecl(Id(Program),[MethodDecl(Id(main),Static,[],Block([Call(Id(Out),Id(printInt),[FieldAccess(Id(Shape),Id($numOfShape))]),VarDecl(Id(r),IntType),VarDecl(Id(s),IntType),AssignStmt(Id(r),FloatLit(2.0)),VarDecl(Id(a),ArrayType(5,IntType)),AssignStmt(Id(s),BinaryOp(*,BinaryOp(*,Id(r),Id(r)),FieldAccess(Self(),Id(myPI)))),AssignStmt(ArrayCell(Id(a),[IntLit(0)]),Id(s))]))])])"
         self.assertTrue(TestAST.test(input, expect, 397))
 
     def test_complex_program3(self):
