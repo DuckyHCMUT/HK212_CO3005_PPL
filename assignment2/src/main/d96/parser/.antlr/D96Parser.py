@@ -210,7 +210,7 @@ def serializedATN():
         buf.write("\u0185\58\35\2\u0185\u0186\78\2\2\u0186\u0187\5d\63\2")
         buf.write("\u0187\u0188\7,\2\2\u0188\67\3\2\2\2\u0189\u018a\7&\2")
         buf.write("\2\u018a\u018b\58\35\2\u018b\u018c\7\'\2\2\u018c\u0192")
-        buf.write("\3\2\2\2\u018d\u018f\5N(\2\u018e\u0190\5\u0080A\2\u018f")
+        buf.write("\3\2\2\2\u018d\u018f\5d\63\2\u018e\u0190\5\u0080A\2\u018f")
         buf.write("\u018e\3\2\2\2\u018f\u0190\3\2\2\2\u0190\u0192\3\2\2\2")
         buf.write("\u0191\u0189\3\2\2\2\u0191\u018d\3\2\2\2\u01929\3\2\2")
         buf.write("\2\u0193\u0198\5<\37\2\u0194\u0195\7,\2\2\u0195\u0197")
@@ -1546,7 +1546,7 @@ class D96Parser ( Parser ):
             self.state = 267
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID:
                 self.state = 266
                 self.block_stmt()
 
@@ -1623,7 +1623,7 @@ class D96Parser ( Parser ):
             self.state = 279
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID:
                 self.state = 278
                 self.block_stmt()
 
@@ -1688,7 +1688,7 @@ class D96Parser ( Parser ):
             self.state = 288
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID:
                 self.state = 287
                 self.block_stmt()
 
@@ -2547,8 +2547,8 @@ class D96Parser ( Parser ):
         def RB(self):
             return self.getToken(D96Parser.RB, 0)
 
-        def scalar_variable(self):
-            return self.getTypedRuleContext(D96Parser.Scalar_variableContext,0)
+        def all_expr(self):
+            return self.getTypedRuleContext(D96Parser.All_exprContext,0)
 
 
         def element_expr(self):
@@ -2583,7 +2583,7 @@ class D96Parser ( Parser ):
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 395
-                self.scalar_variable(0)
+                self.all_expr()
                 self.state = 397
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2899,7 +2899,7 @@ class D96Parser ( Parser ):
             self.state = 434
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID:
                 self.state = 433
                 self.block_stmt()
 
@@ -2917,7 +2917,7 @@ class D96Parser ( Parser ):
                 self.state = 438
                 self.else_body()
                 pass
-            elif token in [D96Parser.VAL, D96Parser.VAR, D96Parser.BREAK, D96Parser.FOREACH, D96Parser.CONTINUE, D96Parser.IF, D96Parser.NEW, D96Parser.RETURN, D96Parser.SELF, D96Parser.LB, D96Parser.LP, D96Parser.RP, D96Parser.ID]:
+            elif token in [D96Parser.LITERAL_BOOLEAN, D96Parser.LITERAL_INT, D96Parser.LITERAL_ZERO, D96Parser.LITERAL_FLOAT, D96Parser.LITERAL_STRING, D96Parser.VAL, D96Parser.VAR, D96Parser.BREAK, D96Parser.FOREACH, D96Parser.NULL, D96Parser.CONTINUE, D96Parser.IF, D96Parser.NEW, D96Parser.ARRAY, D96Parser.RETURN, D96Parser.SELF, D96Parser.LB, D96Parser.LP, D96Parser.RP, D96Parser.SUBTRACT, D96Parser.NOT, D96Parser.ID]:
                 pass
             else:
                 pass
@@ -2993,7 +2993,7 @@ class D96Parser ( Parser ):
             self.state = 447
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID:
                 self.state = 446
                 self.block_stmt()
 
@@ -3011,7 +3011,7 @@ class D96Parser ( Parser ):
                 self.state = 451
                 self.else_body()
                 pass
-            elif token in [D96Parser.VAL, D96Parser.VAR, D96Parser.BREAK, D96Parser.FOREACH, D96Parser.CONTINUE, D96Parser.IF, D96Parser.NEW, D96Parser.RETURN, D96Parser.SELF, D96Parser.LB, D96Parser.LP, D96Parser.RP, D96Parser.ID]:
+            elif token in [D96Parser.LITERAL_BOOLEAN, D96Parser.LITERAL_INT, D96Parser.LITERAL_ZERO, D96Parser.LITERAL_FLOAT, D96Parser.LITERAL_STRING, D96Parser.VAL, D96Parser.VAR, D96Parser.BREAK, D96Parser.FOREACH, D96Parser.NULL, D96Parser.CONTINUE, D96Parser.IF, D96Parser.NEW, D96Parser.ARRAY, D96Parser.RETURN, D96Parser.SELF, D96Parser.LB, D96Parser.LP, D96Parser.RP, D96Parser.SUBTRACT, D96Parser.NOT, D96Parser.ID]:
                 pass
             else:
                 pass
@@ -3063,7 +3063,7 @@ class D96Parser ( Parser ):
             self.state = 457
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID:
                 self.state = 456
                 self.block_stmt()
 
@@ -3134,7 +3134,7 @@ class D96Parser ( Parser ):
             self.state = 467
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID:
                 self.state = 466
                 self.block_stmt()
 
@@ -3619,7 +3619,7 @@ class D96Parser ( Parser ):
             self.state = 528
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0):
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID:
                 self.state = 527
                 self.block_stmt()
 
@@ -3670,7 +3670,7 @@ class D96Parser ( Parser ):
                 self.state = 535 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                if not (((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (D96Parser.VAL - 11)) | (1 << (D96Parser.VAR - 11)) | (1 << (D96Parser.BREAK - 11)) | (1 << (D96Parser.FOREACH - 11)) | (1 << (D96Parser.CONTINUE - 11)) | (1 << (D96Parser.IF - 11)) | (1 << (D96Parser.NEW - 11)) | (1 << (D96Parser.RETURN - 11)) | (1 << (D96Parser.SELF - 11)) | (1 << (D96Parser.LB - 11)) | (1 << (D96Parser.LP - 11)) | (1 << (D96Parser.ID - 11)))) != 0)):
+                if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << D96Parser.LITERAL_BOOLEAN) | (1 << D96Parser.LITERAL_INT) | (1 << D96Parser.LITERAL_ZERO) | (1 << D96Parser.LITERAL_FLOAT) | (1 << D96Parser.LITERAL_STRING) | (1 << D96Parser.VAL) | (1 << D96Parser.VAR) | (1 << D96Parser.BREAK) | (1 << D96Parser.FOREACH) | (1 << D96Parser.NULL) | (1 << D96Parser.CONTINUE) | (1 << D96Parser.IF) | (1 << D96Parser.NEW) | (1 << D96Parser.ARRAY) | (1 << D96Parser.RETURN) | (1 << D96Parser.SELF) | (1 << D96Parser.LB) | (1 << D96Parser.LP) | (1 << D96Parser.SUBTRACT) | (1 << D96Parser.NOT))) != 0) or _la==D96Parser.ID):
                     break
 
         except RecognitionException as re:

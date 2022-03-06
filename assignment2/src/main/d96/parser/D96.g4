@@ -87,7 +87,7 @@ array_rhs: literal_array | object_create;
 assign_stmt: assign_lhs ASSIGN all_expr SEMI;
 
 assign_lhs: (LB assign_lhs RB) 
-		| (scalar_variable element_expr?);
+		| (all_expr element_expr?);
 
 
 params_list: params (SEMI params)*;

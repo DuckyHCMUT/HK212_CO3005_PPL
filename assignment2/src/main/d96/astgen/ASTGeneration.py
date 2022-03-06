@@ -3,12 +3,12 @@
 
 from D96Visitor import D96Visitor
 from D96Parser import D96Parser
-from AST import *   
+from AST import *
 
 ### Remember to uncomment this mess before submit to BKEL ###
-# from main.d96.utils.AST import ArrayCell, ArrayLiteral, Assign, AttributeDecl, BinaryOp, Block, BoolType, BooleanLiteral, Break, CallExpr, ClassDecl, ClassType, ConstDecl, Continue, FieldAccess, For, If, MethodDecl, NewExpr, NullLiteral, Return
-# from main.d96.utils.AST import FloatLiteral, StringLiteral, IntLiteral, SelfLiteral, StringType, UnaryOp
-# from main.d96.utils.AST import FloatType, Id, Instance, IntType, Program, Static, VarDecl, ArrayType, CallStmt
+from main.d96.utils.AST import ArrayCell, ArrayLiteral, Assign, AttributeDecl, BinaryOp, Block, BoolType, BooleanLiteral, Break, CallExpr, ClassDecl, ClassType, ConstDecl, Continue, FieldAccess, For, If, MethodDecl, NewExpr, NullLiteral, Return
+from main.d96.utils.AST import FloatLiteral, StringLiteral, IntLiteral, SelfLiteral, StringType, UnaryOp
+from main.d96.utils.AST import FloatType, Id, Instance, IntType, Program, Static, VarDecl, ArrayType, CallStmt
 
 class ASTGeneration(D96Visitor):
     # Visit a parse tree produced by D96Parser#program.
@@ -81,15 +81,9 @@ class ASTGeneration(D96Visitor):
                         attrList.append(AttributeDecl(Instance().__str__(), VarDecl(Id(name.getText()), self.visit(ctx.data_type()))))
             if ctx.VAL():
                 if '$' in name.getText(): 
-                    if isinstance(self.visit(ctx.data_type()), ClassType):
-                        attrList.append(AttributeDecl(Static().__str__(), ConstDecl(Id(name.getText()), self.visit(ctx.data_type()), NullLiteral()))) 
-                    else:
-                        attrList.append(AttributeDecl(Static().__str__(), ConstDecl(Id(name.getText()), self.visit(ctx.data_type()))))
+                    attrList.append(AttributeDecl(Static().__str__(), ConstDecl(Id(name.getText()), self.visit(ctx.data_type()))))
                 else:
-                    if isinstance(self.visit(ctx.data_type()), ClassType):
-                        attrList.append(AttributeDecl(Instance().__str__(), ConstDecl(Id(name.getText()), self.visit(ctx.data_type()), NullLiteral())))
-                    else: 
-                        attrList.append(AttributeDecl(Instance().__str__(), ConstDecl(Id(name.getText()), self.visit(ctx.data_type()))))
+                    attrList.append(AttributeDecl(Instance().__str__(), ConstDecl(Id(name.getText()), self.visit(ctx.data_type()))))
         return attrList
 
 
@@ -298,10 +292,7 @@ class ASTGeneration(D96Visitor):
                 else:
                     attrList.append(VarDecl(Id(name.getText()), self.visit(ctx.data_type())))
             elif ctx.VAL():
-                if isinstance(self.visit(ctx.data_type()), ClassType):
-                    attrList.append(ConstDecl(Id(name.getText()), self.visit(ctx.data_type()), NullLiteral()))
-                else:
-                    attrList.append(ConstDecl(Id(name.getText()), self.visit(ctx.data_type())))
+                attrList.append(ConstDecl(Id(name.getText()), self.visit(ctx.data_type())))
         return attrList
 
 
@@ -435,18 +426,18 @@ class ASTGeneration(D96Visitor):
 
 
     # Visit a parse tree produced by D96Parser#assign_lhs.
-    # assign_lhs: LB assign_lhs RB | scalar_variable element_expr?;
+    # assign_lhs: (LB assign_lhs RB) | (all_expr element_expr?);
     def visitAssign_lhs(self, ctx:D96Parser.Assign_lhsContext):
         # LB assign_lhs RB
         if ctx.assign_lhs():
             return self.visit(ctx.assign_lhs())
 
         # scalar_variable element_expr?;
-        scalar = self.visit(ctx.scalar_variable())
+        all_expr = self.visit(ctx.all_expr())
         if ctx.element_expr():
             ele_expr = self.visit(ctx.element_expr())
-            return ArrayCell(scalar, ele_expr)
-        return scalar # else return scalar_variable only
+            return ArrayCell(all_expr, ele_expr)
+        return all_expr # else return scalar_variable only
 
 
     # Visit a parse tree produced by D96Parser#params_list.

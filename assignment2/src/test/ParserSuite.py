@@ -2160,5 +2160,5 @@ Class Program {
                 a::$b.c.d()[a] = Null;
             }
         }"""
-        expect = "Error on line 4 col 31: ="
+        expect = "successful"
         self.assertTrue(TestParser.test(input, expect, 999))
