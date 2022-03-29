@@ -26,7 +26,6 @@ class IntLit:
     def printPostfix(self, visitor):
         return self.intlit
 
-
 class FloatLit(IntLit):
     pass
 
@@ -49,7 +48,6 @@ class BinExp:
         elif self.exp == '/':
             return self.i1.eval(visitor) / self.i2.eval(visitor)
 
-
     def printPrefix(self, visitor):
         return self.exp + ' ' + str(self.i1.printPrefix(visitor)) + ' ' + str(self.i2.printPrefix(visitor))
     def printPostfix(self, visitor):
@@ -60,18 +58,17 @@ class UnExp:
         self.i = i
         self.exp = exp
 
+    def eval(self, visitor):
+        return self.i.eval(visitor) if self.exp == '+' else -self.i.eval(visitor)
+
     def accept(self, visitor):
         return visitor.visit(self)
 
-    def eval(self, visitor):
-        if self.exp == '+':
-            return self.i.eval(visitor)
-        elif self.exp == '-':
-            return -1*self.i.eval(visitor)
     def printPrefix(self, visitor):
-        return self.exp + '. ' + str(self.i.eval(visitor))
+        return self.exp + '. ' + str(self.i.printPrefix(visitor))
+        
     def printPostfix(self, visitor):
-        return str(self.i.eval(visitor)) + ' ' + self.exp + '.'
+        return str(self.i.printPostfix(visitor)) + ' ' + self.exp + '.' 
 
 class Visitor:
     pass

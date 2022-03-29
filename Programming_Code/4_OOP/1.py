@@ -49,10 +49,8 @@ class UnExp(Exp):
         self.exp = exp
 
     def eval(self):
-        if self.exp == '+':
-            return +self.i.eval()
-        elif self.exp == '-':
-            return -self.i.eval()
+        return self.i.eval() if self.exp == '+' else -self.i.eval()
+
 
 x1 = IntLit(1)
 print(x1.eval())

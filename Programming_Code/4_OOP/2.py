@@ -12,16 +12,12 @@ class Exp(ABC):
 class IntLit:
     def __init__(self, intlit):
         self.intlit = intlit
-    def eval(self):
-        return self.intlit
     def printPrefix(self):
         return self.intlit
 
 class FloatLit:
     def __init__(self, floatlit):
         self.floatlit = floatlit
-    def eval(self):
-        return self.floatlit
     def printPrefix(self):
         return self.floatlit
 
@@ -33,9 +29,17 @@ class BinExp(Exp):
         self.i2 = i2
 
     def eval(self):
-        return self.exp + ' ' + str(self.i1.eval()) + ' ' + str(self.i2.eval())
+        if self.exp == '+':
+            return self.i1.eval() + self.i2.eval()
+        elif self.exp == '-':
+            return self.i1.eval() - self.i2.eval()
+        elif self.exp == '*':
+            return self.i1.eval() * self.i2.eval()
+        elif self.exp == '/':
+            return self.i1.eval() / self.i2.eval()
+
     def printPrefix(self):
-        return self.exp + ' ' + str(self.i1.eval()) + ' ' + str(self.i2.eval())
+        return self.exp + ' ' + str(self.i1.printPrefix()) + ' ' + str(self.i2.printPrefix())
 
 class UnExp(Exp):
     def __init__(self, exp, i):
@@ -44,11 +48,12 @@ class UnExp(Exp):
 
     def eval(self):
         if self.exp == '+':
-            return '+. ' + str(self.i.eval())
+            return +self.i.eval()
         elif self.exp == '-':
-            return '-. ' + str(self.i.eval())
+            return -self.i.eval()
+
     def printPrefix(self):
-        return self.exp + '. ' + str(self.i.eval())
+        return self.exp + '. ' + str(self.i.printPrefix())
 
 x1 = IntLit(1)
 print(x1.printPrefix())
