@@ -1,0 +1,17 @@
+STRUCT=1
+INTTYPE=2
+FLOATTYPE=3
+LB=4
+RB=5
+ID=6
+COMMA=7
+SEMI=8
+WS=9
+ERROR_CHAR=10
+'struct'=1
+'int'=2
+'float'=3
+'{'=4
+'}'=5
+','=7
+';'=8
