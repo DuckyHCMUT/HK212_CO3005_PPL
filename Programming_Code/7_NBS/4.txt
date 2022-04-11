@@ -1,0 +1,76 @@
+class StaticCheck(Visitor):
+    def checkTypeAndRaise(self, var):
+        if type(var) is VarDecl:
+            raise RedeclaredVariable(var.name)
+        if type(var) is ConstDecl:
+            raise RedeclaredConstant(var.name)
+        if type(var) is FuncDecl:
+            raise RedeclaredFunction(var.name)
+
+    # class Program:
+    # decl:List[Decl]
+    def visitProgram(self, ctx:Program, o:object):
+        global_env = []
+        for x in ctx.decl:
+            if x.name not in global_env:
+                global_env.append(x.name)
+                self.visit(x, global_env)
+            else:
+                self.checkTypeAndRaise(x)
+        return
+    
+    # class VarDecl(Decl):
+    # name:str, typ:Type
+    def visitVarDecl(self,ctx:VarDecl,o:object):
+        return VarDecl(ctx.name, ctx.typ)
+    
+    # class ConstDecl(Decl): 
+    # name:str,val:Lit
+    def visitConstDecl(self,ctx:ConstDecl,o:object):
+        return ConstDecl(ctx.name, ctx.val)
+        
+    # class FuncDecl(Decl): 
+    # name: str
+    # param: List[VarDecl]
+    # body: Tuple(List[Decl],List[Expr])
+    def visitFuncDecl(self,ctx:FuncDecl,o:object):
+        param_env = []
+        ref_env = [] # Global + Param + Local
+        
+        for i in ctx.param:
+            if i.name not in param_env:
+                param_env.append(i.name)
+            else: 
+                self.checkTypeAndRaise(i)
+        
+        ref_env = list(set(o + param_env + [ctx.name]))
+        local_env = param_env
+
+        for i in ctx.body[0]:
+            if i.name not in local_env:
+                local_env.append(i.name)
+                ref_env = list(set(ref_env + [i.name]))
+                self.visit(i, ref_env)
+            else:
+                self.checkTypeAndRaise(i)
+    
+        for i in ctx.body[1]:
+            if (type(i) is Id) and (i.name not in ref_env):
+                raise UndeclaredIdentifier(i.name)
+        return FuncDecl(ctx.name, ctx.param, ctx.body)
+    
+    # class IntType(Type)
+    def visitIntType(self,ctx:IntType,o:object):
+        return IntType()
+    
+    # class FloatType(Type)
+    def visitFloatType(self,ctx:FloatType,o:object):
+        return FloatType()
+    
+    # class IntLit(Lit): #val:int
+    def visitIntLit(self, ctx:IntLit, o:object):
+        return ctx.val
+    
+    # class Id(Expr): #name:str
+    def visitId(self, ctx:Id, o:object):
+        return ctx.name

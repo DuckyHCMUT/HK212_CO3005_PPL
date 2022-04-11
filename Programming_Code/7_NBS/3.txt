@@ -1,0 +1,62 @@
+class StaticCheck(Visitor):
+    def checkTypeAndRaise(self, var):
+        if type(var) is VarDecl:
+            raise RedeclaredVariable(var.name)
+        if type(var) is ConstDecl:
+            raise RedeclaredConstant(var.name)
+        if type(var) is FuncDecl:
+            raise RedeclaredFunction(var.name)
+
+    # class Program:
+    # decl:List[Decl]
+    def visitProgram(self, ctx:Program, o:object):
+        global_env = []
+        for x in ctx.decl:
+            decl = self.visit(x, o)
+            if decl.name not in global_env:
+                global_env.append(decl.name)
+            else:
+                self.checkTypeAndRaise(decl)
+        return 
+    
+    # class VarDecl(Decl):
+    # name:str, typ:Type
+    def visitVarDecl(self,ctx:VarDecl,o:object):
+        return VarDecl(ctx.name, ctx.typ)
+    
+    # class ConstDecl(Decl): 
+    # name:str,val:Lit
+    def visitConstDecl(self,ctx:ConstDecl,o:object):
+        return ConstDecl(ctx.name, ctx.val)
+        
+    # class FuncDecl(Decl): 
+    # name:str
+    # param:List[VarDecl]
+    # body:List[Decl]
+    def visitFuncDecl(self,ctx:FuncDecl,o:object):
+        ref_env = []
+        
+        for i in ctx.param:
+            if i.name not in ref_env:
+                ref_env.append(i.name)  
+            else: self.checkTypeAndRaise(i)
+            
+        for i in ctx.body:
+            decl = self.visit(i, o)
+                
+            if i.name not in ref_env:
+                ref_env.append(i.name)  
+            else: self.checkTypeAndRaise(i)
+        return FuncDecl(ctx.name, ctx.param, ctx.body)
+    
+    # class IntType(Type)
+    def visitIntType(self,ctx:IntType,o:object):
+        return IntType()
+    
+    # class FloatType(Type)
+    def visitFloatType(self,ctx:FloatType,o:object):
+        return FloatType()
+    
+    # class IntLit(Lit): #val:int
+    def visitIntLit(self,ctx:IntLit,o:object):
+        return ctx.val

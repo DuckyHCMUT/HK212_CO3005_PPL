@@ -1,0 +1,53 @@
+# 0 : Not yet infered
+# 1 : Int
+# 2 : Float
+# 3 : Bool
+
+class StaticCheck(Visitor):
+    def visitBinOp(self,ctx:BinOp,o):
+        l = self.visit(ctx.e1, o)
+        r = self.visit(ctx.e2, o)
+        if ctx.op in ["+", "-", "*"]:
+            if (l == 2 and r == 2)\
+            or (l == 1 and r == 2)\
+            or (l == 2 and r == 1):
+                return 2
+            if (l == 1 and r == 1):
+                return 1
+                
+        elif ctx.op is '/':
+            if l in [1, 2] and r in [1, 2]:
+                return 2
+                
+        elif ctx.op in ["!", "&&", "||"]:
+            if l == 3 and r == 3:
+                return 3
+
+        elif ctx.op in [">", "<", "==", "!="]:
+            if l == r:
+                return 3
+                
+        raise TypeMismatchInExpression(ctx)
+                
+    def visitUnOp(self,ctx:UnOp,o):
+        typ = self.visit(ctx.e, o)
+        if ctx.op == "-":
+            if typ == 1:
+                return 1
+            elif typ == 2:
+                return 2
+        elif ctx.op == "!":
+            if typ == 3:
+                return 3
+                
+        raise TypeMismatchInExpression(ctx)
+            
+            
+    def visitIntLit(self,ctx:IntLit,o):
+        return 1 
+
+    def visitFloatLit(self,ctx,o):
+        return 2
+
+    def visitBoolLit(self,ctx,o):
+        return 3

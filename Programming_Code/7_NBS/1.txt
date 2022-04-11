@@ -1,0 +1,24 @@
+class StaticCheck(Visitor):
+    def visitProgram(self,ctx:Program,o:object):
+        nameList = []
+        for x in ctx.decl:
+            name = self.visit(x, o)
+            if name in nameList:
+                raise RedeclaredDeclaration(name)
+            nameList.append(name)
+        return
+    
+    def visitVarDecl(self,ctx:VarDecl,o:object):
+        return ctx.name
+    
+    def visitConstDecl(self,ctx:ConstDecl,o:object):
+        return ctx.name
+    
+    def visitIntType(self,ctx:IntType,o:object):
+        return IntType()
+
+    def visitFloatType(self,ctx:FloatType,o:object):
+        return FloatType()
+    
+    def visitIntLit(self,ctx:IntLit,o:object):
+        return ctx.val

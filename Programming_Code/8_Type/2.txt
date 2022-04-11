@@ -1,0 +1,95 @@
+class Symbol:
+    def __init__(self, name, typ):
+        self.name = name
+        self.typ = typ
+
+class StaticCheck(Visitor):
+    @staticmethod
+    def checkUndeclared(o, name):
+        for i in o:
+            if name.name == i.name:
+                return i.typ
+        raise UndeclaredIdentifier(name.name)
+    
+    def visitProgram(self,ctx:Program,o):
+        declLst = [self.visitVarDecl(x, o) for x in ctx.decl]
+        exp = self.visit(ctx.exp, declLst)
+
+    def visitVarDecl(self,ctx:VarDecl,o):
+        if type(ctx.typ) == IntType:
+            return Symbol(ctx.name, 1)
+        elif type(ctx.typ) == FloatType:
+            return Symbol(ctx.name, 2)
+        elif type(ctx.typ) == BoolType:
+            return Symbol(ctx.name, 3)
+
+    def visitIntType(self,ctx:IntType,o):
+        return 1
+
+    def visitFloatType(self,ctx:FloatType,o):
+        return 2
+
+    def visitBoolType(self,ctx:BoolType,o):
+        return 3
+
+    def visitBinOp(self,ctx:BinOp,o): 
+        l = self.visit(ctx.e1, o)
+        r = self.visit(ctx.e2, o)
+        
+        if type(l) == Id:
+            l = StaticCheck.checkUndeclared(o, l)
+        if type(r) == Id:
+            r = StaticCheck.checkUndeclared(o, r)
+            
+        if ctx.op in ["+", "-", "*"]:
+            if (l == 2 and r == 2)\
+            or (l == 1 and r == 2)\
+            or (l == 2 and r == 1):
+                return 2
+            if (l == 1 and r == 1):
+                return 1
+                
+        elif ctx.op is '/':
+            if l in [1, 2] and r in [1, 2]:
+                return 2
+                
+        elif ctx.op in ["!", "&&", "||"]:
+            if l == 3 and r == 3:
+                return 3
+
+        elif ctx.op in [">", "<", "==", "!="]:
+            if l == r:
+                return 3
+                
+        raise TypeMismatchInExpression(ctx)
+            
+        
+
+    def visitUnOp(self,ctx:UnOp,o):
+        typ = self.visit(ctx.e, o)
+        
+        if type(typ) == Id:
+            typ = StaticCheck.checkUndeclared(o, typ)
+        
+        if ctx.op == "-":
+            if typ == 1:
+                return 1
+            elif typ == 2:
+                return 2
+        elif ctx.op == "!":
+            if typ == 3:
+                return 3
+                
+        raise TypeMismatchInExpression(ctx)
+
+    def visitIntLit(self,ctx:IntLit,o):
+        return 1 
+
+    def visitFloatLit(self,ctx,o):
+        return 2
+
+    def visitBoolLit(self,ctx,o):
+        return 3
+
+    def visitId(self,ctx,o):
+        return Id(ctx.name)

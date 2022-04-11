@@ -1,0 +1,143 @@
+class StaticCheck(Visitor):
+    def visitProgram(self,ctx:Program,o):
+        o = {}
+        [self.visit(i, o) for i in ctx.decl]
+        [self.visit(i, o) for i in ctx.stmts]
+
+    def visitVarDecl(self,ctx:VarDecl,o):
+        o[ctx.name] = 0
+
+    def visitAssign(self,ctx:Assign,o):
+        right = self.visit(ctx.rhs, o)
+        left = self.visit(ctx.lhs, o)
+        
+        if left == 0 and right != 0:
+            o[ctx.lhs.name] = right
+        if left != 0 and right == 0:
+            o[ctx.rhs.name] = left
+        if left == 0 and right == 0:
+            raise TypeCannotBeInferred(ctx)
+        if self.visit(ctx.lhs, o) != self.visit(ctx.rhs, o):
+            raise TypeMismatchInStatement(ctx)
+
+    def visitBinOp(self,ctx:BinOp,o):
+        left = self.visit(ctx.e1, o)
+        right = self.visit(ctx.e2, o)
+        op = ctx.op
+        
+        if op in ['+', '-', '*', '/']:
+            # Type not inferred
+            if left == 0:
+                o[ctx.e1.name] = 1
+            if right == 0:
+                o[ctx.e2.name] = 1
+            # Either of e1 or e2 not in int
+            if self.visit(ctx.e1, o) != 1 or self.visit(ctx.e2, o) != 1:
+                raise TypeMismatchInExpression(ctx)
+            else: 
+                # return Int
+                return 1
+                
+        elif op in ['+.', '-.', '*.', '/.']:
+            if left == 0:
+                o[ctx.e1.name] = 2
+            if right == 0:
+                o[ctx.e2.name] = 2
+            if self.visit(ctx.e1, o) != 2 or self.visit(ctx.e2, o) != 2:
+                raise TypeMismatchInExpression(ctx)
+            else: 
+                # return Float
+                return 2
+                
+        elif op in ['>', '=']:
+            if left == 0:
+                o[ctx.e1.name] = 1
+            if right == 0:
+                o[ctx.e2.name] = 1
+            # Either of e1 or e2 not in int
+            if self.visit(ctx.e1, o) != 1 or self.visit(ctx.e2, o) != 1:
+                raise TypeMismatchInExpression(ctx)
+            else: 
+                # return Bool
+                return 3
+                
+        elif op in ['>.', '=.']:
+            if left == 0:
+                o[ctx.e1.name] = 2
+            if right == 0:
+                o[ctx.e2.name] = 2
+            if self.visit(ctx.e1, o) != 2 or self.visit(ctx.e2, o) != 2:
+                raise TypeMismatchInExpression(ctx)
+            else: 
+                # return Bool
+                return 3
+                
+        elif op in ['!', '&&', '||', '>b', '=b']:
+            if left == 0:
+                o[ctx.e1.name] = 3
+            if right == 0:
+                o[ctx.e2.name] = 3
+            if self.visit(ctx.e1, o) != 3 or self.visit(ctx.e2, o) != 3:
+                raise TypeMismatchInExpression(ctx)
+            else: 
+                # return Bool
+                return 3
+        
+    def visitUnOp(self,ctx:UnOp,o):
+        expr = self.visit(ctx.e, o)
+        op = ctx.op
+        
+        if op == '-':
+            if expr != 1:
+                if expr == 0:
+                    o[ctx.e.name] = 1
+                    return 1
+                raise TypeMismatchInExpression(ctx)
+            return 1
+            
+        elif op == '-.':
+            if expr != 2:
+                if expr == 0:
+                    o[ctx.e.name] = 2
+                    return 2
+                raise TypeMismatchInExpression(ctx)
+            return 2
+            
+        elif op == '!':
+            if expr != 3:
+                if expr == 0:
+                    o[ctx.e.name] = 3
+                    return 3
+                raise TypeMismatchInExpression(ctx)
+            return 3
+        
+        elif op == 'i2f':
+            if expr != 1:
+                if expr == 0:
+                    o[ctx.e.name] = 1
+                    return 2
+                raise TypeMismatchInExpression(ctx)
+            return 2
+            
+        elif op == 'floor':
+            if expr != 2:
+                if expr == 0:
+                    o[ctx.e.name] = 2
+                    return 1
+                raise TypeMismatchInExpression(ctx)
+            return 1
+
+    def visitIntLit(self,ctx:IntLit,o):
+        return 1 
+
+    def visitFloatLit(self,ctx,o):
+        return 2
+
+    def visitBoolLit(self,ctx,o):
+        return 3
+
+    def visitId(self,ctx,o):
+        if ctx.name not in o:
+            raise UndeclaredIdentifier(ctx.name)
+        else:
+            return o[ctx.name]

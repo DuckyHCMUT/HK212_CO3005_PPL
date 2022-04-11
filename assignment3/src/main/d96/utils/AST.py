@@ -276,7 +276,7 @@ class ClassDecl(Decl):
 
     def __str__(self):
         return "ClassDecl(" + str(self.classname) + (("," + str(self.parentname)) if self.parentname else "") + ",[" + ','.join(str(i) for i in self.memlist) + "])"
-
+    
 
 class SIKind(AST):
     __metaclass__ = ABCMeta

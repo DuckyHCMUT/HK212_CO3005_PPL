@@ -1,0 +1,19 @@
+Class Program{
+    Var x1: Float = 10.32851;
+    Val $x2: Float = 3.14158;
+    main(){
+        Var x3: Float = 3_1_2.319;
+        Val x4: Float = -3.E3;
+    }
+}
+
+Class Subprogram: Program{
+    Var $x1: Float = .3e-3;
+    Val x2: Float = 0.e32;
+    main(){
+        Var x3: Float = 0.e3; ## Ignore in assignment 2 ##
+        Var _: Float = 3_1.e12;
+    }
+}
+
+--> Program, Program::$x2, Subprogram::$x1 can be seen everywhere

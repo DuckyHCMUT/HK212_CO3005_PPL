@@ -1,0 +1,33 @@
+class StaticCheck(Visitor):
+    # class Program:
+    # decl:List[Decl]
+    def visitProgram(self,ctx:Program,o:object):
+        nameList = []
+        for x in ctx.decl:
+            name, rhs = self.visit(x, o)
+            if name in nameList:
+                raise RedeclaredVariable(name) if isinstance(rhs, Type) else RedeclaredConstant(name)
+            nameList.append(name)
+        return
+    
+    # class VarDecl(Decl):
+    # name:str, typ:Type
+    def visitVarDecl(self,ctx:VarDecl,o:object):
+        return ctx.name, ctx.typ
+    
+    # class ConstDecl(Decl): 
+    # name:str,val:Lit
+    def visitConstDecl(self,ctx:ConstDecl,o:object):
+        return ctx.name, ctx.val
+    
+    # class IntType(Type)
+    def visitIntType(self,ctx:IntType,o:object):
+        return IntType()
+    
+    # class FloatType(Type)
+    def visitFloatType(self,ctx:FloatType,o:object):
+        return FloatType()
+    
+    # class IntLit(Lit): #val:int
+    def visitIntLit(self,ctx:IntLit,o:object):
+        return ctx.val
