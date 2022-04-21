@@ -2,24 +2,41 @@ import unittest
 from TestUtils import TestChecker
 from AST import *
 
-from main.d96.utils.AST import ArrayCell, ArrayLiteral, Assign, AttributeDecl, BinaryOp, Block, BoolType, BooleanLiteral, Break, CallExpr, ClassDecl, ClassType, ConstDecl, Continue, FieldAccess, For, If, MethodDecl, NewExpr, NullLiteral, Return
-from main.d96.utils.AST import FloatLiteral, StringLiteral, IntLiteral, SelfLiteral, StringType, UnaryOp
-from main.d96.utils.AST import FloatType, Id, Instance, IntType, Program, Static, VarDecl, ArrayType, CallStmt
-
 class CheckerSuite(unittest.TestCase):
     def test_undeclared_function(self):
         """Simple program: int main() {} """
         input = """
         Class Program {
             Var $x: Int;
+            Val t, z: Float = 1.2, 2.3;
 
             main(){
-
+                Val a: Int = 5;
+                Program.println(a);
+                Return a;
             }
         }
+        ##Class Sub{
+            Var $t: String = "abc";
+
+            a(){
+                Program.println(a);
+            }
+        }##
         """
-        expect = ""
+        expect = "[]"
         self.assertTrue(TestChecker.test(input, expect, 401))
+
+    # def test_redeclared_bkel_402(self):
+    #     input = """
+    #        Class Program {
+    #         main(){ }
+    #         Var myVar: String = "Hello World!";
+    #         Var myVar: String;
+    #     } 
+    #     """
+    #     expect = """Redeclared Attribute: myVar"""
+    #     self.assertTrue(TestChecker.test(input, expect, 402))
 
     # def test_undeclared_function_ast(self):
     #     """Simple program: int main() {} """
@@ -39,7 +56,7 @@ class CheckerSuite(unittest.TestCase):
     #         Var length: Int;
     #     }"""
     #     expect = "Type Mismatch In Expression: CallExpr(Id(getInt),List(IntLiteral(4)))"
-    #     self.assertTrue(TestChecker.tesProgram([ClassDecl(Id("Rectangle"),Id("Shape"),[])])t(input,expect,402))
+    #     self.assertTrue(TestChecker.testProgram([ClassDecl(Id("Rectangle"),Id("Shape"),[])])t(input,expect,402))
 
     # def test_undeclared_function_use_ast(self):
     #     """Simple program: int main() {} """

@@ -3,16 +3,15 @@
 """
  * @author nhphung
 """
+
 from AST import * 
 from Visitor import *
 from Utils import Utils
 from StaticError import *
 
-from main.d96.utils.AST import ArrayCell, ArrayLiteral, Assign, AttributeDecl, BinaryOp, Block, BoolType, BooleanLiteral, Break, CallExpr, ClassDecl, ClassType, ConstDecl, Continue, FieldAccess, For, If, MethodDecl, NewExpr, NullLiteral, Return, FloatLiteral, StringLiteral, IntLiteral, SelfLiteral, StringType, UnaryOp, FloatType, Id, Instance, IntType, Program, Static, VarDecl, ArrayType, CallStmt, VoidType
-
 class MType:
     """
-    Type of function declaration:
+    Type of method declaration:
     partype: list(Type) - parameters type
     rettype: Type       - return type
     """
@@ -24,466 +23,225 @@ class MType:
         return 'MType([' + ','.join([str(i) for i in self.partype]) + '],' + str(self.rettype) + ')'
 
 class Symbol:
-    # Default declare type is 
-    def __init__(self, name, mtype = None, value = None, kind = None, isGlobal = None):
+    def __init__(self, name, mtype, value = None, parent = None, inclass = None):
         self.name = name
         self.mtype = mtype
         self.value = value
-        self.kind = kind
-        self.isGlobal = isGlobal
+        self.parent = parent
+        self.inclass = inclass
+
+    def toStatic(self, classname):
+        self.inclass = classname
+        return self
 
     def __str__(self):
-        return 'Symbol(' + str(self.name) + ',' + str(self.mtype) + ',' + str(self.kind) + ')'
+        return 'Symbol(' + str(self.name) + ',' + str(self.mtype) + ',' + str(self.value) + ',' + str(self.parent) + ',' + str(self.inclass) +')'
 
-    def getKind(self):
-        return self.kind if type(self.mtype) is MType else Identifier()
-
-    def toGlobal(self):
-        self.isGlobal = True # For static variable
-        return self 
-
-    def toVar(self):
-        self.kind = Variable()
-        return self
-
-    def toParam(self):
-        self.kind = Parameter()
-        return self
-
-    def toConst(self):
-        self.kind = Constant()
-        return self
-
-    def toClass(self):
-        self.kind = Class()
-        self.toGlobal() # Once it's a Class type, the scope is global
-        return self
-
-
-    @staticmethod
-    def fromClassDecl(decl):
-        return Symbol(decl.classname).toClass()
-
-class Scope:
-    @staticmethod
-    def start(scope_name):
-        print("================" + scope_name + "================")
-        pass
-
-    @staticmethod
-    def end():
-        print("==============================================")
-
-class Checker:
+class Checker(BaseVisitor,Utils):
     utils = Utils()
 
     @staticmethod
-    def checkNoEntry(symbols):
-        # Step 1: If no class named Program --> Raise
-        # Step 2: If no main() method in class Program --> Raise
-        # Step 3: If main() method has any parameter (main(x: Float)) or return anything inside --> Raise
-        # Step 4: If main() method has no parameter, no return --> OK
+    def checkNoEntry(memlist):
+        # Step 1: Check if Program does not have Program class --> raise, checked below
+        # Step 2 (This function): In Program class, check if main method is Static, if not --> raise
+        # Step 2.1: If the main function is Static but return something (Did not check in assignment 2 - AST) --> raise
+        for i in memlist:
+            if type(i) is MethodDecl:
+                if i.name.name == 'main' and i.kind == 'Static':
+                    # Need to check no return or return nothing here
+                    return
+        raise NoEntryPoint
 
-        # Have no Program class
-        if 'Program' not in [i.name.name for i in symbols]:
-            raise NoEntryPoint()
+    @staticmethod
+    def typeCheckConst(ast):
+        if type(ast.constType) is FloatType and type(ast.value) is FloatLiteral:
+            return
+        if type(ast.constType) is IntType and type(ast.value) is IntLiteral:
+            return
+        if type(ast.constType) is BoolType and type(ast.value) is BooleanLiteral:
+            return
+        if type(ast.constType) is StringType and type(ast.value) is StringLiteral:
+            return
+        raise TypeMismatchInStatement(ast)
 
-        print('symbols = ', [str(i) for i in symbols])
-        # Have no main method
-        # if 'main' not in 
+    @staticmethod
+    def typeCheckVar(ast):
+        if type(ast.varType) is FloatType and type(ast.varInit) is FloatLiteral:
+            return
+        if type(ast.varType) is IntType and type(ast.varInit) is IntLiteral:
+            return
+        if type(ast.varType) is BoolType and type(ast.varInit) is BooleanLiteral:
+            return
+        if type(ast.varType) is StringType and type(ast.varInit) is StringLiteral:
+            return
+        raise TypeMismatchInStatement(ast)
+
+    @staticmethod
+    def checkRedeclared(sym, kind, c):
+        if Checker.utils.lookup(sym.name, c, lambda x: x.name):
+            raise Redeclared(kind, sym.name.name)
+        return sym
+
 
 class StaticChecker(BaseVisitor,Utils):
-    global_envi = [
-        Symbol("getInt",MType([],IntType())),
-        Symbol("putIntLn",MType([IntType()],VoidType()))
-    ]
-        
+    # global_envi = [
+    #     Symbol("getInt",MType([],IntType())),
+    #     Symbol("putIntLn",MType([IntType()],VoidType()))
+    # ]
+
+    global_envi = []
+
     def __init__(self,ast):
         self.ast = ast
     
     def check(self):
-        return self.visit(self.ast,StaticChecker.global_envi)
+        return self.visit(self.ast, StaticChecker.global_envi)
 
+# Visit the Program section
     # class Program(AST):
     # decl: List[ClassDecl]
     def visitProgram(self, ast:Program, c):
-        Scope.start("Program")
-        symbols = [Symbol.fromClassDecl(x) for x in ast.decl]
-        # Check redeclared
+        symbols = []
 
-        # Check for no entry point
-        Checker.checkNoEntry(symbols)
-    
-        Scope.end()
+        # Check redeclared class
+        # for x in ast.decl:
+        #     print("x.name = ", x.classname)
+        #     name, sym = self.visit(x, symbols)
+
+        #     if name.name in symbols:
+        #         raise Redeclared(Class(), name.name)
+        #     symbols[name.name] = sym
+        #     self.global_envi.append(sym)
+
+        for x in ast.decl:
+            symbol = Symbol(x.classname, MType([], ClassType(x.classname)), None, x.parentname, None)
+            self.global_envi.append(Checker.checkRedeclared(symbol, Class(), symbols))
+            symbols.append(Checker.checkRedeclared(symbol, Class(), symbols))
+            self.visit(x, symbols)
+
+        # Check no entry
+        if not self.lookup('Program', self.global_envi, lambda x: x.name.name):
+            raise NoEntryPoint()
+
         return []
 
     # class ClassDecl(Decl):
     # classname: Id
     # memlist: List[MemDecl]
     # parentname: Id = None  # None if there is no parent
-    def visitClass_decl(self, ast, c):
-        class_name = ast.classname
-        parent = ast.parentname
-        body = [self.visitClass_body(x, c) for x in ast.memlist]
+    def visitClassDecl(self, ast, c):
+        # Check no entry point
+        if ast.classname.name == 'Program':
+            Checker.checkNoEntry(ast.memlist)
 
+        mem = []
 
-    # 
-    def visitClass_body(self, ast, c):
+        for x in ast.memlist:
+            name, sym = self.visit(x, mem)
+            if self.lookup(name, mem, lambda x: x.name):
+                raise Redeclared(Attribute(), name.name)
+            mem.append(sym)
+            if x.kind == 'Static':
+                s = sym.toStatic(ast.classname)
+                self.global_envi.append(s)
+        return
+        # return class_name, Symbol(class_name, MType([], ClassType(class_name)), None, parent, None)
+
+    # class AttributeDecl(MemDecl):
+    # kind: SIKind 
+    # decl: StoreDecl 
+    def visitAttributeDecl(self, ast, c):
+        name, mtype, value = self.visit(ast.decl, c)
+        sym = Symbol(name, mtype, value, None, None)
+        return name, sym
+
+    def visitConstDecl(self, ast, c):
+        name = ast.constant
+        constType = ast.constType
+        value = ast.value
+
+        # Raise error because constant variable can't be null
+        if not value:
+            raise IllegalConstantExpression(None)
+
+        # Raise error because type mismatch
+        Checker.typeCheckConst(ast)
+
+        return name, MType([], constType), value
+
+    def visitVarDecl(self, ast, c):
+        name = ast.variable
+        varType = ast.varType
+        value = ast.varInit
+
+        if value:
+            Checker.typeCheckVar(ast)
+
+        return name, MType([], varType), value
+
+    # class MethodDecl(MemDecl):
+    # kind: SIKind
+    # name: Id
+    # param: List[VarDecl]
+    # body: Block
+    def visitMethodDecl(self, ast, c):
+        name = ast.name
+        param = ast.param
+        self.visit(ast.body, c)
+        return name, Symbol(name, MType([], None), None, None, None)
+
+    # class Block(Stmt):
+    # inst: List[Inst]
+    def visitBlock(self, ast, c):
+        # print("c = ", [i.__str__() for i in c])
+
+        # variable from c (ref envi) can be redeclared, but scope can't
+        scope = [] + c
+        for x in ast.inst:
+            self.visit(x, scope)
         pass
 
+    # class CallStmt(Stmt):
+    # obj: Expr
+    # method: Id
+    # param: List[Expr]
+    def visitCallStmt(self, ast, c):
+        local_env = list(set(c + self.global_envi))
 
-    # Visit a parse tree produced by D96Parser#class_attr.
-    def visitClass_attr(self, ast, c):
-        return self.visitChildren(ctx)
+        print([i.__str__() for i in local_env])
 
+        obj = ast.obj
 
-    # Visit a parse tree produced by D96Parser#attr_no_value.
-    def visitAttr_no_value(self, ast, c):
-        return self.visitChildren(ctx)
+        print(self.lookup(obj.name, local_env, lambda x: x.name))
 
+        method = ast.method
+        param = [i for i in ast.param]
+        
+        #print(obj, method, param)
 
-    # Visit a parse tree produced by D96Parser#attr_with_value.
-    def visitAttr_with_value(self, ast, c):
-        return self.visitChildren(ctx)
+    # class Return(Stmt):
+    # expr: Expr = None
+    def visitReturn(self, ast, c):
+        pass
 
+    def visitIntType(self, ast, c):
+        return IntType()
 
-    # Visit a parse tree produced by D96Parser#attr_pair.
-    def visitAttr_pair(self, ast, c):
-        return self.visitChildren(ctx)
+    def visitFloatType(self, ast, c):
+        return FloatType()
 
+    def visitBoolType(self, ast, c):
+        return BoolType()
 
-    # Visit a parse tree produced by D96Parser#attr_array_no_value.
-    def visitAttr_array_no_value(self, ast, c):
-        return self.visitChildren(ctx)
+    def visitStringType(self, ast, c):
+        return StringType()
 
+    def visitArrayType(self, ast, c):
+        return ArrayType()
 
-    # Visit a parse tree produced by D96Parser#attr_array_with_value.
-    def visitAttr_array_with_value(self, ast, c):
-        return self.visitChildren(ctx)
+    def visitClassType(self, ast, c):
+        return ClassType()
 
-
-    # Visit a parse tree produced by D96Parser#attr_array_pair.
-    def visitAttr_array_pair(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#attr_array_decl_tail.
-    def visitAttr_array_decl_tail(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#any_id.
-    def visitAny_id(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#class_method.
-    def visitClass_method(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#normal_method.
-    def visitNormal_method(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#constructor.
-    def visitConstructor(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#destructor.
-    def visitDestructor(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#stmt.
-    def visitStmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#var_decl.
-    def visitVar_decl(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#var_no_value.
-    def visitVar_no_value(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#var_with_value.
-    def visitVar_with_value(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#var_pair.
-    def visitVar_pair(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#var_array_no_value.
-    def visitVar_array_no_value(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#var_array_with_value.
-    def visitVar_array_with_value(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#var_array_pair.
-    def visitVar_array_pair(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#var_array_decl_tail.
-    def visitVar_array_decl_tail(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#array_rhs.
-    def visitArray_rhs(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#assign_stmt.
-    def visitAssign_stmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#assign_lhs.
-    def visitAssign_lhs(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#params_list.
-    def visitParams_list(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#params.
-    def visitParams(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#data_type.
-    def visitData_type(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#prim_type.
-    def visitPrim_type(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#if_stmt.
-    def visitIf_stmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#else_if_body.
-    def visitElse_if_body(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#else_body.
-    def visitElse_body(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#for_in_stmt.
-    def visitFor_in_stmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#for_in_body.
-    def visitFor_in_body(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#for_in_expr.
-    def visitFor_in_expr(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#scalar_variable.
-    def visitScalar_variable(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#break_stmt.
-    def visitBreak_stmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#continue_stmt.
-    def visitContinue_stmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#return_stmt.
-    def visitReturn_stmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#method_invoc.
-    def visitMethod_invoc(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#static_method_invoc.
-    def visitStatic_method_invoc(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#block_stmt_stmt.
-    def visitBlock_stmt_stmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#block_stmt.
-    def visitBlock_stmt(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#method_invoc_literal.
-    def visitMethod_invoc_literal(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#expr_list.
-    def visitExpr_list(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#funcall.
-    def visitFuncall(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#all_expr.
-    def visitAll_expr(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op.
-    def visitOp(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op1.
-    def visitOp1(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op2.
-    def visitOp2(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op3.
-    def visitOp3(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op4.
-    def visitOp4(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op5.
-    def visitOp5(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op6.
-    def visitOp6(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op7.
-    def visitOp7(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#postfix_array_exp.
-    def visitPostfix_array_exp(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op8.
-    def visitOp8(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op9.
-    def visitOp9(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#op10.
-    def visitOp10(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#operands.
-    def visitOperands(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#element_expr.
-    def visitElement_expr(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#index_ops.
-    def visitIndex_ops(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#static_member_access.
-    def visitStatic_member_access(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#static_method.
-    def visitStatic_method(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#object_create.
-    def visitObject_create(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#list_of_expr.
-    def visitList_of_expr(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#literal.
-    def visitLiteral(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#literal_array.
-    def visitLiteral_array(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#literal_idx_array.
-    def visitLiteral_idx_array(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#literal_mtd_array.
-    def visitLiteral_mtd_array(self, ast, c):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by D96Parser#array_element.
-    def visitArray_element(self, ast, c):
-        return self.visitChildren(ctx)
+    def visitVoidType(self, ast, c):
+        return VoidType()
     
-
