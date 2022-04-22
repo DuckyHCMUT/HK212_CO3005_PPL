@@ -8,24 +8,20 @@ class CheckerSuite(unittest.TestCase):
         input = """
         Class Program {
             Var $x: Int;
-            Val t, z: Float = 1.2, 2.3;
+            Val t, f: Float = 1.2, 0.1;
 
+            foo(t: Int; y, z:Float){
+                If (k > 5){
+
+                }
+            }
             main(){
-                Val a: Int = 5;
-                Program.println(a);
-                Return a;
+
             }
         }
-        ##Class Sub{
-            Var $t: String = "abc";
-
-            a(){
-                Program.println(a);
-            }
-        }##
         """
         expect = "[]"
-        self.assertTrue(TestChecker.test(input, expect, 401))
+        self.assertTrue(TestChecker.test(input, expect, 501))
 
     # def test_redeclared_bkel_402(self):
     #     input = """
