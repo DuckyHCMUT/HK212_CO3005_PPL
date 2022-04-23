@@ -105,8 +105,8 @@ class StaticChecker(BaseVisitor,Utils):
         if 'Program' not in self.classMap:
             raise NoEntryPoint()
 
-        for i, j in self.classMap.items():
-            print(f"Class {i}: {[x.__str__() for x in j]}")
+        # for i, j in self.classMap.items():
+        #     print(f"Class {i}: {[x.__str__() for x in j]}")
         return []
 
     # class ClassDecl(Decl):
@@ -146,14 +146,19 @@ class StaticChecker(BaseVisitor,Utils):
         name = ast.constant
         constType = ast.constType
         value = ast.value
+        valueType = self.visit(ast.value, c)
 
         # Raise redeclared for Constant 
         if self.lookup(name, c, lambda x: x.name):
             raise Redeclared(Constant(), name.name)
 
         # Raise error because constant variable can't be null
-        if not value:
+        if not valueType:
             raise IllegalConstantExpression(None)
+
+        # Raise error because type mismatch
+        if type(valueType) != type(constType):
+            raise TypeMismatchInConstant(ast)
 
         return Symbol(name, constType, value)
 
@@ -161,10 +166,15 @@ class StaticChecker(BaseVisitor,Utils):
         name = ast.variable
         varType = ast.varType
         value = ast.varInit
+        valueType = self.visit(ast.varInit, c)
 
         # Raise redeclared for Variable
         if self.lookup(name, c, lambda x: x.name):
             raise Redeclared(Variable(), name.name)
+
+        # Raise error because type mismatch
+        if type(valueType) != type(varType):
+            raise TypeMismatchInStatement(ast)
 
         return Symbol(name, varType, value)
 
@@ -203,18 +213,22 @@ class StaticChecker(BaseVisitor,Utils):
         #print(f"inner = {[i.__str__() for i in inner]}")
         #print(f"outer = {[i.__str__() for i in outer]}")
         
-        # resultEnv = Checker.overrideInEnv(inner, outer)
+        resultEnv = Checker.overrideInEnv(inner, outer)
 
         for i in ast.inst:
             # Variable and Constant Declaration Statement
             if type(i) is VarDecl or type(i) is ConstDecl:
                 inner.append(self.visit(i, inner))
             elif type(i) is Assign:
-                self.visit(i, Checker.overrideInEnv(inner, outer))
+                self.visit(i, [inner, outer])
             elif type(i) is Return:
-                return self.visit(i, Checker.overrideInEnv(inner, outer))
+                return self.visit(i, [inner, outer])
             else:
-                self.visit(i, Checker.overrideInEnv(inner, outer))
+                self.visit(i, [inner, outer])
+
+        ##print(f"inner = {[i.__str__() for i in inner]}")
+        ##print(f"outer = {[i.__str__() for i in outer]}")
+
         return VoidType()
 
     # class CallStmt(Stmt):
@@ -230,14 +244,16 @@ class StaticChecker(BaseVisitor,Utils):
         # If expr is None
         if not ast.expr: return VoidType()
 
+        ret = Checker.overrideInEnv(c[0], c[1])
+
         if type(ast.expr) is Id:
-            retType = self.lookup(ast.expr, c, lambda x: x.name)
+            retType = self.lookup(ast.expr, ret, lambda x: x.name)
             if not retType:
                 raise Undeclared(Identifier(), ast.expr.name)
             else:
                 return retType.mtype
         else:
-            return self.visit(ast.expr, c)
+            return self.visit(ast.expr, ret)
 
     # Continue stmt
     def visitContinue(self, ast, c):
@@ -256,11 +272,17 @@ class StaticChecker(BaseVisitor,Utils):
     # thenStmt: Stmt
     # elseStmt: Stmt = None  # None if there is no else branch
     def visitIf(self, ast, c):
-        print("If ast = ", ast.expr, ast.thenStmt, ast.elseStmt)
-
+        for i in c[0]:
+            print("If c[0] = ", str(i))
+        for i in c[1]:
+            print("if c[1] = ", str(i))
         evaType = self.visit(ast.expr, c)
-        # thenBlock = self.visit(ast.thenStmt, c)
-        # elseBlock = self.visit(ast.elseStmt, c)
+        if type(evaType) is not BoolType:
+            raise TypeMismatchInExpression(ast.expr)
+
+        thenBlock = self.visit(ast.thenStmt, c)
+
+        #elseBlock = self.visit(ast.elseStmt, c)
     
     # class Assign(Stmt):
     # lhs: Expr
@@ -275,13 +297,49 @@ class StaticChecker(BaseVisitor,Utils):
     # left: Expr
     # right: Expr
     def visitBinaryOp(self, ast, c):
-        for i in c:
-            print("binop c = ", i)
-    
-        print("binop = ", ast.op, ast.left, ast.right)
+        lType = self.visit(ast.left, c)
+        rType = self.visit(ast.right, c)
+        op = ast.op
 
+        if op in ['+', '-', '*', '/']:
+            if type(lType) is FloatType or type(rType) is FloatType:
+                return FloatType()
+            if type(lType) is IntType or type(rType) is IntType:
+                return IntType()
+        elif op == '%':
+            if type(lType) is IntType and type(rType) is IntType:
+                return IntType()
+        elif op in ['&&', '||']:
+            if type(lType) is BoolType and type(rType) is BoolType:   
+                return BoolType()
+        elif op in ['==.', '+.']:
+            if type(lType) is StringType and type(rType) is StringType:   
+                return StringType()        
+        elif op in ['==', '!=']:
+            ifType = [IntType, FloatType]
+            if (type(lType) in ifType and type(rType) in ifType) \
+            or (type(lType) is BoolType and type(rType) is BoolType): 
+                return BoolType()
+        elif op in ['<', '<=', '>', '>=']:
+            validType = [IntType, FloatType]
+            if type(lType) in validType and type(rType) in validType:
+                return BoolType()
+
+        raise TypeMismatchInExpression(ast)
+
+    # class UnaryOp(Expr):
+    # op: str - [] !
+    # body: Expr
     def visitUnaryOp(self, ast, c):
-        return
+        unTyp = self.visit(ast.body, c)
+        op = ast.op
+
+        if op == '-':
+            if type(unTyp) is IntType: return IntType()
+            elif type(unTyp) is FloatType: return FloatType()
+        elif op == '!':
+            if type(unTyp) is BoolType: return BoolType()
+        raise TypeMismatchInExpression(ast)
 
     def visitCallExpr(self, ast, c):
         return
@@ -295,11 +353,15 @@ class StaticChecker(BaseVisitor,Utils):
     def visitFieldAccess(self, ast, c):
         return
 
-
-
-    
-
     # <--- Type visitor --->
+    # class Id(LHS):
+    # name: str
+    def visitId(self, ast, c):
+        x = self.lookup(ast, c, lambda x: x.name)
+        if not x:
+            raise Undeclared(Identifier(), ast.name)
+        return x.mtype
+
     def visitIntLiteral(self, ast, c):
         return IntType()
 
