@@ -1,0 +1,21 @@
+    def visitBinExpr(self, ast: BinExpr, o: Access):
+        ctxt = o
+        frame = ctxt.frame
+        op = str(ast.op).lower()
+        
+        lCode, lType = self.visit(ast.e1, ctxt)
+        rCode, rType = self.visit(ast.e2, ctxt)
+        
+        if op in ['+', '-']:
+            return lCode + rCode + self.emit.emitADDOP(op, IntType(), frame), IntType()
+        elif op in ['*', '/']:
+            return lCode + rCode + self.emit.emitMULOP(op, IntType(), frame), IntType()
+        elif op == '+.':
+            return lCode + rCode + self.emit.jvm.emitFADD(), FloatType()
+        elif op == '-.':
+            return lCode + rCode + self.emit.jvm.emitFSUB(), FloatType()
+        elif op == '*.':
+            return lCode + rCode + self.emit.jvm.emitFMUL(), FloatType()
+        elif op == '/.':
+            return lCode + rCode + self.emit.jvm.emitFDIV(), FloatType()
+

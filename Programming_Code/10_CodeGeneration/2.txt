@@ -1,0 +1,4 @@
+    def visitFloatLiteral(self, ctx: FloatLiteral, o: Access):
+        ctxt = o
+        frame = ctxt.frame
+        return self.emit.emitPUSHFCONST(str(ctx.value), frame), FloatType()

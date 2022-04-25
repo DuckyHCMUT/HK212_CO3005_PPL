@@ -1,0 +1,4 @@
+    def visitIntLiteral(self, ctx: IntLiteral, o: Access):
+        ctxt = o
+        frame = ctxt.frame
+        return self.emit.emitPUSHICONST(ctx.value, frame), IntType()

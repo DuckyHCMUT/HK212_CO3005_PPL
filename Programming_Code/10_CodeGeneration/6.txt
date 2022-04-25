@@ -1,0 +1,11 @@
+    def visitVarDecl(self,ctx,o):
+        myFrame  = o.frame
+        if myFrame is None:
+            emittedStr = self.emit.emitATTRIBUTE(ctx.name, ctx.typ, None)
+            self.emit.printout(emittedStr)
+            return Symbol(ctx.name, ctx.typ, CName("MCClass"))
+        else:
+            emittedStr = self.emit.emitVAR(myFrame.getCurrIndex(), ctx.name, ctx.typ, myFrame.getStartLabel(), myFrame.getEndLabel())
+            self.emit.printout(emittedStr)
+            result = Symbol(ctx.name, ctx.typ, Index(myFrame.getNewIndex()))
+            return result
