@@ -4,7 +4,6 @@
  * @author nhphung
 """
 
-from numpy import isin
 from AST import * 
 from Visitor import *
 #from Utils import Utils
@@ -67,18 +66,12 @@ class Checker(BaseVisitor,Utils):
             resultEnv.append(i)
 
         return resultEnv
-    
-    @staticmethod
-    def fprint(c, blockDepth):
-        for i in c:
-            print("[" + ' --> '.join([str(j) for j in i]) +"]")
-        print(f"Current block depth: {blockDepth}")
 
 
 class StaticChecker(BaseVisitor,Utils):
     global_envi = []
     classMap = {}
-    blockDepth = 0
+    inFunc = False
 
     def __init__(self,ast):
         self.ast = ast
@@ -124,23 +117,41 @@ class StaticChecker(BaseVisitor,Utils):
             if not self.lookup(ast.parentname, c, lambda x: x.name):
                 raise Undeclared(Class(), ast.parentname.name)
 
-        # Model: Stack of block [] --> [ [] ] --> [ [], [], ...]
-        c = [[]]
-        return [self.visit(x, c) for x in ast.memlist]
+        # Model: [local vars, members]
+        c = []
+        return [self.visit(x, [[], c]) for x in ast.memlist]
         
 
     # class AttributeDecl(MemDecl):
     # kind: SIKind 
     # decl: StoreDecl 
     def visitAttributeDecl(self, ast, c):
-        c[0].append(self.visit(ast.decl, c))
+        sym = self.visit(ast.decl, c)
+        c[1].append(sym)
+        return
 
     def visitConstDecl(self, ast, c):
-        if self.lookup(ast.constant, c[self.blockDepth], lambda x: x.name):
-            if self.blockDepth == 0:
-                raise Redeclared(Attribute(), ast.constant.name)
-            else:
-                raise Redeclared(Constant(), ast.constant.name)
+        if self.lookup(ast.constant, c[1], lambda x: x.name):
+            raise Redeclared(Attribute(), ast.constant.name)
+            
+        # Raise error because constant variable can't be null
+        if not ast.value:
+            raise IllegalConstantExpression(None)
+
+        name = ast.constant
+        constType = ast.constType
+        value = ast.value
+        valueType = self.visit(ast.value, c[1])
+
+        # Raise error because type mismatch
+        if type(valueType) != type(constType):
+            raise TypeMismatchInConstant(ast)
+
+        return Symbol(name, constType, value)
+
+    def visitConstDeclVariable(self, ast, c):
+        if self.lookup(ast.constant, c[0], lambda x: x.name):
+            raise Redeclared(Constant(), ast.constant.name)
             
         # Raise error because constant variable can't be null
         if not ast.value:
@@ -153,16 +164,30 @@ class StaticChecker(BaseVisitor,Utils):
 
         # Raise error because type mismatch
         if type(valueType) != type(constType):
+            print(type(valueType), type(constType))
             raise TypeMismatchInConstant(ast)
 
         return Symbol(name, constType, value)
 
     def visitVarDecl(self, ast, c):
-        if self.lookup(ast.variable, c[self.blockDepth], lambda x: x.name):
-            if self.blockDepth == 0:
-                raise Redeclared(Attribute(), ast.variable.name)
-            else:
-                raise Redeclared(Variable(), ast.variable.name)
+        if self.lookup(ast.variable, c[1], lambda x: x.name):
+            raise Redeclared(Attribute(), ast.variable.name)
+
+        name = ast.variable
+        varType = ast.varType
+        value = ast.varInit
+        valueType = self.visit(ast.varInit, c[1]) if ast.varInit else None
+
+        # Raise error because type mismatch and if only there is value
+        if valueType:
+            if type(valueType) != type(varType):
+                raise TypeMismatchInStatement(ast)
+
+        return Symbol(name, varType, value)
+
+    def visitVarDeclVariable(self, ast, c):
+        if self.lookup(ast.variable, c[0], lambda x: x.name):
+            raise Redeclared(Variable(), ast.variable.name)
 
         name = ast.variable
         varType = ast.varType
@@ -182,22 +207,22 @@ class StaticChecker(BaseVisitor,Utils):
     # param: List[VarDecl]
     # body: Block
     def visitMethodDecl(self, ast, c):
-        if self.lookup(ast.name, c[0], lambda x: x.name):
+        # Check and raise redeclared method
+        # [c[0], c[1]] --> c[0] is local, c[1] is members
+        if self.lookup(ast.name, c[1], lambda x: x.name):
             raise Redeclared(Method(), ast.name.name)
 
         # Check for parameter
         typeList = []
-        c.append([]) # Extend from [[foo]] --> [[foo], [list of foo]]
-
         for i in ast.param:
-            if self.lookup(i.variable, c[1], lambda x: x.name):
+            if self.lookup(i.variable, c[0], lambda x: x.name):
                 raise Redeclared(Parameter(), i.variable.name)
-            c[1].append(self.visitParam(i, c))
+            c[0].append(self.visit(i, c))
             typeList.append(i.varType)
 
         # Create a new symbol and immediately pass into the body block
         sym = Symbol(ast.name, MType(typeList, []), None)
-        c[0].append(sym)
+        c[1].append(sym)
 
         # Get the return type of that method
         returnType = self.visit(ast.body, c)
@@ -205,47 +230,63 @@ class StaticChecker(BaseVisitor,Utils):
 
         return sym
 
-    def visitParam(self, ast, c):
-        if self.lookup(ast.variable, c[1], lambda x: x.name):
-            raise Redeclared(Parameter(), ast.variable.name)
-
-        name = ast.variable
-        varType = ast.varType
-        value = ast.varInit
-        valueType = self.visit(ast.varInit, c) if ast.varInit else None
-
-        # Raise error because type mismatch and if only there is value
-        if valueType:
-            if type(valueType) != type(varType):
-                raise TypeMismatchInStatement(ast)
-
-        return Symbol(name, varType, value)
-
     # class Block(Stmt):
     # inst: List[Inst]
     def visitBlock(self, ast, c):
         print(f"===================== {ast} ======================\n")
+
+        methodBlockEnv = []
         retType = VoidType()
 
-        self.blockDepth += 1
-        
         for i in ast.inst:
-            if isinstance(i, StoreDecl):
-                c[self.blockDepth].append(self.visit(i, c))
+            if type(i) == ConstDecl:
+                print(f"\033[33mat i = {i}, c[0] = {[str(i) for i in c[0]]}, c[1] = {[str(i) for i in c[1]]}\033[0m")
+                sym = self.visitConstDeclVariable(i, c)
+                c[0].append(sym), methodBlockEnv.append(sym)
+            elif type(i) == VarDecl:
+                sym = self.visitVarDeclVariable(i, c)
+                c[0].append(sym), methodBlockEnv.append(sym)
             elif type(i) == Block:
-                c.append([])
-                r = self.visitBlock(i, c)
+                r = self.visitInnerBlock(i, c)
                 if r:
                     retType = r
             else:
                 self.visit(i, c)
-        
-        # Checker.fprint(c)
-        c.pop()
-        self.blockDepth -= 1
 
         print(f"================== End of {ast} ===================\n")
         return retType
+
+    # Inner block
+    # class Block(Stmt):
+    # inst: List[Inst]
+    def visitInnerBlock(self, ast, c):
+        print(f"============Inner block :{ast} ======================\n")
+        outerBlockEnv = [] + c[0]
+        innerBlockEnv = []
+
+        for i in c[1]:
+            print(f"current global = {str(i)}")
+        for i in outerBlockEnv:
+            print(f"current outerBlockEnv = {str(i)}")
+
+        for i in ast.inst:
+            if type(i) == ConstDecl:
+                innerBlockEnv.append(self.visitConstDeclVariable(i, [innerBlockEnv, c[0]]))
+            elif type(i) == VarDecl:
+                innerBlockEnv.append(self.visitVarDeclVariable(i,  [innerBlockEnv, c[0]]))
+            elif type(i) == Block:
+                mergedList = Checker.overrideInEnv(innerBlockEnv, outerBlockEnv)
+                retType = self.visitInnerBlock(i, [mergedList, c[1]])
+                # Return statement in a block
+                if retType:
+                    return retType
+            else:
+                self.visit(i, c)    
+
+        for i in innerBlockEnv:
+            print(f"current innerBlockEnv = {str(i)}")
+
+        print(f"======= End of inner block :{ast} ===================\n")
 
     # class CallStmt(Stmt):
     # obj: Expr
@@ -296,7 +337,18 @@ class StaticChecker(BaseVisitor,Utils):
     # lhs: Expr
     # exp: Expr
     def visitAssign(self, ast, c):
-        pass
+        print(f"Assign.ast = {ast}")
+        for i in c[0]:
+            print("c0 = ", str(i))
+        for i in c[1]:
+            print("c1 = ", str(i))
+        # if not self.lookup(ast.lhs, c, lambda x: x.name):
+        #     raise Undeclared(Identifier(), ast.lhs.name)
+        if type(ast.lhs) is FieldAccess:
+            sym = self.visit(ast.lhs, c)
+        elif type(ast.lhs) is Id:
+            sym = self.visit(ast.lhs, c[0])
+        return
 
     # class BinaryOp(Expr):
     # op: str
@@ -374,7 +426,7 @@ class StaticChecker(BaseVisitor,Utils):
         # fieldname: Id
 
         if type(ast.obj) == SelfLiteral:
-            x = self.lookup(ast.fieldname, c[1], lambda x: x.name)
+            x = self.lookup(ast.fieldname, c, lambda x: x.name)
             if not x:
                 raise Undeclared(Attribute(), ast.fieldname.name)
             else:
@@ -385,11 +437,10 @@ class StaticChecker(BaseVisitor,Utils):
     # class Id(LHS):
     # name: str
     def visitId(self, ast, c):
-        for i in reversed(c[1:]):
-            j = self.lookup(ast, i, lambda x: x.name)
-        if not j:
+        x = self.lookup(ast, c, lambda x: x.name)
+        if not x:
             raise Undeclared(Identifier(), ast.name)
-        return j.mtype
+        return x.mtype
 
     def visitIntLiteral(self, ast, c):
         return IntType()
