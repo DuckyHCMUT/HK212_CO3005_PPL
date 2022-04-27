@@ -4,7 +4,6 @@
  * @author nhphung
 """
 
-from numpy import isin
 from AST import * 
 from Visitor import *
 #from Utils import Utils
@@ -100,6 +99,9 @@ class StaticChecker(BaseVisitor,Utils):
         # Check no entry
         if 'Program' not in self.classMap:
             raise NoEntryPoint()
+
+        for i, j in self.classMap.items():
+            print(f"{i}: {[str(k) for k in j]}")
 
         # Somehow if I don't clear this, the later on testcase will still inherits the previous class
         self.classMap.clear()
@@ -225,7 +227,7 @@ class StaticChecker(BaseVisitor,Utils):
     # inst: List[Inst]
     def visitBlock(self, ast, c):
         print(f"===================== {ast} ======================\n")
-        retType = VoidType()
+        retType = None
 
         self.blockDepth += 1
         
@@ -234,11 +236,13 @@ class StaticChecker(BaseVisitor,Utils):
                 c[self.blockDepth].append(self.visit(i, c))
             elif type(i) == Block:
                 c.append([])
-                r = self.visitBlock(i, c)
+                r = self.visit(i, c)
                 if r:
                     retType = r
             else:
-                self.visit(i, c)
+                r = self.visit(i, c)
+                if r:
+                    retType = r
         
         # Checker.fprint(c)
         c.pop()
@@ -257,7 +261,7 @@ class StaticChecker(BaseVisitor,Utils):
     # class Return(Stmt):
     # expr: Expr = None
     def visitReturn(self, ast, c):
-        pass
+        return self.visit(ast.expr, c) if ast.expr else VoidType()
 
     # Continue stmt
     def visitContinue(self, ast, c):
@@ -277,26 +281,37 @@ class StaticChecker(BaseVisitor,Utils):
     # elseStmt: Stmt = None  # None if there is no else branch
     def visitIf(self, ast, c):
         evaType = self.visit(ast.expr, c)
-        if type(evaType) is not BoolType:
+        if type(evaType) != BoolType:
             raise TypeMismatchInExpression(ast.expr)
-
-        thenReturnType = self.visit(ast.thenStmt, c)
-        elseReturnType = self.visit(ast.elseStmt, c)
         
-        # Both then and else have return stmt
-        if type(thenReturnType) and type(elseReturnType):
-            if type(thenReturnType) != type(elseReturnType):
-                raise TypeMismatchInStatement(ast)
-            else:
-                return thenReturnType
+        c.append([])
+        thenRet = self.visit(ast.thenStmt, c)
+
+        # Only If {}
+        if not ast.elseStmt:
+            return thenRet
         else:
-            pass
-    
+            c.append([])
+            elseRet = self.visit(ast.elseStmt, c)
+
+            if type(thenRet) != type(elseRet):
+                raise TypeMismatchInStatement(ast)
+
+            return elseRet
+
     # class Assign(Stmt):
     # lhs: Expr
     # exp: Expr
     def visitAssign(self, ast, c):
-        pass
+        lhsType = self.visit(ast.lhs, c)
+        rhsType = self.visit(ast.exp, c)
+
+        # Type-cast a stmt: FloatType = IntType 
+        if type(lhsType) == FloatType and type(rhsType) == IntType:
+            return
+
+        if type(lhsType) != type(rhsType):
+            raise TypeMismatchInStatement(ast)
 
     # class BinaryOp(Expr):
     # op: str
@@ -385,6 +400,7 @@ class StaticChecker(BaseVisitor,Utils):
     # class Id(LHS):
     # name: str
     def visitId(self, ast, c):
+        # Exclude the first element and traverse the stack from the top
         for i in reversed(c[1:]):
             j = self.lookup(ast, i, lambda x: x.name)
         if not j:

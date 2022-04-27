@@ -8,15 +8,14 @@ class CheckerSuite(unittest.TestCase):
         Class Program {
             Var a: Int = 10;
             Var b: Int = 20;
-            foo(a: Int){
-                Val c: Int = 1;
-                Var d: Int = a + c;
-                {
-                    Var a: Float = 0.5 + d;
-                    Val b, c: Int = 1, a;
-                }
+            foo(){
+                Var b: Float = 0.5;
+                Return b;
             }
             main(){}
+        }
+        Class SubProgram{
+            func(){}
         }
         """
         expect = "[]"
@@ -69,7 +68,7 @@ class CheckerSuite(unittest.TestCase):
     #     input = Program(
     #         [
     #             ClassDecl(
-    #                 Id(Program),
+    #                 Id("Program"),
     #                 [
     #                     MethodDecl(
     #                         Static(),
@@ -88,7 +87,7 @@ class CheckerSuite(unittest.TestCase):
     #             )
     #         ]
     #     )
-    #     expect = "Undeclared Attribute: myVar"
+    #     expect = "Undeclared Identifier: myVar"
     #     self.assertTrue(TestChecker.test(input, expect, 504))
 
     # def test_bkel_505(self):
@@ -99,6 +98,6 @@ class CheckerSuite(unittest.TestCase):
     #         }
     #     }
     #     """
-    #     expect = "Undeclared Attribute: myVar"
+    #     expect = "Undeclared Identifier: myVar"
     #     self.assertTrue(TestChecker.test(input, expect, 505))
 
