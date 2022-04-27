@@ -2,25 +2,15 @@ assignment1/antlr-4.9.3-complete.jar
 
 # Ignored __pycache__
 __pycache__
+solutions
+testcases
 
 assignment1/initial.zip
 
-assignment1/assignment1/src/test/solutions
-
-assignment1/assignment1/src/test/testcases
-
 assignment2/initial.zip
-
-assignment2/src/test/solutions
-
-assignment2/src/test/testcases
 
 assignment3/initial.zip
 
 assignment3/initial
 
 assignment3/.vscode
-
-assignment3/src/test/solutions
-
-assignment3/src/test/testcases
