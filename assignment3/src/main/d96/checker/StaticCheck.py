@@ -21,8 +21,8 @@ class MType:
         self.partype = partype
         self.rettype = rettype
 
-    # def __str__(self):
-    #     return 'MType([' + ','.join([str(i) for i in self.partype]) + '],' + str(self.rettype) + ')'
+    def __str__(self):
+        return 'MType([' + ','.join([str(i) for i in self.partype]) + '],' + str(self.rettype) + ')'
 
 class Symbol:
     def __init__(self, name, mtype, value = None):
@@ -73,6 +73,11 @@ class Checker(BaseVisitor,Utils):
             print("[" + ' --> '.join([str(j) for j in i]) +"]")
         print(f"Current block depth: {blockDepth}")
 
+    @staticmethod
+    def cprint(currMap):
+        for i, j in currMap.items():
+            print(f"{i}: {[str(k) for k in j]}")
+
 
 class StaticChecker(BaseVisitor,Utils):
     global_envi = []
@@ -100,8 +105,8 @@ class StaticChecker(BaseVisitor,Utils):
         if 'Program' not in self.classMap:
             raise NoEntryPoint()
 
-        for i, j in self.classMap.items():
-            print(f"{i}: {[str(k) for k in j]}")
+        # Print current self.classMap
+        Checker.cprint(self.classMap)
 
         # Somehow if I don't clear this, the later on testcase will still inherits the previous class
         self.classMap.clear()
@@ -135,11 +140,13 @@ class StaticChecker(BaseVisitor,Utils):
     # kind: SIKind 
     # decl: StoreDecl 
     def visitAttributeDecl(self, ast, c):
-        c[0].append(self.visit(ast.decl, c))
+        sym = self.visit(ast.decl, c)
+        c[0].append(sym)
+        return sym
 
     def visitConstDecl(self, ast, c):
         if self.lookup(ast.constant, c[self.blockDepth], lambda x: x.name):
-            if self.blockDepth == 0:
+            if self.blockDepth == 0: # For Attribute at bottom of stack
                 raise Redeclared(Attribute(), ast.constant.name)
             else:
                 raise Redeclared(Constant(), ast.constant.name)
@@ -161,7 +168,7 @@ class StaticChecker(BaseVisitor,Utils):
 
     def visitVarDecl(self, ast, c):
         if self.lookup(ast.variable, c[self.blockDepth], lambda x: x.name):
-            if self.blockDepth == 0:
+            if self.blockDepth == 0: # For Attribute at bottom of stack
                 raise Redeclared(Attribute(), ast.variable.name)
             else:
                 raise Redeclared(Variable(), ast.variable.name)
@@ -203,6 +210,17 @@ class StaticChecker(BaseVisitor,Utils):
 
         # Get the return type of that method
         returnType = self.visit(ast.body, c)
+
+        print(f"ast = {ast.body}, ret = {returnType}")
+
+        # Entry function: main()
+        if str(ast.name.name) == 'main' and str(ast.kind) == 'Static':
+            if not returnType:
+                returnType = VoidType()
+            else:
+                if type(returnType) != VoidType:
+                    raise TypeMismatchInStatement(ast)
+
         sym.mtype.rettype = returnType
 
         return sym
@@ -303,9 +321,11 @@ class StaticChecker(BaseVisitor,Utils):
     # lhs: Expr
     # exp: Expr
     def visitAssign(self, ast, c):
-        lhsType = self.visit(ast.lhs, c)
+        # rhs first because rhs will be checked before lhs
+        # http://e-learning.hcmut.edu.vn/mod/forum/discuss.php?d=158007
         rhsType = self.visit(ast.exp, c)
-
+        lhsType = self.visit(ast.lhs, c)
+        
         # Type-cast a stmt: FloatType = IntType 
         if type(lhsType) == FloatType and type(rhsType) == IntType:
             return
@@ -389,12 +409,11 @@ class StaticChecker(BaseVisitor,Utils):
         # fieldname: Id
 
         if type(ast.obj) == SelfLiteral:
-            x = self.lookup(ast.fieldname, c[1], lambda x: x.name)
+            x = self.lookup(ast.fieldname, c[0], lambda x: x.name)
             if not x:
                 raise Undeclared(Attribute(), ast.fieldname.name)
             else:
                 return x.mtype
-
 
     # <--- Type visitor --->
     # class Id(LHS):
@@ -402,10 +421,10 @@ class StaticChecker(BaseVisitor,Utils):
     def visitId(self, ast, c):
         # Exclude the first element and traverse the stack from the top
         for i in reversed(c[1:]):
-            j = self.lookup(ast, i, lambda x: x.name)
-        if not j:
-            raise Undeclared(Identifier(), ast.name)
-        return j.mtype
+            sym = self.lookup(ast, i, lambda x: x.name)
+            if sym: return sym.mtype
+
+        raise Undeclared(Identifier(), ast.name)
 
     def visitIntLiteral(self, ast, c):
         return IntType()
