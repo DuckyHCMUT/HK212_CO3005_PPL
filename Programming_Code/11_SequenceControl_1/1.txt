@@ -1,0 +1,11 @@
+    def visitId(self, ctx, o):
+        for i in o.sym:
+            if i.name == ctx.name:
+                if o.isLeft == False:
+                    if isinstance(i.value.value, int):
+                        return self.emit.emitREADVAR(i.name, i.mtype, i.value.value, o.frame), i.mtype
+                    return self.emit.emitGETSTATIC(i.value.value + '/' + i.name, i.mtype, o.frame), i.mtype
+                else:
+                    if isinstance(i.value.value, int):
+                        return self.emit.emitWRITEVAR(i.name, i.mtype, i.value.value, o.frame), i.mtype
+                    return self.emit.emitPUTSTATIC(i.value.value + '/' + i.name, i.mtype, o.frame), i.mtype

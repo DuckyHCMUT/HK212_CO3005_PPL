@@ -81,10 +81,11 @@ class Checker(BaseVisitor,Utils):
 
 class StaticChecker(BaseVisitor,Utils):
     global_envi = []
-    classMap = {}
-    blockDepth = 0
 
     def __init__(self,ast):
+        self.classMap = {}
+        self.blockDepth = 0
+        self.isInLoop = False
         self.ast = ast
     
     def check(self):
@@ -108,8 +109,6 @@ class StaticChecker(BaseVisitor,Utils):
         # Print current self.classMap
         Checker.cprint(self.classMap)
 
-        # Somehow if I don't clear this, the later on testcase will still inherits the previous class
-        self.classMap.clear()
         return []
 
     # class ClassDecl(Decl):
@@ -161,7 +160,7 @@ class StaticChecker(BaseVisitor,Utils):
         valueType = self.visit(ast.value, c)
 
         # Raise error because type mismatch
-        if type(valueType) != type(constType):
+        if str(valueType) != str(constType):
             raise TypeMismatchInConstant(ast)
 
         return Symbol(name, constType, value)
@@ -169,7 +168,7 @@ class StaticChecker(BaseVisitor,Utils):
     def visitVarDecl(self, ast, c):
         if self.lookup(ast.variable, c[self.blockDepth], lambda x: x.name):
             if self.blockDepth == 0: # For Attribute at bottom of stack
-                raise Redeclared(Attribute(), ast.variable.name)
+                raise Redeclared(str(Attribute()), str(ast.variable.name))
             else:
                 raise Redeclared(Variable(), ast.variable.name)
 
@@ -180,7 +179,7 @@ class StaticChecker(BaseVisitor,Utils):
 
         # Raise error because type mismatch and if only there is value
         if valueType:
-            if type(valueType) != type(varType):
+            if str(valueType) != str(varType):
                 raise TypeMismatchInStatement(ast)
 
         return Symbol(name, varType, value)
@@ -210,8 +209,6 @@ class StaticChecker(BaseVisitor,Utils):
 
         # Get the return type of that method
         returnType = self.visit(ast.body, c)
-
-        print(f"ast = {ast.body}, ret = {returnType}")
 
         # Entry function: main()
         if str(ast.name.name) == 'main' and str(ast.kind) == 'Static':
@@ -283,15 +280,40 @@ class StaticChecker(BaseVisitor,Utils):
 
     # Continue stmt
     def visitContinue(self, ast, c):
-        return 
+        if self.isInLoop:
+            return
+        raise MustInLoop(ast) 
 
     # Break stmt
     def visitBreak(self, ast, c):
-        return
+        if self.isInLoop:
+            return
+        raise MustInLoop(ast)
 
     # Gonna be very long
+    # class For(Stmt):
+    # id: Id
+    # expr1: Expr
+    # expr2: Expr 
+    # loop: Stmt
+    # expr3: Expr = None
     def visitFor(self, ast, c):
-        return
+        scalar = self.visit(ast.id, c)
+        expr1 = self.visit(ast.expr1, c)
+        expr2 = self.visit(ast.expr2, c)
+        expr3 = self.visit(ast.expr3, c) if ast.expr3 else None
+
+        if type(scalar) != IntType or type(expr1) != IntType or type(expr2) != IntType:
+            raise TypeMismatchInStatement(ast)
+        
+        if type(expr3) != IntType:
+            raise TypeMismatchInStatement(ast)
+
+        # Check loop block
+        c.append([])
+        self.isInLoop = True
+        ret = self.visit(ast.loop, c)
+        self.isInLoop = False
 
     # class If(Stmt):
     # expr: Expr
@@ -330,7 +352,7 @@ class StaticChecker(BaseVisitor,Utils):
         if type(lhsType) == FloatType and type(rhsType) == IntType:
             return
 
-        if type(lhsType) != type(rhsType):
+        if str(lhsType) != str(rhsType):
             raise TypeMismatchInStatement(ast)
 
     # class BinaryOp(Expr):
@@ -403,7 +425,6 @@ class StaticChecker(BaseVisitor,Utils):
     def visitArrayCell(self, ast, c):
         return
 
-    
     def visitFieldAccess(self, ast, c):
         # obj: Expr
         # fieldname: Id
@@ -437,9 +458,20 @@ class StaticChecker(BaseVisitor,Utils):
 
     def visitStringLiteral(self, ast, c):
         return StringType()
-
+ 
     def visitArrayLiteral(self, ast, c):
-        return ArrayType()
+        # Raise Type mismatch if length of array literal is 0
+        if len(ast.value) == 0:
+            raise TypeMismatchInExpression(ast)
+
+        # Check if all element in the list is the same type as first one
+        typ = type(self.visit(ast.value[0], c))
+
+        if all(isinstance(self.visit(x, c), typ) for x in ast.value):
+            # Can be any, but [0] is the safest
+            return ArrayType(len(ast.value), self.visit(ast.value[0], c))
+        else:
+            raise TypeMismatchInExpression(ast)
 
     def visitSelfLiteral(self, ast, c):
         return ClassType()

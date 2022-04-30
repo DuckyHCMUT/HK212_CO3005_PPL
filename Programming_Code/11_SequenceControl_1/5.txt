@@ -1,0 +1,15 @@
+    def visitFuncDecl(self,ctx,o):
+        paraType = list(map(lambda x: x.typ, ctx.param))
+        funcType = MType(paraType, ctx.returnType)
+        self.emit.printout(self.emit.emitMETHOD(ctx.name, funcType, True))
+        message = SubBody(Frame(ctx.name, ctx.returnType), o.sym.copy())
+        message.frame.enterScope(True)
+        paraSymbolList = list(map(lambda x: x.accept(self, message), ctx.param))
+        message.sym[:0] = paraSymbolList[::-1]
+        varSymbolList = list(map(lambda x: x.accept(self, message), ctx.body[0]))
+        message.sym[:0] = varSymbolList[::-1]
+        self.emit.printout(self.emit.emitLABEL(message.frame.getStartLabel(), message.frame))
+        list(map(lambda b: b.accept(self, message), ctx.body[1]))
+        self.emit.printout(self.emit.emitLABEL(message.frame.getEndLabel(), message.frame))
+        self.emit.printout(self.emit.emitENDMETHOD(message.frame))
+        return Symbol(ctx.name, funcType, CName(self.className))

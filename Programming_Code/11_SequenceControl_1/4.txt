@@ -1,0 +1,11 @@
+    def visitWhile(self,ctx,o):
+        o.frame.enterLoop()
+        labelExit = o.frame.getBreakLabel()
+        self.emit.printout(self.emit.emitLABEL(o.frame.getContinueLabel(), o.frame))
+        if_exprCode, if_exprType = ctx.expr.accept(self, Access(o.frame, o.sym, False))
+        self.emit.printout(if_exprCode)
+        self.emit.printout(self.emit.emitIFFALSE(labelExit, o.frame))
+        ctx.stmt.accept(self, o)
+        self.emit.printout(self.emit.emitGOTO(o.frame.getContinueLabel(), o.frame))
+        self.emit.printout(self.emit.emitLABEL(labelExit, o.frame))
+        o.frame.exitLoop()
