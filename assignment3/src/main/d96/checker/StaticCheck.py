@@ -25,13 +25,14 @@ class MType:
         return 'MType([' + ','.join([str(i) for i in self.partype]) + '],' + str(self.rettype) + ')'
 
 class Symbol:
-    def __init__(self, name, mtype, value = None):
+    def __init__(self, name, mtype, declType, value = None):
         self.name = name
         self.mtype = mtype
+        self.declType = declType
         self.value = value
 
     def __str__(self):
-        return 'Symbol(' + str(self.name) + ',' + str(self.mtype) + ',' + str(self.value) + ')'
+        return 'Symbol(' + str(self.name) + ',' + str(self.mtype) + ',' + str(self.declType) + ',' + str(self.value) + ')'
 
 class Checker(BaseVisitor,Utils):
     utils = Utils()
@@ -86,6 +87,8 @@ class StaticChecker(BaseVisitor,Utils):
         self.classMap = {}
         self.blockDepth = 0
         self.isInLoop = False
+        self.isInMain = False
+        self.isInLHS = False
         self.ast = ast
     
     def check(self):
@@ -100,14 +103,15 @@ class StaticChecker(BaseVisitor,Utils):
             if x.classname.name in self.classMap:
                 raise Redeclared(Class(), x.classname.name)
             else:
-                self.classMap[x.classname.name] = self.visit(x, self.classMap)
+                self.classMap[x.classname.name] = []
+                self.visit(x, self.classMap)
 
         # Check no entry
         if 'Program' not in self.classMap:
             raise NoEntryPoint()
 
         # Print current self.classMap
-        Checker.cprint(self.classMap)
+        # Checker.cprint(self.classMap)
 
         return []
 
@@ -122,18 +126,15 @@ class StaticChecker(BaseVisitor,Utils):
 
         # If a Class name inherits the same Superclass name, Undeclared Class will be raised
         if ast.parentname:
-            if ast.classname == ast.parentname:
-                raise Undeclared(Class(), ast.parentname.name)
-
-        # Raise error if this class inherits undeclared class
-        if ast.parentname:
-            if not self.lookup(ast.parentname, c, lambda x: x.name):
+            if ast.classname == ast.parentname or ast.parentname.name not in self.classMap:
                 raise Undeclared(Class(), ast.parentname.name)
 
         # Model: Stack of block [] --> [ [] ] --> [ [], [], ...]
         c = [[]]
-        return [self.visit(x, c) for x in ast.memlist]
-        
+
+        for x in ast.memlist:
+            mem = self.visit(x, c)
+            self.classMap[ast.classname.name].append(mem)
 
     # class AttributeDecl(MemDecl):
     # kind: SIKind 
@@ -163,7 +164,8 @@ class StaticChecker(BaseVisitor,Utils):
         if str(valueType) != str(constType):
             raise TypeMismatchInConstant(ast)
 
-        return Symbol(name, constType, value)
+        return Symbol(name, constType, 'Const', value)
+
 
     def visitVarDecl(self, ast, c):
         if self.lookup(ast.variable, c[self.blockDepth], lambda x: x.name):
@@ -182,7 +184,7 @@ class StaticChecker(BaseVisitor,Utils):
             if str(valueType) != str(varType):
                 raise TypeMismatchInStatement(ast)
 
-        return Symbol(name, varType, value)
+        return Symbol(name, varType, 'Var', value)
 
     # class MethodDecl(MemDecl):
     # kind: SIKind
@@ -204,19 +206,16 @@ class StaticChecker(BaseVisitor,Utils):
             typeList.append(i.varType)
 
         # Create a new symbol and immediately pass into the body block
-        sym = Symbol(ast.name, MType(typeList, []), None)
+        sym = Symbol(ast.name, MType(typeList, []), ast.kind, None)
         c[0].append(sym)
 
         # Get the return type of that method
-        returnType = self.visit(ast.body, c)
-
         # Entry function: main()
         if str(ast.name.name) == 'main' and str(ast.kind) == 'Static':
-            if not returnType:
-                returnType = VoidType()
-            else:
-                if type(returnType) != VoidType:
-                    raise TypeMismatchInStatement(ast)
+            self.isInMain = True
+        returnType = self.visit(ast.body, c)
+        if self.isInMain:
+            self.isInMain = False
 
         sym.mtype.rettype = returnType
 
@@ -251,27 +250,65 @@ class StaticChecker(BaseVisitor,Utils):
                 c[self.blockDepth].append(self.visit(i, c))
             elif type(i) == Block:
                 c.append([])
-                r = self.visit(i, c)
-                if r:
-                    retType = r
-            else:
-                r = self.visit(i, c)
-                if r:
-                    retType = r
+                retType = self.visit(i, c)
+            # def visitReturn(self, ast, c):
+            # return self.visit(ast.expr, c) if ast.expr else VoidType()
+            elif type(i) == Return:
+                retType = self.visit(i, c)
+                if self.isInMain:
+                    if retType:
+                        if type(retType) != VoidType:
+                            raise TypeMismatchInStatement(i)
+            else: 
+                self.visit(i, c)
         
         # Checker.fprint(c)
         c.pop()
         self.blockDepth -= 1
 
         print(f"================== End of {ast} ===================\n")
-        return retType
+        return retType if retType else VoidType()
 
     # class CallStmt(Stmt):
     # obj: Expr
     # method: Id
     # param: List[Expr]                                      
     def visitCallStmt(self, ast, c):
-        pass
+        if type(ast.obj) == SelfLiteral:
+            x = self.lookup(ast.method, c[0], lambda x: x.name)
+            if not x:
+                raise Undeclared(Method(), ast.method.name)
+            else:
+                if x.mtype.partype != [self.visit(i, c) for i in ast.param]:
+                    raise TypeMismatchInStatement(ast)
+        else:
+            # Indicate static method, only invokable through class::static_method
+            if '$' in str(ast.method.name):
+                # Undeclared class
+                if ast.obj.name not in self.classMap:
+                    raise Undeclared(Class(), ast.obj.name)
+                else: 
+                    x = self.lookup(ast.method, self.classMap[ast.obj.name], lambda x: x.name)
+                    if not x:
+                        raise Undeclared(Method(), ast.method.name)
+                    else:
+                        # Check for parameter compatibility
+                        if x.mtype.partype != [self.visit(i, c) for i in ast.param]:
+                            raise TypeMismatchInStatement(ast)
+            # Indicate instance method, invokable through object.instance_methodz
+            else:
+                classType = self.visit(ast.obj, c)
+                x = self.lookup(ast.method, self.classMap[classType.classname.name], lambda x: x.name)
+                if not x:
+                    raise Undeclared(Method(), ast.method.name)
+                else:
+                    # The member found was an attribute
+                    if type(x.mtype) != MType:
+                        raise IllegalMemberAccess(ast)
+                    else:
+                        if x.mtype.partype != [self.visit(i, c) for i in ast.param]:
+                            raise TypeMismatchInStatement(ast)
+                        # Check for parameter compatibility
 
     # class Return(Stmt):
     # expr: Expr = None
@@ -290,7 +327,6 @@ class StaticChecker(BaseVisitor,Utils):
             return
         raise MustInLoop(ast)
 
-    # Gonna be very long
     # class For(Stmt):
     # id: Id
     # expr1: Expr
@@ -298,22 +334,22 @@ class StaticChecker(BaseVisitor,Utils):
     # loop: Stmt
     # expr3: Expr = None
     def visitFor(self, ast, c):
-        scalar = self.visit(ast.id, c)
         expr1 = self.visit(ast.expr1, c)
         expr2 = self.visit(ast.expr2, c)
-        expr3 = self.visit(ast.expr3, c) if ast.expr3 else None
+        expr3 = self.visit(ast.expr3, c)
 
-        if type(scalar) != IntType or type(expr1) != IntType or type(expr2) != IntType:
+        if type(expr1) != IntType or type(expr2) != IntType or type(expr3) != IntType:
             raise TypeMismatchInStatement(ast)
-        
-        if type(expr3) != IntType:
-            raise TypeMismatchInStatement(ast)
+
+        scalar = Symbol(ast.id, IntType(), expr1)
 
         # Check loop block
-        c.append([])
+        c.append([scalar])
         self.isInLoop = True
         ret = self.visit(ast.loop, c)
         self.isInLoop = False
+
+        return ret if ret else VoidType()
 
     # class If(Stmt):
     # expr: Expr
@@ -346,8 +382,17 @@ class StaticChecker(BaseVisitor,Utils):
         # rhs first because rhs will be checked before lhs
         # http://e-learning.hcmut.edu.vn/mod/forum/discuss.php?d=158007
         rhsType = self.visit(ast.exp, c)
-        lhsType = self.visit(ast.lhs, c)
+
+        if type(ast.lhs) == CallExpr:
+            raise TypeMismatchInStatement(ast)
         
+        self.isInLHS = True
+        lhsType = self.visit(ast.lhs, c)
+        self.isInLHS = False
+
+        if type(lhsType) == int:
+            raise CannotAssignToConstant(ast)
+
         # Type-cast a stmt: FloatType = IntType 
         if type(lhsType) == FloatType and type(rhsType) == IntType:
             return
@@ -416,11 +461,53 @@ class StaticChecker(BaseVisitor,Utils):
             if type(unTyp) is BoolType: return BoolType()
         raise TypeMismatchInExpression(ast)
 
+    # class CallExpr(Expr):
+    # obj: Expr
+    # method: Id
+    # param: List[Expr]
     def visitCallExpr(self, ast, c):
-        return
+        if type(ast.obj) == SelfLiteral:
+            x = self.lookup(ast.method, c[0], lambda x: x.name)
+            if not x:
+                raise Undeclared(Method(), ast.method.name)
+            else:
+                if x.mtype.partype != [self.visit(i, c) for i in ast.param]:
+                    raise TypeMismatchInExpression(ast)
+                else:
+                    return x.mtype.rettype
+        else:
+            # Indicate static method, only invokable through class::static_method
+            if '$' in str(ast.method.name):
+                # Undeclared class
+                if ast.obj.name not in self.classMap:
+                    raise Undeclared(Class(), ast.obj.name)
+                else: 
+                    x = self.lookup(ast.method, self.classMap[ast.obj.name], lambda x: x.name)
+                    if not x:
+                        raise Undeclared(Method(), ast.method.name)
+                    else:
+                        if x.mtype.partype != [self.visit(i, c) for i in ast.param]:
+                            raise TypeMismatchInExpression(ast)
+                        else:
+                            return x.mtype.rettype
 
+    # class NewExpr(Expr):
+    # classname: Id
+    # param: List[Expr]
     def visitNewExpr(self, ast, c):
-        return
+        # Check undeclared class
+        if ast.classname.name not in self.classMap:
+            raise Undeclared(Class(), ast.classname.name)
+        # Declared
+        else:
+            constructor = self.lookup(Id('Constructor'), self.classMap[ast.classname.name], lambda x: x.name)
+            if not constructor:
+                raise Undeclared(SpecialMethod(), 'Constructor')
+            else:
+                paramList = [self.visit(i, c) for i in ast.param]
+                if paramList != constructor.mtype.partype:
+                    raise TypeMismatchInExpression(ast)
+            return ClassType(ast.classname)
 
     def visitArrayCell(self, ast, c):
         return
@@ -428,13 +515,35 @@ class StaticChecker(BaseVisitor,Utils):
     def visitFieldAccess(self, ast, c):
         # obj: Expr
         # fieldname: Id
-
         if type(ast.obj) == SelfLiteral:
             x = self.lookup(ast.fieldname, c[0], lambda x: x.name)
             if not x:
                 raise Undeclared(Attribute(), ast.fieldname.name)
             else:
-                return x.mtype
+                if self.isInLHS:
+                    if str(x.declType) == 'Const':
+                        return -1 # Flag indicate assigned to constant
+                    else:
+                        return x.mtype
+                else:
+                    return x.mtype
+        else:
+            # Static field: E::$a
+            if '$' in str(ast.fieldname.name):
+                if ast.obj.name not in self.classMap:
+                    raise Undeclared(Class(), ast.obj.name)
+                else: 
+                    x = self.lookup(ast.fieldname, self.classMap[ast.obj.name], lambda x: x.name)
+                    if not x:
+                        raise Undeclared(Attribute(), ast.fieldname.name)
+                    else:
+                        return x.mtype
+            # Instance field: e.a where e is object of class E
+            else:
+                if ast.obj.name in self.classMap:
+                    raise IllegalMemberAccess(ast)
+                else:
+                    raise Undeclared(Class(), ast.obj.name)
 
     # <--- Type visitor --->
     # class Id(LHS):
@@ -442,9 +551,15 @@ class StaticChecker(BaseVisitor,Utils):
     def visitId(self, ast, c):
         # Exclude the first element and traverse the stack from the top
         for i in reversed(c[1:]):
-            sym = self.lookup(ast, i, lambda x: x.name)
-            if sym: return sym.mtype
-
+            x = self.lookup(ast, i, lambda x: x.name)
+            if x: 
+                if self.isInLHS:
+                    if str(x.declType) == 'Const':
+                        return -1 # Flag indicate assigned to constant
+                    else:
+                        return x.mtype
+                else:
+                    return x.mtype
         raise Undeclared(Identifier(), ast.name)
 
     def visitIntLiteral(self, ast, c):
@@ -471,7 +586,7 @@ class StaticChecker(BaseVisitor,Utils):
             # Can be any, but [0] is the safest
             return ArrayType(len(ast.value), self.visit(ast.value[0], c))
         else:
-            raise TypeMismatchInExpression(ast)
+            raise IllegalArrayLiteral(ast)
 
     def visitSelfLiteral(self, ast, c):
         return ClassType()

@@ -1,0 +1,30 @@
+def visitBinExpr(self, ctx, o):
+        ast = ctx
+        frame = o.frame
+        (code, _) = ast.e1.accept(self, o)
+        code += self.emit.emitDUP(frame)
+        if ast.op == "&&":
+            false_label = frame.getNewLabel()
+            code += self.emit.emitIFFALSE(false_label, frame)
+            (_code, _) = ast.e2.accept(self, o)
+            code += _code
+            code += self.emit.emitANDOP(frame)
+            end_bin = frame.getNewLabel()
+            code += self.emit.emitGOTO(end_bin, frame)
+            code += self.emit.emitLABEL(false_label, frame)
+            code += self.emit.emitPOP(frame)
+            code += self.emit.emitPUSHICONST("false", frame)
+            code += self.emit.emitLABEL(end_bin, frame)
+        else:
+            true_label = frame.getNewLabel()
+            code += self.emit.emitIFTRUE(true_label, frame)
+            (_code, _) = ast.e2.accept(self, o)
+            code += _code
+            code += self.emit.emitOROP(frame)
+            end_bin = frame.getNewLabel()
+            code += self.emit.emitGOTO(end_bin, frame)
+            code += self.emit.emitLABEL(true_label, frame)
+            code += self.emit.emitPOP(frame)
+            code += self.emit.emitPUSHICONST("true", frame)
+            code += self.emit.emitLABEL(end_bin, frame)
+        return code, BoolType()
