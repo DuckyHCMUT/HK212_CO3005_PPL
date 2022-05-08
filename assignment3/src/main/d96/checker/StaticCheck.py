@@ -428,7 +428,7 @@ class StaticChecker(BaseVisitor,Utils):
         if type(expr1) != IntType or type(expr2) != IntType or type(expr3) != IntType:
             raise TypeMismatchInStatement(ast)
 
-        scalar = Symbol(ast.id, IntType(), expr1)
+        scalar = Symbol(ast.id, IntType(), 'Var', expr1)
 
         # Check loop block
         c.append([scalar])
