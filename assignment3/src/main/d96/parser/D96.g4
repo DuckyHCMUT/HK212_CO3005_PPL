@@ -81,7 +81,7 @@ var_array_pair: COMMA ID var_array_pair array_rhs COMMA | COLON var_array_decl_t
 var_array_decl_tail: ARRAY LS (prim_type | var_array_decl_tail) COMMA LITERAL_INT RS; // h
 
 
-array_rhs: literal_array | object_create;
+array_rhs: all_expr;
 
 assign_stmt: assign_lhs ASSIGN all_expr SEMI;
 

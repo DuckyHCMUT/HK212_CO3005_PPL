@@ -293,7 +293,6 @@ class CheckerSuite(unittest.TestCase):
                 Var s: Int = 5;
                 s = s - 1;
                 Self.fL = True;
-                Return s;
             }
             clearer(){
                 Self.fL = False;
@@ -317,7 +316,6 @@ class CheckerSuite(unittest.TestCase):
                 Var s: Int = 5;
                 s = s - 1;
                 Self.fL = True;
-                Return s;
             }
             clearer(){
                 Self.fL = False;
@@ -351,7 +349,6 @@ class CheckerSuite(unittest.TestCase):
                 Var s: Int = 5;
                 s = s - 1;
                 Self.fL = True;
-                Return s;
             }
             clearer(){
                 Self.fL = False;
@@ -430,7 +427,6 @@ class CheckerSuite(unittest.TestCase):
                 Foreach (_ In 1 .. size By size/20){
                     s = s+. str;
                 }
-                Return s;
             }
             doWhat(){
                 UI::$what("nana", 100);
@@ -503,7 +499,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }    
         """
-        expect = "Type Mismatch In Statement: Return(IntLit(123))"
+        expect = "No Entry Point"
         self.assertTrue(TestChecker.test(input, expect, 525))
     
     # For test 526 - 528
@@ -786,7 +782,7 @@ class CheckerSuite(unittest.TestCase):
         expect = "[]"
         self.assertTrue(TestChecker.test(input, expect, 541))
 
-    def test_call_stmt_ok_542(self):
+    def test_call_stmt_error_542(self):
         input = """
         Class A{
             foo(a: Int){
@@ -808,11 +804,11 @@ class CheckerSuite(unittest.TestCase):
                 Var s: String = "a";
                 s = Self.b.foo.foo(1);
                 s = b.foo.foo(1);
-                s = A::$foo(2);
+                A::$foo("2");
             }    
         }
         """
-        expect = "[]"
+        expect = "Type Mismatch In Statement: Call(Id(A),Id($foo),[StringLit(2)])"
         self.assertTrue(TestChecker.test(input, expect, 542))
 
     def test_array_cell_ok_543(self):
@@ -1011,6 +1007,82 @@ class CheckerSuite(unittest.TestCase):
         """
         expect = "Illegal Member Access: FieldAccess(Id(abc),Id($a))"
         self.assertTrue(TestChecker.test(input, expect, 553))
+
+    def test_type_coerce_in_decl_ok_554(self):
+        input = """
+        Class Program {
+            main(){
+                Var x: Float = 0X1234ABCD;
+                Val y: Float = 0123321;
+                Return;
+            }
+        }
+        """
+        expect = "[]"
+        self.assertTrue(TestChecker.test(input, expect, 554))
+
+    # Test Undeclared class and Undeclared identifier
+    # http://e-learning.hcmut.edu.vn/mod/forum/discuss.php?d=158366
+    def test_instance_invoke_undeclared_id_555(self):
+        input = """
+        Class Program{
+            main() {
+                Var b : Int = E.a;
+                Return;
+            }
+        }
+        """
+        expect = "Undeclared Identifier: E"
+        self.assertTrue(TestChecker.test(input, expect, 555))
+
+    def test_static_invoke_undeclared_class_556(self):
+        input = """
+        Class Program{
+            main() {
+                Var b : Int = E::$a;
+                Return;
+            }
+        }
+        """
+        expect = "Undeclared Class: E"
+        self.assertTrue(TestChecker.test(input, expect, 556))
+
+    def test_raise_vardecl_557(self):
+        input = """
+        Class Program{
+            main() {
+                Val a: Float = 9e4;
+                Var b: Boolean = 1 + (0B101011 - 5) * 0.4 + a;
+                Return;
+            }
+        }
+        """
+        expect = "Type Mismatch In Statement: VarDecl(Id(b),BoolType,BinaryOp(+,BinaryOp(+,IntLit(1),BinaryOp(*,BinaryOp(-,IntLit(43),IntLit(5)),FloatLit(0.4))),Id(a)))"
+        self.assertTrue(TestChecker.test(input, expect, 557))
+
+    def test_default_constructor_error_558(self):
+        input = """
+        Class C {}
+        Class A{
+            Var c: C = New C(); 
+            Var d: C = New C(1); 
+        }
+        """
+        expect = "Type Mismatch In Expression: NewExpr(Id(C),[IntLit(1)])"
+        self.assertTrue(TestChecker.test(input, expect, 558))
+    
+    def test_undeclared_class_in_var_559(self):
+        input = """
+        Class A {}
+        Class Program{
+            main() {
+                Var a: C = New C();
+                Return;
+            }
+        }
+        """
+        expect = "Undeclared Class: C"
+        self.assertTrue(TestChecker.test(input, expect, 559))
 
     def test_bkel_1_use_ast_596(self):
         input = Program(
