@@ -355,7 +355,7 @@ class CheckerSuite(unittest.TestCase):
             }
         }
         """
-        expect = "Type Mismatch In Statement: AssignStmt(Id(a),StringLit(ABC))"
+        expect = "Undeclared Identifier: x"
         self.assertTrue(TestChecker.test(input, expect, 1025))
 
     def test_random_thing_26(self):
@@ -606,21 +606,97 @@ class CheckerSuite(unittest.TestCase):
         expect = "Undeclared Class: B"
         self.assertTrue(TestChecker.test(input, expect, 1041))
 
-    # # Awaiting no Return; or Return None;
-    # def test_random_thing_19(self):
-    #     input = """
-    #     Class P {
-    #         Destructor() {
-    #             Return;
-    #         }
-    #     }
-    #     Class Program {
-    #         main() {
-    #             Var p : P;
-    #             Val a : Int = 1.2;
-    #         }
-    #     }
-    #     """
-    #     expect = "Type Mismatch In Statement: MethodDecl(Id(Destructor),Instance,[],Block([Return()]))"
-    #     self.assertTrue(TestChecker.test(input, expect, 829))
+    # Awaiting no Return; or Return None;
+    def test_random_thing_42(self):
+        input = """
+        Class P {
+            Destructor() {
+                Return;
+            }
+        }
+        Class Program {
+            main() {
+                Var p : P;
+                Val a : Int = 1.2;
+            }
+        }
+        """
+        expect = "Type Mismatch In Statement: Return()"
+        self.assertTrue(TestChecker.test(input, expect, 1042))
 
+    def test_random_thing_43(self):
+        input = """
+        Class A{
+            Val y:Int=10;
+        }
+        Class B{
+            Var x:A = New A();
+            func (){
+                Self.x.y = 1;
+            }
+        }"""
+        expect = "Cannot Assign To Constant: AssignStmt(FieldAccess(FieldAccess(Self(),Id(x)),Id(y)),IntLit(1))"
+        self.assertTrue(TestChecker.test(input, expect, 1043))
+
+    def test_random_thing_44(self):
+        input = """
+        Class A{
+            $method() {
+                Val a : Array[Int, 2] = Array(2, 2);
+                a[0] = 1;
+            }   
+        }
+        """
+        expect = "Cannot Assign To Constant: AssignStmt(ArrayCell(Id(a),[IntLit(0)]),IntLit(1))"
+        self.assertTrue(TestChecker.test(input, expect, 1044))
+
+    def test_foreach_loop_45(self):
+        input = """
+        Class Program {
+            Var x : Int = 1;
+            main() {
+                Return;
+            }
+            method() {
+                Foreach (b In 1 .. 10 By 1) {
+                    Val a : Int = 1;
+                }
+            }
+        }"""
+        expect = "Undeclared Identifier: b"
+        self.assertTrue(TestChecker.test(input, expect, 1045))
+
+    def test_foreach_loop_46(self):
+        input = """
+        Class Program {
+            Var x : Int = 1;
+            main() {
+                Return;
+            }
+            method() {
+                Var b : String = "Hello";
+                Foreach (b In 100 .. 10000 By 1) {
+                    Val a : Int = 1;
+                }
+            }
+        }"""
+        expect = "Type Mismatch In Statement: For(Id(b),IntLit(100),IntLit(10000),IntLit(1),Block([ConstDecl(Id(a),IntType,IntLit(1))])])"
+        self.assertTrue(TestChecker.test(input, expect, 1046))
+
+
+    def test_foreach_loop_47(self):
+        input = """
+        Class Program {
+            Var x : Int = 1;
+            main() {
+                Return;
+            }
+            method() {
+                Val b : Int = 1;
+                Foreach (b In 100 .. 10000 By 1) {
+                    Val a : Int = 1;
+                }
+            }
+        }"""
+        expect = "Cannot Assign To Constant: AssignStmt(Id(b),IntLit(100))"
+        self.assertTrue(TestChecker.test(input, expect, 1047))

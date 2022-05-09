@@ -6,13 +6,11 @@
 
 from AST import * 
 from Visitor import *
-#from Utils import Utils
 from StaticError import *
 
 class Utils:
     def lookup(self, name, lst, func, flag):
-        # FLAG: 
-        # 0 for Attribute/VarDecl/ConstDecl and 1 for Method
+        # FLAG: 0 for Attribute/VarDecl/ConstDecl and 1 for Method
         for x in lst:
             if name == func(x):
                 if (flag == 0 and type(x.mtype) != MType) or (flag == 1 and type(x.mtype) == MType):
@@ -42,8 +40,7 @@ class Checker(BaseVisitor,Utils):
 
     @staticmethod
     def checkNoEntry(memlist):
-        # Step 1: Check if Program does not have Program class --> raise, checked below
-        # Step 2 (This function): In Program class, check if main method is Static, if not --> raise
+        # Step 1: In Program class, check if main method is Static, if not --> raise
         # Step 2.1: If the main function is Static but return something (Did not check in assignment 2 - AST) --> raise
         for i in memlist:
             if type(i) is MethodDecl:
@@ -52,59 +49,45 @@ class Checker(BaseVisitor,Utils):
         raise NoEntryPoint()
 
     @staticmethod
-    def checkRedeclared(sym, kind, c):
-        if Checker.utils.lookup(sym.name, c, lambda x: x.name):
-            raise Redeclared(kind, sym.name.name)
-        return sym
-
-    @staticmethod
-    def checkParam(left, right):
+    def checkParam(left, right, ast):
         # Left: x.mtype.partype (accept side)
         # Right: param (to be passed side)
+        # AST: ast to be raised if error occurs
         if len(left) != len(right):
-            return False
+            raise TypeMismatchInStatement(ast) if type(ast) == CallStmt else TypeMismatchInExpression(ast)
         
         for i, j in zip(left, right):
             if str(i) != str(j):
-                if not (type(i) == ClassType and type(j) == NullLiteral)\
-                and (type(i) == NullLiteral and type(j) == ClassType)\
-                and (type(i) == FloatType and type(j) == IntType):
-                    return False
-        return True
+                if (type(i) == ClassType and type(j) == NullLiteral)\
+                or (type(i) == FloatType and type(j) == IntType):
+                    continue
+                else:   
+                    raise TypeMismatchInStatement(ast) if type(ast) == CallStmt else TypeMismatchInExpression(ast)
+        return
     
-    # @staticmethod
-    # def fprint(c, blockDepth):
-    #     for i in c:
-    #         print("[" + ' --> '.join([str(j) for j in i]) +"]")
-    #     print(f"Current block depth: {blockDepth}")
-
-    # @staticmethod
-    # def cprint(currMap):
-    #     for i, j in currMap.items():
-    #         print(f"{i}: {[str(k) for k in j]}")
-
-
 class StaticChecker(BaseVisitor,Utils):
     global_envi = []
 
     def __init__(self,ast):
         self.classMap = {}
+
+        # Flag list
         self.blockDepth = 0
         self.loopDepth = 0
         self.isInMain = False
+        self.isInDestructor = False
         self.isInLHS = False
         self.isConstDecl = False
-        self.checkStatic = False
         self.willRaiseError = False
         self.checkClass = False
+        
         self.ast = ast
     
+
     def check(self):
         return self.visit(self.ast, StaticChecker.global_envi)
 
-# Visit the Program section
-    # class Program(AST):
-    # decl: List[ClassDecl]
+
     def visitProgram(self, ast:Program, c):
         for x in ast.decl:
             # Check redeclared class
@@ -118,15 +101,9 @@ class StaticChecker(BaseVisitor,Utils):
         if 'Program' not in self.classMap:
             raise NoEntryPoint()
 
-        # Print current self.classMap
-        # Checker.cprint(self.classMap)
-
         return []
 
-    # class ClassDecl(Decl):
-    # classname: Id
-    # memlist: List[MemDecl]
-    # parentname: Id = None  # None if there is no parent
+
     def visitClassDecl(self, ast, c):
         # Check no entry point
         if ast.classname.name == 'Program':
@@ -144,13 +121,12 @@ class StaticChecker(BaseVisitor,Utils):
             mem = self.visit(x, c)
             self.classMap[ast.classname.name].append(mem)
 
-    # class AttributeDecl(MemDecl):
-    # kind: SIKind 
-    # decl: StoreDecl 
+
     def visitAttributeDecl(self, ast, c):
         sym = self.visit(ast.decl, c)
         c[0].append(sym)
         return sym
+
 
     def visitConstDecl(self, ast, c):
         if self.lookup(ast.constant, c[self.blockDepth], lambda x: x.name, 0):
@@ -174,7 +150,6 @@ class StaticChecker(BaseVisitor,Utils):
         valueType = self.visit(ast.value, c)
 
         if self.willRaiseError:
-            # print(f"type(ast.value) = {type(valueType)}")
             raise IllegalConstantExpression(ast.value)
 
         # Raise error because type mismatch, except type coerce
@@ -195,8 +170,6 @@ class StaticChecker(BaseVisitor,Utils):
 
         name = ast.variable
 
-        # Classtype and Undeclared Class
-        
         if type(ast.varType) == ClassType:
             if ast.varType.classname.name not in self.classMap:
                 raise Undeclared(Class(), ast.varType.classname.name)
@@ -208,18 +181,14 @@ class StaticChecker(BaseVisitor,Utils):
         # Raise error because type mismatch and if only there is value
         if valueType:
             if type(valueType) == NullLiteral:
-                return Symbol(name, varType, 'Var', value)
+                return Symbol(name, varType, 'Var', value) 
             if str(valueType) != str(varType):
                 if not (type(valueType) == IntType and type(varType) == FloatType):
                     raise TypeMismatchInStatement(ast)
 
         return Symbol(name, varType, 'Var', value)
 
-    # class MethodDecl(MemDecl):
-    # kind: SIKind
-    # name: Id
-    # param: List[VarDecl]
-    # body: Block
+
     def visitMethodDecl(self, ast, c):
         if self.lookup(ast.name, c[0], lambda x: x.name, 1):
             raise Redeclared(Method(), ast.name.name)
@@ -235,48 +204,39 @@ class StaticChecker(BaseVisitor,Utils):
             typeList.append(i.varType)
 
         # Create a new symbol and immediately pass into the body block
-        sym = Symbol(ast.name, MType(typeList, []), None, None)
+        sym = Symbol(ast.name, MType(typeList, []), 'Const', None)
         c[0].append(sym)
 
+        if (str(ast.name.name) == 'main' and str(ast.kind) == 'Static') or str(ast.name.name) == 'Constructor':
+            self.isInMain = True
+        if str(ast.name.name) == 'Destructor':
+            self.isInDestructor = True
+        
         # Get the return type of that method
-        # Entry function: main()
-        if str(ast.name.name) == 'main' and str(ast.kind) == 'Static':
-            self.isInMain = True
-        if str(ast.name.name) == 'Constructor' or str(ast.name.name) == 'Destructor':
-            self.isInMain = True
-
         returnType = self.visit(ast.body, c)
         
-        if self.isInMain:
-            if not returnType or type(returnType) != VoidType:
-                raise TypeMismatchInStatement(ast)
-            else:
-                self.isInMain = False
+        # Toggle flag
+        if self.isInMain: self.isInMain = False
+        if self.isInDestructor: self.isInDestructor = False
 
         sym.mtype.rettype = returnType
 
         return sym
+    
 
     def visitParam(self, ast, c):
         if self.lookup(ast.variable, c[1], lambda x: x.name, 0):
             raise Redeclared(Parameter(), ast.variable.name)
 
-        name = ast.variable
         varType = ast.varType
-        value = ast.varInit
-        valueType = self.visit(ast.varInit, c) if ast.varInit else None
+        if type(varType) == ClassType:
+            if varType.classname.name not in self.classMap:
+                raise Undeclared(Class(), varType.classname.name)
 
-        # Raise error because type mismatch and if only there is value
-        if valueType:
-            if type(valueType) != type(varType):
-                raise TypeMismatchInStatement(ast)
+        return Symbol(ast.variable, varType, 'Var', None)
 
-        return Symbol(name, varType, 'Var', value)
 
-    # class Block(Stmt):
-    # inst: List[Inst]
     def visitBlock(self, ast, c):
-        #print(f"===================== {ast} ======================\n")
         retType = None
 
         self.blockDepth += 1
@@ -288,8 +248,7 @@ class StaticChecker(BaseVisitor,Utils):
                 c.append([])
                 retType = self.visit(i, c)
             elif type(i) == CallStmt:
-                callType = self.visit(i, c)
-                if type(callType) != VoidType:
+                if type(self.visit(i, c)) != VoidType:
                     raise TypeMismatchInStatement(i)
             elif type(i) == Assign:
                 self.visit(i, c) # Nothing should be returned
@@ -304,42 +263,35 @@ class StaticChecker(BaseVisitor,Utils):
                 else:
                     if str(retType) != str(currRetType):
                         raise TypeMismatchInStatement(i)
-            else: 
-                retType = self.visit(i, c)
+            else:  # Continue, Break
+                self.visit(i, c)
         
-        # Checker.fprint(c)
         c.pop()
         self.blockDepth -= 1
 
-        #print(f"================== End of {ast} ===================\n")
         if self.blockDepth == 0:
             return retType if retType else VoidType()
         else:
             return retType
 
-    # class CallStmt(Stmt):
-    # obj: Expr
-    # method: Id
-    # param: List[Expr]                                      
+                                
     def visitCallStmt(self, ast, c):
         method = ast.method
         param = [self.visit(i, c) for i in ast.param]
 
         # Static access
         if '$' in str(method.name):
-            self.checkStatic = True
+            self.checkClass = True
             if ast.obj.name in self.classMap:
                 x = self.lookup(method, self.classMap[ast.obj.name], lambda x: x.name, 1)
                 if not x:
                     raise Undeclared(Method(), method.name)
                 else:
-                    if not Checker.checkParam(x.mtype.partype, param):
-                        raise TypeMismatchInStatement(ast)
-                    else:
-                        if self.isConstDecl:
-                            self.willRaiseError = True
-                        self.checkStatic = False
-                        return x.mtype.rettype
+                    Checker.checkParam(x.mtype.partype, param, ast)
+                    if self.isConstDecl:
+                        self.willRaiseError = True
+                    self.checkClass = False
+                    return x.mtype.rettype
             else:
                 x = self.visit(ast.obj, c)
                 if x:
@@ -364,8 +316,7 @@ class StaticChecker(BaseVisitor,Utils):
                                 self.willRaiseError = True
                                 return x.mtype.rettype
                             else:
-                                if not Checker.checkParam(x.mtype.partype, param):
-                                    raise TypeMismatchInStatement(ast)
+                                Checker.checkParam(x.mtype.partype, param, ast)
                                 self.checkClass = False
                                 return x.mtype.rettype
                         else:
@@ -374,8 +325,8 @@ class StaticChecker(BaseVisitor,Utils):
                                     self.willRaiseError = True
                                     return x.mtype
                             else:
-                                if not Checker.checkParam(x.mtype.partype, param):
-                                    raise TypeMismatchInStatement(ast)
+                                Checker.checkParam(x.mtype.partype, param, ast)
+
                                 self.checkClass = False
                                 return x.mtype.rettype
                 else:
@@ -386,51 +337,46 @@ class StaticChecker(BaseVisitor,Utils):
                 else:
                     raise Undeclared(Identifier(), ast.obj.name)
 
-    # class Return(Stmt):
-    # expr: Expr = None
+
     def visitReturn(self, ast, c):
+        if self.isInDestructor or (self.isInMain and ast.expr):
+            raise TypeMismatchInStatement(ast)
         return self.visit(ast.expr, c) if ast.expr else None
 
-    # Continue stmt
+
     def visitContinue(self, ast, c):
-        if self.loopDepth > 0:
-            return
-        raise MustInLoop(ast) 
+        if self.loopDepth <= 0: raise MustInLoop(ast) 
 
-    # Break stmt
+
     def visitBreak(self, ast, c):
-        if self.loopDepth > 0:
-            return
-        raise MustInLoop(ast)
+        if self.loopDepth <= 0: raise MustInLoop(ast)
 
-    # class For(Stmt):
-    # id: Id
-    # expr1: Expr
-    # expr2: Expr 
-    # loop: Stmt
-    # expr3: Expr = None
+
     def visitFor(self, ast, c):
+        self.isInLHS = True # Toggle LHS flag for Id
+        scalar = self.visit(ast.id, c)
+        self.isInLHS = False
+
+        if self.willRaiseError:
+            raise CannotAssignToConstant(Assign(ast.id, ast.expr1))
+
         expr1 = self.visit(ast.expr1, c)
         expr2 = self.visit(ast.expr2, c)
         expr3 = self.visit(ast.expr3, c)
 
-        if type(expr1) != IntType or type(expr2) != IntType or type(expr3) != IntType:
+
+        if not all(isinstance(x, IntType) for x in [scalar, expr1, expr2, expr3]):
             raise TypeMismatchInStatement(ast)
 
-        scalar = Symbol(ast.id, IntType(), 'Var', expr1)
-
         # Check loop block
-        c.append([scalar])
+        c.append([])
         self.loopDepth += 1
         ret = self.visit(ast.loop, c)
         self.loopDepth -= 1
 
         return ret if ret else None
 
-    # class If(Stmt):
-    # expr: Expr
-    # thenStmt: Stmt
-    # elseStmt: Stmt = None  # None if there is no else branch
+
     def visitIf(self, ast, c):
         evaType = self.visit(ast.expr, c)
         if type(evaType) != BoolType:
@@ -452,9 +398,7 @@ class StaticChecker(BaseVisitor,Utils):
 
             return elseRet
 
-    # class Assign(Stmt):
-    # lhs: Expr
-    # exp: Expr
+
     def visitAssign(self, ast, c):
         # rhs first because rhs will be checked before lhs
         # http://e-learning.hcmut.edu.vn/mod/forum/discuss.php?d=158007
@@ -474,10 +418,7 @@ class StaticChecker(BaseVisitor,Utils):
         if str(lhsType) != str(rhsType):
             raise TypeMismatchInStatement(ast)
 
-    # class BinaryOp(Expr):
-    # op: str
-    # left: Expr
-    # right: Expr
+
     def visitBinaryOp(self, ast, c):
         lType = self.visit(ast.left, c)
         rType = self.visit(ast.right, c)
@@ -485,78 +426,70 @@ class StaticChecker(BaseVisitor,Utils):
 
         # Operands can either be Float or Int, but not other
         if op in ['+', '-', '*', '/']:
-            if (type(lType) is FloatType and type(rType) is FloatType)\
-            or (type(lType) is FloatType and type(rType) is IntType)\
-            or (type(lType) is IntType and type(rType) is FloatType):
+            if (type(lType) == FloatType and type(rType) == FloatType)\
+            or (type(lType) == FloatType and type(rType) == IntType)\
+            or (type(lType) == IntType and type(rType) == FloatType):
                 return FloatType()
-            elif type(lType) is IntType and type(rType) is IntType:
+            elif type(lType) == IntType and type(rType) == IntType:
                 return IntType()
         # Operands must be both Int
         elif op == '%':
-            if type(lType) is IntType and type(rType) is IntType:
+            if type(lType) == IntType and type(rType) == IntType:
                 return IntType()
         # Operands must be both Boolean
         elif op in ['&&', '||']:
-            if type(lType) is BoolType and type(rType) is BoolType:   
+            if type(lType) == BoolType and type(rType) == BoolType:   
                 return BoolType()
         # Operands must be both String
         elif op == '+.':
-            if type(lType) is StringType and type(rType) is StringType:   
+            if type(lType) == StringType and type(rType) == StringType:   
                 return StringType()       
         # Operands must be both String
         elif op == '==.':
-            if type(lType) is StringType and type(rType) is StringType:   
+            if type(lType) == StringType and type(rType) == StringType:   
                 return BoolType()     
         # Operands must be Int-Float or Boolean only
         elif op in ['==', '!=']:
-            if type(lType) == type(rType):
-                if type(lType) in [IntType, BoolType]:
-                    return BoolType()
+            if type(lType) in [IntType, BoolType] and type(lType) == type(rType):
+                return BoolType()
         # Operands can either be Float or Int, but not other
         elif op in ['<', '<=', '>', '>=']:
-            validType = [IntType, FloatType]
-            if type(lType) in validType and type(rType) in validType:
+            if type(lType) in [IntType, FloatType] and type(rType) in [IntType, FloatType]:
                 return BoolType()
         # If none of above is valid, raise type mismatch in this expression
         raise TypeMismatchInExpression(ast)
 
-    # class UnaryOp(Expr):
-    # op: str - [] !
-    # body: Expr
+
     def visitUnaryOp(self, ast, c):
         unTyp = self.visit(ast.body, c)
         op = ast.op
 
         if op == '-':
-            if type(unTyp) is IntType: return IntType()
-            elif type(unTyp) is FloatType: return FloatType()
+            if type(unTyp) == IntType: return IntType()
+            elif type(unTyp) == FloatType: return FloatType()
         elif op == '!':
-            if type(unTyp) is BoolType: return BoolType()
+            if type(unTyp) == BoolType: return BoolType()
         raise TypeMismatchInExpression(ast)
 
-    # class CallExpr(Expr):
-    # obj: Expr
-    # method: Id
-    # param: List[Expr]
+
     def visitCallExpr(self, ast, c):
         method = ast.method
         param = [self.visit(i, c) for i in ast.param]
 
         # Static access
         if '$' in str(method.name):
-            self.checkStatic = True
+            self.checkClass = True
             if ast.obj.name in self.classMap:
                 x = self.lookup(method, self.classMap[ast.obj.name], lambda x: x.name, 1)
                 if not x:
                     raise Undeclared(Method(), method.name)
                 else:
-                    if not Checker.checkParam(x.mtype.partype, param):
-                        raise TypeMismatchInExpression(ast)
-                    else:
-                        if self.isConstDecl:
-                            self.willRaiseError = True
-                        self.checkStatic = False
-                        return x.mtype.rettype
+                    Checker.checkParam(x.mtype.partype, param, ast)
+                    
+                    if self.isConstDecl:
+                        self.willRaiseError = True
+                    self.checkClass = False
+                    return x.mtype.rettype
             else:
                 x = self.visit(ast.obj, c)
                 if x:
@@ -578,10 +511,11 @@ class StaticChecker(BaseVisitor,Utils):
                     if self.isConstDecl:
                         if str(x.declType) == 'Var':
                             self.willRaiseError = True
+                        Checker.checkParam(x.mtype.partype, param, ast)
                         return x.mtype.rettype
                     else:
-                        if not Checker.checkParam(x.mtype.partype, param):
-                            raise TypeMismatchInExpression(ast)
+                        Checker.checkParam(x.mtype.partype, param, ast)
+
                         self.checkClass = False
                         return x.mtype.rettype
                 else:
@@ -592,9 +526,7 @@ class StaticChecker(BaseVisitor,Utils):
                 else:
                     raise Undeclared(Identifier(), ast.obj.name)
 
-    # class NewExpr(Expr):
-    # classname: Id
-    # param: List[Expr]
+
     def visitNewExpr(self, ast, c):
         # Check undeclared class
         if ast.classname.name not in self.classMap:
@@ -611,28 +543,20 @@ class StaticChecker(BaseVisitor,Utils):
                     raise TypeMismatchInExpression(ast)
             else:
                 if paramList != constructor.mtype.partype:
-                   raise TypeMismatchInExpression(ast) 
+                    raise TypeMismatchInExpression(ast) 
             return ClassType(ast.classname)
 
-    # class ArrayCell(LHS):
-    # arr: Expr
-    # idx: List[Expr]
+
     def visitArrayCell(self, ast, c):
         arr = self.visit(ast.arr, c)
         idx = [self.visit(i, c) for i in ast.idx]
 
-        # Not in array type
-        if type(arr) != ArrayType:
-            raise TypeMismatchInExpression(ast)
-
         # Subscripting the incorrect type (Not IntType)
-        if not all(isinstance(i, IntType) for i in idx):
+        if type(arr) != ArrayType or not all(isinstance(i, IntType) for i in idx):
             raise TypeMismatchInExpression(ast)
-
         return self.processArrayCell(arr, c, len(idx) - 1)
 
-    # size: int
-    # eleType: Type
+
     def processArrayCell(self, ast, c, depth):
         if depth > 0:
             if type(ast.eleType) == ArrayType:
@@ -642,13 +566,12 @@ class StaticChecker(BaseVisitor,Utils):
         else:
             return ast.eleType
 
+
     def visitFieldAccess(self, ast, c):
-        # obj: Expr
-        # fieldname: Id
         fieldname = ast.fieldname
 
         if '$' in str(fieldname.name):
-            self.checkStatic = True
+            self.checkClass = True
             if ast.obj.name in self.classMap:
                 x = self.lookup(fieldname, self.classMap[ast.obj.name], lambda x: x.name, 0)
                 if not x:
@@ -665,7 +588,7 @@ class StaticChecker(BaseVisitor,Utils):
                         if self.isConstDecl:
                             if str(x.declType) == 'Var':
                                 self.willRaiseError = True
-                    self.checkStatic = False
+                    self.checkClass = False
                     return x.mtype
             else:
                 x = self.visit(ast.obj, c)
@@ -711,49 +634,41 @@ class StaticChecker(BaseVisitor,Utils):
                 else:
                     raise Undeclared(Identifier(), ast.obj.name)
 
-    # <--- Type visitor --->
-    # class Id(LHS):
-    # name: str
+
     def visitId(self, ast, c):
-        # Exclude the first element and traverse the stack from the top
+        # Exclude the first element (Class members) and traverse the stack from the top
         for i in reversed(c[1:]):
             x = self.lookup(ast, i, lambda x: x.name, 0)
             if x: 
                 if self.isInLHS:
                     if str(x.declType) == 'Const':
                         self.willRaiseError = True
-                        return x.mtype
-                    else:
-                        return x.mtype
-                else:
-                    if self.isConstDecl:
-                        if str(x.declType) == 'Var':
-                            self.willRaiseError = True
-                            return x.mtype                    
                     return x.mtype
-        if self.checkStatic or self.checkClass:
+                else:
+                    if self.isConstDecl and str(x.declType) == 'Var':
+                        self.willRaiseError = True     
+                    return x.mtype
+        if self.checkClass:
             return None
         raise Undeclared(Identifier(), ast.name)
+
 
     def visitIntLiteral(self, ast, c):
         return IntType()
 
+
     def visitFloatLiteral(self, ast, c):
         return FloatType()
+
 
     def visitBooleanLiteral(self, ast, c):
         return BoolType()
 
+
     def visitStringLiteral(self, ast, c):
         return StringType()
     
-    # class ArrayLiteral(Literal):
-    # value: List[Expr]
     def visitArrayLiteral(self, ast, c):
-        # Raise Type mismatch if length of array literal is 0
-        if len(ast.value) == 0:
-            raise IllegalArrayLiteral(ast)
-
         # Check if all element in the list is the same type as first one
         typList = [str(self.visit(i, c)) for i in ast.value]
 
@@ -762,8 +677,10 @@ class StaticChecker(BaseVisitor,Utils):
         else:
             raise IllegalArrayLiteral(ast)
 
+
     def visitSelfLiteral(self, ast, c):
         return ClassType(Id(list(self.classMap)[-1]))
+
 
     def visitNullLiteral(self, ast, c):
         return NullLiteral()
