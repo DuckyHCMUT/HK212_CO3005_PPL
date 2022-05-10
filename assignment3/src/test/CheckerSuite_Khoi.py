@@ -619,12 +619,13 @@ class CheckerSuite(unittest.TestCase):
         Class ABC {
             something() {
                 Val a : Int = 1;
+                Var b : Int;
                 If (True) {
                     Foreach (b In 1 .. 10 By -1) {
-                        Val a : Float = 1.0;
+                        Var a : Float = 1.0;
                     }
                 } Else {
-                    Val c : Int = 1;
+                    Var c : Int = 1;
                     Foreach (c In 10 .. 100) {
                         If (c == 1) {
                             Val d : String = "abc";
@@ -676,9 +677,10 @@ class CheckerSuite(unittest.TestCase):
             something() {
                 Val a : Int = 1;
                 If (a == 1) {
+                    Var b: Int = 0x1234;
                     Foreach (b In 1 .. 10 By -1) {
                         Val a : Float = 1.0;
-                        Val c : Float = 1;
+                        Var c : Int = 1;
                         If (a >= c + 1) {
                             Foreach (c In 1 .. 2 By 1) {
                                 Val d : Int = 1;
@@ -1978,3 +1980,4 @@ class CheckerSuite(unittest.TestCase):
         """
         expect = "Undeclared Class: E"
         self.assertTrue(TestChecker.test(input, expect, 807))
+        
