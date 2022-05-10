@@ -700,3 +700,83 @@ class CheckerSuite(unittest.TestCase):
         }"""
         expect = "Cannot Assign To Constant: AssignStmt(Id(b),IntLit(100))"
         self.assertTrue(TestChecker.test(input, expect, 1047))
+
+    def test_self_inheritance(self):
+        input = """
+        Class A : A{}
+        Class Program{main(){}}
+        """
+        expect = "Undeclared Class: A"
+        self.assertTrue(TestChecker.test(input, expect, 1048))
+
+    def test_constructor_1(self):
+        input = """
+        Class C {
+            Constructor(w : Int){}
+            Constructor(){}
+        }
+        Class A{
+            Var c: C = New C(); 
+            Var d: C = New C(1); 
+        }
+        """
+        expect = "Redeclared Method: Constructor"
+        self.assertTrue(TestChecker.test(input, expect, 1049))
+
+    def test_destructor_1(self):
+        input = """
+        Class C {
+            Destructor(){}
+            Destructor(){
+                Val a : Int = 1;
+            }
+        }
+        Class A{
+            Var c: C = New C(); 
+            Var d: C = New C(1); 
+        }
+        """
+        expect = "Redeclared Method: Destructor"
+        self.assertTrue(TestChecker.test(input, expect, 1050))
+
+    def test_random_thing_51(self):
+        input = """
+        Class A {
+            Var a : Int = 1.2;
+        }
+        """
+        expect = "Type Mismatch In Statement: VarDecl(Id(a),IntType,FloatLit(1.2))"
+        self.assertTrue(TestChecker.test(input, expect, 1051))
+
+    def test_self_inheritance(self):
+        input = """
+        Class A : A{}
+        Class Program{main(){}}
+        """
+        expect = "Undeclared Class: A"
+        self.assertTrue(TestChecker.test(input, expect, 1052))
+
+    def test_illegal_const_arr_1(self):
+        input = """
+        Class Program{
+            Var a: Int = 10; 
+            foo() { 
+                Val a : Array[Int, 3] = Array(Self.a, 1, 2);
+                Val b : Int = a[0];
+            }
+            main(){}
+        }
+        """
+        expect = "Illegal Constant Expression: [FieldAccess(Self(),Id(a)),IntLit(1),IntLit(2)]"
+        self.assertTrue(TestChecker.test(input, expect, 1053))
+
+    def test_confused_array(self):
+        input = """
+        Class A {
+            Var d, e: Int;
+            Val f: Array[Array[Int,1], 2] = Array( Array(Self.d), Array(Self.e) );
+        }
+        Class Program{main(){}}
+        """
+        expect = "Illegal Constant Expression: [[FieldAccess(Self(),Id(d))],[FieldAccess(Self(),Id(e))]]"
+        self.assertTrue(TestChecker.test(input, expect, 1054))

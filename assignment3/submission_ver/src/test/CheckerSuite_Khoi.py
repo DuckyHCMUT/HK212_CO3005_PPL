@@ -1980,3 +1980,4 @@ class CheckerSuite(unittest.TestCase):
         """
         expect = "Undeclared Class: E"
         self.assertTrue(TestChecker.test(input, expect, 807))
+        

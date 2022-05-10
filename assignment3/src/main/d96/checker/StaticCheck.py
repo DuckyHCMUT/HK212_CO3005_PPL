@@ -434,7 +434,7 @@ class StaticChecker(BaseVisitor,Utils):
     def visitIf(self, ast, c):
         evaType = self.visit(ast.expr, c)
         if type(evaType) != BoolType:
-            self.willRaiseError = True
+            self.willRaiseError = True  
             return None
         
         c.append([])

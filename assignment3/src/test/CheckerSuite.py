@@ -13,7 +13,7 @@ class CheckerSuite(unittest.TestCase):
         Class Program {
             main() {
                 Var p : P;
-                Val a : Int = 1.2;
+                Val a : Int = 3;
             }
         }
         """

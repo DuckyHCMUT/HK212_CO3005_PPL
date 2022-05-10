@@ -1217,51 +1217,49 @@ class CheckerSuite(unittest.TestCase):
         expect = "Cannot Assign To Constant: AssignStmt(FieldAccess(Id(a),Id(x)),IntLit(2))"
         self.assertTrue(TestChecker.test(input, expect, 564))
 
-    # Awaiting
-    # http://e-learning.hcmut.edu.vn/mod/forum/discuss.php?d=158550
-    # def test_new_expr_64(self):
-    #     input = """
-    #     Class ABC{
-    #         Constructor() {
-    #             Return;
-    #         }
-    #         bbb(j, i: String; k: Boolean) {
-    #             If (k) {
-    #                 Return j;
-    #             } Else {
-    #                 Return i;
-    #             }
-    #         }
-    #     }
-    #     Class CED {
-    #         Constructor(w, h: Int; a : String) {
-    #             Var b : Boolean = a ==. "Hi";
-    #             Var c : Float = w * h;
-    #             Return;
-    #         }
-    #     }
-    #     Class Program {
-    #         a(w: Float; h: Int; a : ABC) {
-    #             If ((a.bbb("Hello", "World", True) +. "Cool") ==. "Amazing") {
-    #                 Return h + 1.0;
-    #             } Else {
-    #                 Return w;
-    #             }
-    #         }
-    #         b() {
-    #             Var a : ABC = New ABC();
-    #             Val b : Float = Self.a(1.0, 1, a) + 1;
-    #             Var c : CED = New CED(1, 2, "Hi");
-    #             Self.a(1.0, 1, a);
-    #         }
-    #         main(){
-    #             Return;
-    #         }
-    #         c(){}
-    #     }
-    #     """
-    #     expect = "Type Mismatch In Statement: Call(Self(),Id(a),[FloatLit(1.0),IntLit(1),Id(a)])"
-    #     self.assertTrue(TestChecker.test(input, expect, 565))
+    def test_new_expr_65(self):
+        input = """
+        Class ABC{
+            Constructor() {
+                Return;
+            }
+            bbb(j, i: String; k: Boolean) {
+                If (k) {
+                    Return j;
+                } Else {
+                    Return i;
+                }
+            }
+        }
+        Class CED {
+            Constructor(w, h: Int; a : String) {
+                Var b : Boolean = a ==. "Hi";
+                Var c : Float = w * h;
+                Return;
+            }
+        }
+        Class Program {
+            a(w: Float; h: Int; a : ABC) {
+                If ((a.bbb("Hello", "World", True) +. "Cool") ==. "Amazing") {
+                    Return h + 1.0;
+                } Else {
+                    Return w;
+                }
+            }
+            b() {
+                Var a : ABC = New ABC();
+                Val b : Float = Self.a(1.0, 1, a) + 1;
+                Var c : CED = New CED(1, 2, "Hi");
+                Self.a(1.0, 1, a);
+            }
+            main(){
+                Return;
+            }
+            c(){}
+        }
+        """
+        expect = "Illegal Constant Expression: BinaryOp(+,CallExpr(Self(),Id(a),[FloatLit(1.0),IntLit(1),Id(a)]),IntLit(1))"
+        self.assertTrue(TestChecker.test(input, expect, 565))
     
     def test_array_cell_66(self):
         input = """
@@ -1380,3 +1378,263 @@ class CheckerSuite(unittest.TestCase):
         }"""
         expect = "Cannot Assign To Constant: AssignStmt(Id(b),IntLit(100))"
         self.assertTrue(TestChecker.test(input, expect, 572))
+
+    def test_mutability_method_1(self):
+        # The middle x in muttable --> all muttable
+        input = """
+        Class A {
+            Val x: Int = 100;
+            fun(){ Return 1; }
+            Constructor(x: Float){}
+        }
+
+        Class Program {
+            Var x: A = New A(0x1234);
+            main(){
+                Val a: Int = Self.x.fun();
+                Return;
+            }
+        }
+        """
+        expect = "Illegal Constant Expression: CallExpr(FieldAccess(Self(),Id(x)),Id(fun),[])"
+        self.assertTrue(TestChecker.test(input, expect, 573))
+
+    def test_mutability_method_2(self):
+        # x if var (testcase only have var object) and fun() return immutable
+        input = """
+        Class A {
+            fun(){ 
+                Val x: Int = 10;
+                Return x; 
+            }
+            Constructor(x: Float){}
+        }
+
+        Class Program {
+            main(){
+                Var x: A = New A(0x1234);
+                Val a: Int = x.fun();
+                Return 1 - 1;
+            }
+        }       
+        """
+        expect = "Type Mismatch In Statement: Return(BinaryOp(-,IntLit(1),IntLit(1)))"
+        self.assertTrue(TestChecker.test(input, expect, 574))
+
+    def test_mutability_method_3(self):
+        input = """
+        Class A {
+            fun(){ 
+                Var x: Int = 10;
+                Return x;
+            }
+        }
+
+        Class Program {
+            main(){
+                Var x: A = New A();
+                Val a: Int = x.fun();   
+            }
+        }       
+        """
+        expect = "Illegal Constant Expression: CallExpr(Id(x),Id(fun),[])"
+        self.assertTrue(TestChecker.test(input, expect, 575))
+
+    def test_mutability_method_4(self):
+        input = """
+        Class A {
+            fun(){ 
+                Var x: Int = 10;
+                Return x;
+            }
+        }
+
+        Class Program {
+            Var x: A = New A();
+            main(){
+                Val a: Int = Self.x.fun();   
+            }
+        }       
+        """
+        expect = "Illegal Constant Expression: CallExpr(FieldAccess(Self(),Id(x)),Id(fun),[])"
+        self.assertTrue(TestChecker.test(input, expect, 576))
+
+    def test_mutability_method_5(self):
+        input = """
+        Class A {
+            fun(){ 
+                Val x: Int = 10;
+                Return x;
+            }
+        }
+
+        Class Program {
+            Var x: A = New A();
+            Val a: Int = Self.x.fun();
+            main(){}
+        }       
+        """
+        # This test still raise error because Self.x.fun() and x is instance
+        expect = "Illegal Constant Expression: CallExpr(FieldAccess(Self(),Id(x)),Id(fun),[])"
+        self.assertTrue(TestChecker.test(input, expect, 577))
+
+    def test_mutability_method_6(self):
+        input = """
+        Class A {
+            Val x: Int = 10;
+            fun(){ 
+                Return Self.x;
+            }
+            $notFun(){
+                Var x: A = New A();
+                Val a: Int = x.fun();
+                Return a;
+            }
+        }
+
+        Class Program {
+            main(){
+                A::$notFun();
+            }
+        }       
+        """
+        expect = "Type Mismatch In Statement: Call(Id(A),Id($notFun),[])"
+        self.assertTrue(TestChecker.test(input, expect, 578))
+
+    def test_mutability_method_7(self):
+        input = """
+        Class A {
+            Var $x: Int = 0123_456_7 + 0x1234ABCD;
+            $x(){ 
+                Return A::$x; 
+            }
+        }
+
+        Class Program : A {
+            main(){
+                Val x: Int = A::$x();
+            }
+        }       
+        """
+        expect = "Illegal Constant Expression: CallExpr(Id(A),Id($x),[])"
+        self.assertTrue(TestChecker.test(input, expect, 579))
+
+
+    def test_self_inheritance(self):
+        input = """
+        Class A : A{}
+        Class Program{main(){}}
+        """
+        expect = "Undeclared Class: A"
+        self.assertTrue(TestChecker.test(input, expect, 580))
+
+    def test_constructor_1(self):
+        input = """
+        Class C {
+            Constructor(w : Int){}
+            Constructor(){}
+        }
+        Class A{
+            Var c: C = New C(); 
+            Var d: C = New C(1); 
+        }
+        """
+        expect = "Redeclared Method: Constructor"
+        self.assertTrue(TestChecker.test(input, expect, 581))
+
+    def test_destructor_1(self):
+        input = """
+        Class C {
+            Destructor(){}
+            Destructor(){
+                Val a : Int = 1;
+            }
+        }
+        Class A{
+            Var c: C = New C(); 
+            Var d: C = New C(1); 
+        }
+        """
+        expect = "Redeclared Method: Destructor"
+        self.assertTrue(TestChecker.test(input, expect, 582))
+
+    def test_illegal_const_arr_1(self):
+        input = """
+        Class Program{
+            Var a: Int = 10; 
+            foo() { 
+                Val a : Array[Int, 3] = Array(Self.a, 1, 2);
+                Val b : Int = a[0];
+            }
+            main(){}
+        }
+        """
+        expect = "Illegal Constant Expression: [FieldAccess(Self(),Id(a)),IntLit(1),IntLit(2)]"
+        self.assertTrue(TestChecker.test(input, expect, 583))
+
+    def test_confused_array(self):
+        input = """
+        Class A {
+            Var d, e: Int;
+            Val f: Array[Array[Int,1], 2] = Array( Array(Self.d), Array(Self.e) );
+        }
+        Class Program{main(){}}
+        """
+        expect = "Illegal Constant Expression: [[FieldAccess(Self(),Id(d))],[FieldAccess(Self(),Id(e))]]"
+        self.assertTrue(TestChecker.test(input, expect, 584))
+
+    def test_nested_block(self):
+        input = """
+        Class Program{
+            Var a: Int = 10; 
+            foo() { 
+                Var a: Int = Self.a + 1;
+                Return 0.5;
+                {
+                    Var b: Int = a;
+                    Return True;
+                    {
+                        Var b: Int = Self.a + a + b;
+                        Return 0.5;
+                    }
+                }
+            }
+            main(){}
+        }
+        """
+        expect = "Type Mismatch In Statement: Return(BooleanLit(True))"
+        self.assertTrue(TestChecker.test(input, expect, 585))
+
+    def test_different_return_in_for_1(self):
+        input = """
+        Class Program{
+            Var a: Int = 10; 
+            foo() { 
+                Return 1;
+                Foreach (Self.a In 1 .. 100 By 0x2){
+                    Return False;
+                }
+                Return 0.5;
+            }
+            main(){}
+        }
+        """
+        expect = "Type Mismatch In Statement: For(FieldAccess(Self(),Id(a)),IntLit(1),IntLit(100),IntLit(2),Block([Return(BooleanLit(False))])])"
+        self.assertTrue(TestChecker.test(input, expect, 586))
+
+    def test_array_mutability_1(self):
+        input = """
+        Class Program {
+            main(){
+                Var a: Int;
+                Val b: Int = 0;
+                Var c: Int;
+                Var arr: Array[Int,2] = Array(1, a);
+                Val test1: Int = arr[0];
+                Val test2: Int = arr[1];
+                Val test3: Int = arr[b];
+                Val test4: Int = arr[c];
+            }
+        }"""
+        expect = "Illegal Constant Expression: ArrayCell(Id(arr),[IntLit(0)])"
+        self.assertTrue(TestChecker.test(input, expect, 587))

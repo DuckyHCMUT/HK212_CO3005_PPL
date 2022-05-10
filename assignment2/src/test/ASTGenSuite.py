@@ -1167,7 +1167,7 @@ class ASTGenSuite(unittest.TestCase):
                 Return nothingToReturnHehehehe;
             }
         }
-        Class B : C{
+        Class B : C {
             Val a : C;
             Val $b : B;
             Constructor() {
