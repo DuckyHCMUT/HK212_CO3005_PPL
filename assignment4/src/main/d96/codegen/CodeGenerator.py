@@ -113,51 +113,55 @@ class CodeGenVisitor(BaseVisitor, Utils):
         for x in ast.decl:
             e = self.visit(x, e)
         # generate default constructor
-        self.genMETHOD(FuncDecl(Id("<init>"), list(), None, Block(list(), list())), c, Frame("<init>", VoidType))
+        self.genMETHOD(MethodDecl(Id("<init>"), list(), None, Block(list())), c, Frame("<init>", VoidType))
         self.emit.emitEPILOG()
         return c
 
     def genMETHOD(self, consdecl, o, frame):
-        #consdecl: FuncDecl
+        #consdecl: MethodDecl
         #o: Any
         #frame: Frame
 
-        isInit = consdecl.returnType is None
-        isMain = consdecl.name.name == "main" and len(consdecl.param) == 0 and type(consdecl.returnType) is VoidType
-        returnType = VoidType() if isInit else consdecl.returnType
-        methodName = "<init>" if isInit else consdecl.name.name
-        intype = [ArrayPointerType(StringType())] if isMain else list()
-        mtype = MType(intype, returnType)
+        # isInit = consdecl.returnType is None
+        # isMain = consdecl.name.name == "main" and len(consdecl.param) == 0 and type(consdecl.returnType) is VoidType
+        # returnType = VoidType() if isInit else consdecl.returnType
+        # methodName = "<init>" if isInit else consdecl.name.name
+        # intype = [ArrayPointerType(StringType())] if isMain else list()
+        # mtype = MType(intype, returnType)
 
-        self.emit.printout(self.emit.emitMETHOD(methodName, mtype, not isInit, frame))
+        # self.emit.printout(self.emit.emitMETHOD(methodName, mtype, not isInit, frame))
 
-        frame.enterScope(True)
+        # frame.enterScope(True)
 
-        glenv = o
+        # glenv = o
 
-        # Generate code for parameter declarations
-        if isInit:
-            self.emit.printout(self.emit.emitVAR(frame.getNewIndex(), "this", ClassType(self.className), frame.getStartLabel(), frame.getEndLabel(), frame))
-        if isMain:
-            self.emit.printout(self.emit.emitVAR(frame.getNewIndex(), "args", ArrayPointerType(StringType()), frame.getStartLabel(), frame.getEndLabel(), frame))
+        # # Generate code for parameter declarations
+        # if isInit:
+        #     self.emit.printout(self.emit.emitVAR(frame.getNewIndex(), "this", ClassType(self.className), frame.getStartLabel(), frame.getEndLabel(), frame))
+        # if isMain:
+        #     self.emit.printout(self.emit.emitVAR(frame.getNewIndex(), "args", ArrayPointerType(StringType()), frame.getStartLabel(), frame.getEndLabel(), frame))
 
-        body = consdecl.body
-        self.emit.printout(self.emit.emitLABEL(frame.getStartLabel(), frame))
+        # body = consdecl.body
+        # self.emit.printout(self.emit.emitLABEL(frame.getStartLabel(), frame))
 
-        # Generate code for statements
-        if isInit:
-            self.emit.printout(self.emit.emitREADVAR("this", ClassType(self.className), 0, frame))
-            self.emit.printout(self.emit.emitINVOKESPECIAL(frame))
-        list(map(lambda x: self.visit(x, SubBody(frame, glenv)), body.stmt))
+        # # Generate code for statements
+        # if isInit:
+        #     self.emit.printout(self.emit.emitREADVAR("this", ClassType(self.className), 0, frame))
+        #     self.emit.printout(self.emit.emitINVOKESPECIAL(frame))
+        # list(map(lambda x: self.visit(x, SubBody(frame, glenv)), body.stmt))
 
-        self.emit.printout(self.emit.emitLABEL(frame.getEndLabel(), frame))
-        if type(returnType) is VoidType:
-            self.emit.printout(self.emit.emitRETURN(VoidType(), frame))
-        self.emit.printout(self.emit.emitENDMETHOD(frame))
-        frame.exitScope();
+        # self.emit.printout(self.emit.emitLABEL(frame.getEndLabel(), frame))
+        # if type(returnType) is VoidType:
+        #     self.emit.printout(self.emit.emitRETURN(VoidType(), frame))
+        # self.emit.printout(self.emit.emitENDMETHOD(frame))
+        # frame.exitScope()
+        pass
 
-    def visitFuncDecl(self, ast, o):
-        #ast: FuncDecl
+    def visitClassDecl(self, ast, o):
+        pass
+
+    def visitMethodDecl(self, ast, o):
+        #ast: MethodDecl
         #o: Any
 
         subctxt = o
@@ -184,6 +188,29 @@ class CodeGenVisitor(BaseVisitor, Utils):
         self.emit.printout(in_[0])
         self.emit.printout(self.emit.emitINVOKESTATIC(cname + "/" + ast.method.name, ctype, frame))
 
+
+    def visitBinExpr(self,ctx,o):
+        op=ctx.op
+        e1c,e1t=self.visit(ctx.e1, o)
+        e2c,e2t=self.visit(ctx.e2, o)        
+        if isinstance(e1t,FloatType) or isinstance(e2t,FloatType):
+            mType=FloatType()
+        else:
+            mType=IntType()
+        if op == '/': mType = FloatType()
+        if type(e1t) is IntType and type(mType) != type(e1t): e1c = e1c + self.emit.emitI2F(o.frame)
+        if type(e2t) is IntType and type(mType) != type(e2t): e2c = e2c + self.emit.emitI2F(o.frame)
+        
+    
+        if op in ['>','<','>=','<=','!=','==']:
+            return e1c + e2c + self.emit.emitREOP(op, mType, o.frame), BoolType()
+        if op in ['+', '-']:
+            return e1c + e2c + self.emit.emitADDOP(op, mType, o.frame), mType
+        if op in ['*']:
+            return e1c + e2c + self.emit.emitMULOP(op, mType, o.frame), mType
+        if op in ['/']:
+            return e1c + e2c + self.emit.emitMULOP(op, mType, o.frame), mType
+
     def visitIntLiteral(self, ast, o):
         #ast: IntLiteral
         #o: Any
@@ -192,4 +219,10 @@ class CodeGenVisitor(BaseVisitor, Utils):
         frame = ctxt.frame
         return self.emit.emitPUSHICONST(ast.value, frame), IntType()
 
-    
+    def visitFloatLiteral(self, ast, o):
+        #ast: FloatLiteral
+        #o: Any
+
+        ctxt = o
+        frame = ctxt.frame
+        return self.emit.emitPUSHFCONST(str(ast.value), frame), FloatType()

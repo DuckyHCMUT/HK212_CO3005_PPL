@@ -1,0 +1,126 @@
+class StaticCheck(Visitor):
+    # decl:List[VarDecl],exp:Exp
+    def visitProgram(self,ctx:Program,o):
+        o = {}
+        for i in ctx.decl:
+            sym = self.visit(i, o)
+        [self.visit(i, o) for i in ctx.stmts]
+    
+    #name:str,typ:Type
+    def visitVarDecl(self,ctx:VarDecl,o):
+        o[ctx.name] = 'NoneType'
+    
+    #lhs:Id,rhs:Exp
+    def visitAssign(self,ctx:Assign,o):
+        left = self.visit(ctx.lhs, o)
+        right = self.visit(ctx.rhs, o)
+        
+        if left != 'NoneType' and right == 'NoneType':
+            o[ctx.rhs.name] = left
+        if left == 'NoneType' and right != 'NoneType':
+            o[ctx.lhs.name] = right
+        if left == 'NoneType' and right == 'NoneType':
+            raise TypeCannotBeInferred(ctx)
+        if self.visit(ctx.lhs, o) != self.visit(ctx.rhs, o):
+            raise TypeMismatchInStatement(ctx)
+
+    #op:str,e1:Exp,e2:Exp #op is +,-,*,/,+.,-.,*.,/., &&,||, >, >., >b, =, =., =b
+    def visitBinOp(self,ctx:BinOp,o):
+        left = self.visit(ctx.e1, o)
+        right = self.visit(ctx.e2, o)
+        op = ctx.op
+        
+        # print(f"left = {left}, right = {right}")
+        
+        if op in ['+', '-', '*', '/']:
+            if left == 'NoneType':
+                left = o[ctx.e1.name] = 'IntType'
+            if right == 'NoneType':
+                right = o[ctx.e2.name] = 'IntType'
+            if left == 'IntType' and right == 'IntType':
+                return 'IntType'
+                
+        elif op in ['+.', '-.', '*.', '/.']:
+            if left == 'NoneType':
+                left = o[ctx.e1.name] = 'FloatType'
+            if right == 'NoneType':
+                right = o[ctx.e2.name] = 'FloatType'
+            if left == 'FloatType' and right == 'FloatType':
+                return 'FloatType'
+                
+        elif op in ['>', '=']:
+            if left == 'NoneType':
+                left = o[ctx.e1.name] = 'IntType'
+            if right == 'NoneType':
+                right = o[ctx.e2.name] = 'IntType'
+            if left == 'IntType' and right == 'IntType':
+                return 'BoolType'
+                
+        elif op in ['>.', '=.']:
+            if left == 'NoneType':
+                left = o[ctx.e1.name] = 'FloatType'
+            if right == 'NoneType':
+                right = o[ctx.e2.name] = 'FloatType'
+            if left == 'FloatType' and right == 'FloatType':
+                return 'BoolType'
+                
+        elif op in ['&&', '||', '>b', '=b']:
+            if left == 'NoneType':
+                left = o[ctx.e1.name] = 'BoolType'
+            if right == 'NoneType':
+                right = o[ctx.e2.name] = 'BoolType'
+            if left == 'BoolType' and right == 'BoolType':
+                return 'BoolType'
+        
+        raise TypeMismatchInExpression(ctx)
+        
+        
+    #op:str,e:Exp #op is -,-., !,i2f, floor
+    def visitUnOp(self,ctx:UnOp,o):
+        e = self.visit(ctx.e, o)
+        op = ctx.op
+        
+        if op == '-':
+            if e == 'NoneType': 
+                e = o[ctx.e.name] = 'IntType'
+            if e == 'IntType':
+                return 'IntType'
+        elif op == '-.':
+            if e == 'NoneType':
+                e = o[ctx.e.name] = 'FloatType'
+            if e == 'FloatType':
+                return 'FloatType'
+        elif op == '!':
+            if e == 'NoneType':
+                e = o[ctx.e.name] = 'BoolType'
+            if e == 'BoolType':
+                return 'BoolType'
+        elif op == 'i2f':
+            if e == 'NoneType':
+                o[ctx.e.name] = 'FloatType'
+                e = 'IntType'
+            if e == 'IntType': 
+                return 'FloatType'
+        elif op == 'floor':
+            if e == 'NoneType': 
+                o[ctx.e.name] = 'IntType'
+                e = 'FloatType'
+            if e == 'FloatType':
+                return 'IntType'
+        
+        raise TypeMismatchInExpression(ctx)
+        
+    def visitIntLit(self,ctx:IntLit,o):
+        return 'IntType'
+
+    def visitFloatLit(self,ctx,o):
+        return 'FloatType'
+
+    def visitBoolLit(self,ctx,o):
+        return 'BoolType'
+
+    def visitId(self,ctx,o):
+        if ctx.name not in o:
+            raise UndeclaredIdentifier(ctx.name)
+        else:
+            return o[ctx.name]
