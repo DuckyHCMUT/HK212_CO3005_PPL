@@ -23,3 +23,15 @@ All quizzes and assignments for Principles of Programming Languages (CO3005) cou
 - Assignment 2: 100/100
 - Assignment 3: 89/100
 - Assignment 4: 82/100 (Did not even do it wtf?)
+
+## Result of the course:
+### Unit results:
+- (10%) Exercises : 9
+- (20%) Mid-term: 10
+- (30%) Assignments: 8
+- (40%) Final-exam: 6
+- **Overall: 7.7 / 10** 🍹
+
+### Notes:
+- Exercise: Combination of the quizzes and programming codes.
+- Assignments: Combination of score A (passed test-cases) and score B (mid-term and final exam).
