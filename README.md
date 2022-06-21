@@ -22,7 +22,7 @@ All quizzes and assignments for Principles of Programming Languages (CO3005) cou
   - Parser: 84/100
 - Assignment 2: 100/100
 - Assignment 3: 89/100
-- Assignment 4: 82/100 (Did not even do it wtf?)
+- Assignment 4: 3/100 (Did not even do it hahaha)
 
 ## Result of the course:
 ### Unit results:
